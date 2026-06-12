@@ -8,13 +8,6 @@ public class ServicioExternoClientFallbackFactory implements FallbackFactory<Ser
 
     @Override
     public ServicioExternoClient create(Throwable cause) {
-        return rut -> {
-            // Simulaci�n: si el servicio externo no est� disponible,
-            // se retorna una respuesta predeterminada para cualquier RUT v�lido.
-            if (rut == null || rut.isBlank()) {
-                return new ClaveUnicaResponse(false, null, null, null);
-            }
-            return new ClaveUnicaResponse(true, rut, "Ciudadano " + rut, rut + "@claveunica.cl");
-        };
+        return rut -> new ClaveUnicaResponse(false, null, null, null);
     }
 }
