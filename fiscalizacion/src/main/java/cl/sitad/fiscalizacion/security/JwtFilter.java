@@ -1,8 +1,7 @@
 package cl.sitad.fiscalizacion.security;
 
+import cl.sitad.common.security.JwtUtil;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,7 +15,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.crypto.SecretKey;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Component
@@ -25,7 +23,7 @@ public class JwtFilter extends OncePerRequestFilter {
     private final SecretKey secretKey;
 
     public JwtFilter(@Value("${jwt.secret}") String secret) {
-        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        this.secretKey = JwtUtil.createKey(secret);
     }
 
     @Override
@@ -38,14 +36,10 @@ public class JwtFilter extends OncePerRequestFilter {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
             try {
-                Claims claims = Jwts.parser()
-                        .verifyWith(secretKey)
-                        .build()
-                        .parseSignedClaims(token)
-                        .getPayload();
+                Claims claims = JwtUtil.validateToken(token, secretKey);
 
-                String rut = claims.get("rut", String.class);
-                String rol = claims.get("rol", String.class);
+                String rut = JwtUtil.extractRut(claims);
+                String rol = JwtUtil.extractRol(claims);
 
                 if (rut != null) {
                     var auth = new UsernamePasswordAuthenticationToken(
