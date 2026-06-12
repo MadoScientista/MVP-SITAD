@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"cl.sitad.fiscalizacion", "cl.sitad.common"})
 @EnableDiscoveryClient
 @EnableFeignClients
 public class FiscalizacionApplication {
