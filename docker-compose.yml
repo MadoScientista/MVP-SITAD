@@ -86,6 +86,8 @@ services:
   # --- Microservicios ---
   auth:
     build: ./auth
+    environment:
+      JWT_SECRET: ${JWT_SECRET}
     ports:
       - "8081:8081"
     networks:
@@ -98,6 +100,8 @@ services:
 
   vehicular:
     build: ./vehicular
+    environment:
+      JWT_SECRET: ${JWT_SECRET}
     ports:
       - "8082:8082"
     networks:
@@ -110,6 +114,8 @@ services:
 
   fiscalizacion:
     build: ./fiscalizacion
+    environment:
+      JWT_SECRET: ${JWT_SECRET}
     ports:
       - "8083:8083"
     networks:
