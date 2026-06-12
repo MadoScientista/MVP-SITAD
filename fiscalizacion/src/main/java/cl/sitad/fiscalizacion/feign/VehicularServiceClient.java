@@ -1,6 +1,6 @@
 package cl.sitad.fiscalizacion.feign;
 
-import cl.sitad.fiscalizacion.dto.EstadoUpdateRequest;
+import cl.sitad.common.dto.EstadoUpdateRequest;
 import cl.sitad.fiscalizacion.dto.TramiteResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;

@@ -1,6 +1,6 @@
 package cl.sitad.vehicular.controller;
 
-import cl.sitad.vehicular.dto.EstadoUpdateRequest;
+import cl.sitad.common.dto.EstadoUpdateRequest;
 import cl.sitad.vehicular.dto.SolicitudResponse;
 import cl.sitad.vehicular.enums.EstadoTramite;
 import cl.sitad.vehicular.service.VehicularService;

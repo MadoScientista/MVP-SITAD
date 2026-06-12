@@ -1,6 +1,6 @@
 package cl.sitad.fiscalizacion.exception;
 
-import cl.sitad.fiscalizacion.dto.ErrorResponse;
+import cl.sitad.common.dto.ErrorResponse;
 import feign.FeignException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

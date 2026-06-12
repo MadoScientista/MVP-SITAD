@@ -1,6 +1,8 @@
 package cl.sitad.fiscalizacion.service;
 
-import cl.sitad.fiscalizacion.dto.*;
+import cl.sitad.common.dto.EstadoUpdateRequest;
+import cl.sitad.fiscalizacion.dto.ControlResponse;
+import cl.sitad.fiscalizacion.dto.TramiteResponse;
 import cl.sitad.fiscalizacion.entity.ControlVentanilla;
 import cl.sitad.fiscalizacion.feign.VehicularServiceClient;
 import cl.sitad.fiscalizacion.repository.ControlVentanillaRepository;
