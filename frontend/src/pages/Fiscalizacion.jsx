@@ -1,0 +1,113 @@
+import { useState, useEffect } from 'react'
+import { api } from '../services/api'
+import PageTitle from '../components/PageTitle'
+import Breadcrumb from '../components/Breadcrumb'
+import SectionCard from '../components/SectionCard'
+import StatusBadge from '../components/StatusBadge'
+import DataTable from '../components/DataTable'
+import ConfirmDialog from '../components/ConfirmDialog'
+import LoadingSpinner from '../components/LoadingSpinner'
+import ErrorMessage from '../components/ErrorMessage'
+
+export default function Fiscalizacion() {
+  const [solicitudes, setSolicitudes] = useState([])
+  const [filtroEstado, setFiltroEstado] = useState('PRE_VALIDADO_DIGITAL')
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [selected, setSelected] = useState(null)
+  const [action, setAction] = useState(null)
+  const [observacion, setObservacion] = useState('')
+
+  const cargar = (estado) => {
+    setLoading(true)
+    setError('')
+    const url = estado ? `/api/v1/fiscalizacion/tramites?estado=${estado}` : '/api/v1/fiscalizacion/tramites'
+    api.get(url)
+      .then(setSolicitudes)
+      .catch((e) => setError(e.message))
+      .finally(() => setLoading(false))
+  }
+
+  useEffect(() => { cargar(filtroEstado) }, [filtroEstado])
+
+  const handleConfirm = async () => {
+    if (!selected || !action) return
+    try {
+      if (action === 'aprobar') {
+        await api.post(`/api/v1/fiscalizacion/tramites/${selected.id}/aprobar`, { observacion })
+      } else {
+        await api.post(`/api/v1/fiscalizacion/tramites/${selected.id}/rechazar`, { observacion: observacion || 'Sin observaci\u00f3n' })
+      }
+      setSelected(null)
+      setAction(null)
+      setObservacion('')
+      cargar(filtroEstado)
+    } catch (e) {
+      setError(e.message)
+    }
+  }
+
+  const columns = [
+    { label: 'ID', key: 'id' },
+    { label: 'Patente', key: 'patente' },
+    { label: 'Marca/Modelo', render: (r) => `${r.marca} ${r.modelo}` },
+    { label: 'Destino', key: 'paisDestino' },
+    { label: 'Salida', key: 'fechaSalida' },
+    { label: 'Retorno', key: 'fechaRetorno' },
+    { label: 'Paso', key: 'pasoFronterizo' },
+    { label: 'Estado', render: (r) => <StatusBadge estado={r.estado} /> },
+    {
+      label: 'Acciones',
+      render: (r) => (
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button className="btn btn--sm btn--primary" onClick={() => { setSelected(r); setAction('aprobar') }}>
+            Aprobar
+          </button>
+          <button className="btn btn--sm btn--danger" onClick={() => { setSelected(r); setAction('rechazar') }}>
+            Rechazar
+          </button>
+        </div>
+      ),
+    },
+  ]
+
+  return (
+    <div className="page-container">
+      <Breadcrumb items={[
+        { label: 'Inicio', to: '/funcionario/dashboard' },
+        { label: 'Fiscalizaci\u00f3n' },
+      ]} />
+      <PageTitle title="Fiscalizaci\u00f3n" subtitle="Busque y revise tr\u00e1mites de salida temporal" />
+
+      <ErrorMessage message={error} />
+
+      <SectionCard>
+        <div className="search-bar">
+          <select className="form-select" value={filtroEstado} onChange={(e) => setFiltroEstado(e.target.value)}>
+            <option value="">Todos los estados</option>
+            <option value="PRE_VALIDADO_DIGITAL">Pre Validado</option>
+            <option value="APROBADO_EN_VENTANILLA">Aprobado</option>
+            <option value="RECHAZADO">Rechazado</option>
+          </select>
+          <button className="btn btn--primary" onClick={() => cargar(filtroEstado)}>Buscar</button>
+        </div>
+
+        {loading ? <LoadingSpinner /> : (
+          <DataTable columns={columns} data={solicitudes} emptyMessage="No se encontraron tr\u00e1mites" />
+        )}
+      </SectionCard>
+
+      <ConfirmDialog
+        open={!!selected && !!action}
+        title={action === 'aprobar' ? 'Aprobar tr\u00e1mite' : 'Rechazar tr\u00e1mite'}
+        message={action === 'aprobar'
+          ? `\u00bfEst\u00e1 seguro de aprobar el tr\u00e1mite ID ${selected?.id}?`
+          : `\u00bfEst\u00e1 seguro de rechazar el tr\u00e1mite ID ${selected?.id}?`}
+        confirmText={action === 'aprobar' ? 'Aprobar' : 'Rechazar'}
+        danger={action === 'rechazar'}
+        onConfirm={handleConfirm}
+        onCancel={() => { setSelected(null); setAction(null); setObservacion('') }}
+      />
+    </div>
+  )
+}
