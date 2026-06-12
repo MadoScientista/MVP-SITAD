@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Service
 public class VehicularService {
@@ -97,6 +98,29 @@ public class VehicularService {
                 .stream()
                 .map(this::toSolicitudResponse)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<SolicitudResponse> buscarTramites(Optional<String> estado) {
+        List<SalidaTemporalVehiculo> solicitudes;
+
+        if (estado.isPresent() && !estado.get().isBlank()) {
+            EstadoTramite estadoEnum = EstadoTramite.valueOf(estado.get().toUpperCase());
+            solicitudes = salidaRepository.findByEstado(estadoEnum);
+        } else {
+            solicitudes = salidaRepository.findAll();
+        }
+
+        return solicitudes.stream().map(this::toSolicitudResponse).toList();
+    }
+
+    @Transactional
+    public SolicitudResponse actualizarEstadoTramite(Long id, EstadoTramite nuevoEstado) {
+        SalidaTemporalVehiculo solicitud = salidaRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Tr�mite no encontrado"));
+        solicitud.setEstado(nuevoEstado);
+        solicitud = salidaRepository.save(solicitud);
+        return toSolicitudResponse(solicitud);
     }
 
     private VehiculoResponse toVehiculoResponse(Vehiculo v) {

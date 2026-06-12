@@ -21,3 +21,6 @@ eureka:
   client:
     serviceUrl:
       defaultZone: http://eureka-server:8761/eureka
+
+jwt:
+  secret: "JWT_SECRET_REEMPLAZADO"

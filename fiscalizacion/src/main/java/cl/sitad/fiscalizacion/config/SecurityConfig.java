@@ -1,6 +1,6 @@
-package cl.sitad.vehicular.config;
+package cl.sitad.fiscalizacion.config;
 
-import cl.sitad.vehicular.security.JwtFilter;
+import cl.sitad.fiscalizacion.security.JwtFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -26,8 +26,7 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                .requestMatchers("/api/v1/vehicular/internal/**").hasRole("FUNCIONARIO")
-                .anyRequest().authenticated()
+                .anyRequest().hasRole("FUNCIONARIO")
             )
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
