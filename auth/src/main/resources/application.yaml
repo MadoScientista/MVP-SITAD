@@ -21,3 +21,7 @@ eureka:
   client:
     serviceUrl:
       defaultZone: http://eureka-server:8761/eureka
+
+jwt:
+  secret: "JWT_SECRET_REEMPLAZADO"
+  access-token-expiration: 1800000
