@@ -1,0 +1,137 @@
+services:
+
+  # --- Bases de datos ---
+  auth-db:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: auth_db
+      MYSQL_USER: sitad
+      MYSQL_PASSWORD: sitad
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3307:3306"
+    networks:
+      - sitad-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  vehicular-db:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: vehicular_db
+      MYSQL_USER: sitad
+      MYSQL_PASSWORD: sitad
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3308:3306"
+    networks:
+      - sitad-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  fiscalizacion-db:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: fiscalizacion_db
+      MYSQL_USER: sitad
+      MYSQL_PASSWORD: sitad
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3309:3306"
+    networks:
+      - sitad-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  externo-db:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: externo_db
+      MYSQL_USER: sitad
+      MYSQL_PASSWORD: sitad
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3310:3306"
+    networks:
+      - sitad-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  # --- Service Discovery ---
+  eureka-server:
+    build: ./eureka-server
+    ports:
+      - "8761:8761"
+    networks:
+      - sitad-network
+
+  # --- API Gateway ---
+  gateway:
+    build: ./gateway
+    ports:
+      - "8080:8080"
+    networks:
+      - sitad-network
+    depends_on:
+      - eureka-server
+
+  # --- Microservicios ---
+  auth:
+    build: ./auth
+    ports:
+      - "8081:8081"
+    networks:
+      - sitad-network
+    depends_on:
+      auth-db:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+
+  vehicular:
+    build: ./vehicular
+    ports:
+      - "8082:8082"
+    networks:
+      - sitad-network
+    depends_on:
+      vehicular-db:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+
+  fiscalizacion:
+    build: ./fiscalizacion
+    ports:
+      - "8083:8083"
+    networks:
+      - sitad-network
+    depends_on:
+      fiscalizacion-db:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+
+  servicio-externo:
+    build: ./servicio-externo
+    ports:
+      - "8084:8084"
+    networks:
+      - sitad-network
+    depends_on:
+      externo-db:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+
+networks:
+  sitad-network:
+    driver: bridge

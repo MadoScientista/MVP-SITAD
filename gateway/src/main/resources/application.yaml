@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      routes:
+        - id: auth-service
+          uri: lb://auth
+          predicates:
+            - Path=/api/auth/**
+        - id: vehicular-service
+          uri: lb://vehicular
+          predicates:
+            - Path=/api/vehicular/**
+        - id: fiscalizacion-service
+          uri: lb://fiscalizacion
+          predicates:
+            - Path=/api/fiscalizacion/**
+        - id: externo-service
+          uri: lb://servicio-externo
+          predicates:
+            - Path=/api/externo/**
+
+server:
+  port: 8080
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://eureka-server:8761/eureka
