@@ -3,23 +3,25 @@ spring:
     name: gateway
   cloud:
     gateway:
-      routes:
-        - id: auth-service
-          uri: lb://auth
-          predicates:
-            - Path=/api/v1/auth/**
-        - id: vehicular-service
-          uri: lb://vehicular
-          predicates:
-            - Path=/api/v1/vehicular/**
-        - id: fiscalizacion-service
-          uri: lb://fiscalizacion
-          predicates:
-            - Path=/api/v1/fiscalizacion/**
-        - id: externo-service
-          uri: lb://servicio-externo
-          predicates:
-            - Path=/api/v1/externo/**
+      server:
+        webflux:
+          routes:
+            - id: auth-service
+              uri: lb://auth
+              predicates:
+                - Path=/api/v1/auth/**
+            - id: vehicular-service
+              uri: lb://vehicular
+              predicates:
+                - Path=/api/v1/vehicular/**
+            - id: fiscalizacion-service
+              uri: lb://fiscalizacion
+              predicates:
+                - Path=/api/v1/fiscalizacion/**
+            - id: externo-service
+              uri: lb://servicio-externo
+              predicates:
+                - Path=/api/v1/externo/**
 
 server:
   port: 8080
