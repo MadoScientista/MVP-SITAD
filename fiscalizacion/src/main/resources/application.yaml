@@ -4,7 +4,7 @@ spring:
   datasource:
     url: jdbc:mysql://fiscalizacion-db:3306/fiscalizacion_db
     username: sitad
-    password: DB_PASSWORD_REEMPLAZADO
+    password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
