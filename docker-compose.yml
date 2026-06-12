@@ -72,6 +72,12 @@ services:
       - "8761:8761"
     networks:
       - sitad-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
 
   # --- API Gateway ---
   gateway:
@@ -81,7 +87,14 @@ services:
     networks:
       - sitad-network
     depends_on:
-      - eureka-server
+      eureka-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
 
   # --- Microservicios ---
   auth:
@@ -97,7 +110,13 @@ services:
       auth-db:
         condition: service_healthy
       eureka-server:
-        condition: service_started
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
 
   vehicular:
     build: ./vehicular
@@ -112,7 +131,13 @@ services:
       vehicular-db:
         condition: service_healthy
       eureka-server:
-        condition: service_started
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
 
   fiscalizacion:
     build: ./fiscalizacion
@@ -127,7 +152,13 @@ services:
       fiscalizacion-db:
         condition: service_healthy
       eureka-server:
-        condition: service_started
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8083/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
 
   servicio-externo:
     build: ./servicio-externo
@@ -139,7 +170,13 @@ services:
       externo-db:
         condition: service_healthy
       eureka-server:
-        condition: service_started
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8084/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
 
 networks:
   sitad-network:
