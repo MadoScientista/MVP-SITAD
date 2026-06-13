@@ -64,9 +64,9 @@ export default function SolicitarSalida() {
 
           <FormSection>
             <div className="form-group">
-              <label htmlFor="vehiculoId">Veh&iacute;culo <span className="required">*</span></label>
+              <label htmlFor="vehiculoId">Vehículo <span className="required">*</span></label>
               <select id="vehiculoId" name="vehiculoId" className="form-select" value={form.vehiculoId} onChange={handleChange} required>
-                {vehiculos.length === 0 && <option value="">No hay veh&iacute;culos registrados</option>}
+                {vehiculos.length === 0 && <option value="">No hay vehículos registrados</option>}
                 {vehiculos.map((v) => (
                   <option key={v.id} value={v.id}>{v.patente} - {v.marca} {v.modelo}</option>
                 ))}
@@ -81,10 +81,10 @@ export default function SolicitarSalida() {
               <input id="fechaRetorno" name="fechaRetorno" className="form-input" type="date" value={form.fechaRetorno} onChange={handleChange} required />
             </div>
             <div className="form-group">
-              <label htmlFor="paisDestino">Pa&iacute;s de destino <span className="required">*</span></label>
+              <label htmlFor="paisDestino">País de destino <span className="required">*</span></label>
               <select id="paisDestino" name="paisDestino" className="form-select" value={form.paisDestino} onChange={handleChange} required>
                 <option value="Argentina">Argentina</option>
-                <option value="Per&uacute;">Per&uacute;</option>
+                <option value="Perú">Perú</option>
                 <option value="Bolivia">Bolivia</option>
                 <option value="Brasil">Brasil</option>
               </select>

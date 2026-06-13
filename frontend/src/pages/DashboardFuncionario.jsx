@@ -30,7 +30,7 @@ export default function DashboardFuncionario() {
     { label: 'Salida', key: 'fechaSalida' },
     { label: 'Estado', render: (r) => <StatusBadge estado={r.estado} /> },
     {
-      label: 'Acci&oacute;n',
+      label: 'Acción',
       render: (r) => (
         <button className="btn btn--sm btn--primary" onClick={() => navigate('/funcionario/fiscalizacion')}>
           Revisar
@@ -46,18 +46,18 @@ export default function DashboardFuncionario() {
       <Breadcrumb items={[{ label: 'Inicio' }]} />
       <PageTitle title={`Bienvenido, ${user?.nombre}`} subtitle="Panel funcionario" />
 
-      <SectionCard title="Tr&aacute;mites pendientes de revisi&oacute;n">
+      <SectionCard title="Trámites pendientes de revisión">
         <div className="dashboard-stat" style={{ textAlign: 'left', padding: 0, marginBottom: 16 }}>
           <div className="dashboard-stat__number">{pendientes.length}</div>
           <div className="dashboard-stat__label">Solicitudes en espera</div>
         </div>
 
-        <DataTable columns={columns} data={pendientes} emptyMessage="No hay tr&aacute;mites pendientes" />
+        <DataTable columns={columns} data={pendientes} emptyMessage="No hay trámites pendientes" />
       </SectionCard>
 
       <div className="mt-24">
         <button className="btn btn--primary" onClick={() => navigate('/funcionario/fiscalizacion')}>
-          Ir a Fiscalizaci&oacute;n
+          Ir a Fiscalización
         </button>
       </div>
     </div>

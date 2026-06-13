@@ -48,12 +48,12 @@ export default function LoginFuncionario() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">Contrase&ntilde;a <span className="required">*</span></label>
+            <label htmlFor="password">Contraseña <span className="required">*</span></label>
             <input
               id="password"
               className="form-input"
               type="password"
-              placeholder="Ingrese su contrase&ntilde;a"
+              placeholder="Ingrese su contraseña"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -61,7 +61,7 @@ export default function LoginFuncionario() {
           </div>
 
           <button className="btn btn--primary" type="submit" disabled={loading}>
-            {loading ? 'Ingresando...' : 'Iniciar Sesi&oacute;n'}
+            {loading ? 'Ingresando...' : 'Iniciar Sesión'}
           </button>
         </form>
 

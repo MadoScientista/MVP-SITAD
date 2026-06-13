@@ -60,7 +60,7 @@ export default function App() {
 
         <Route path="*" element={
           <div className="page-container text-center" style={{ paddingTop: 80 }}>
-            <h2>404 — P&aacute;gina no encontrada</h2>
+            <h2>404 — Página no encontrada</h2>
             <a href="/login/ciudadano">Volver al inicio</a>
           </div>
         } />

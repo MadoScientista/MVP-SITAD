@@ -36,12 +36,12 @@ export default function RegistrarVehiculo() {
     <div className="page-container">
       <Breadcrumb items={[
         { label: 'Inicio', to: '/ciudadano/dashboard' },
-        { label: 'Registrar veh&iacute;culo' },
+        { label: 'Registrar vehículo' },
       ]} />
-      <PageTitle title="Registrar veh&iacute;culo" subtitle="Ingrese los antecedentes del veh&iacute;culo" />
+      <PageTitle title="Registrar vehículo" subtitle="Ingrese los antecedentes del vehículo" />
 
       <form onSubmit={handleSubmit}>
-        <SectionCard title="Datos del veh&iacute;culo">
+        <SectionCard title="Datos del vehículo">
           <ErrorMessage message={error} />
 
           <FormSection>
@@ -58,15 +58,15 @@ export default function RegistrarVehiculo() {
               <input id="modelo" name="modelo" className="form-input" value={form.modelo} onChange={handleChange} placeholder="Corolla" required />
             </div>
             <div className="form-group">
-              <label htmlFor="anio">A&ntilde;o <span className="required">*</span></label>
+              <label htmlFor="anio">Año <span className="required">*</span></label>
               <input id="anio" name="anio" className="form-input" type="number" min="1990" max="2027" value={form.anio} onChange={handleChange} placeholder="2024" required />
             </div>
             <div className="form-group">
-              <label htmlFor="paisMatricula">Pa&iacute;s de matr&iacute;cula <span className="required">*</span></label>
+              <label htmlFor="paisMatricula">País de matrícula <span className="required">*</span></label>
               <select id="paisMatricula" name="paisMatricula" className="form-select" value={form.paisMatricula} onChange={handleChange} required>
                 <option value="Chile">Chile</option>
                 <option value="Argentina">Argentina</option>
-                <option value="Per&uacute;">Per&uacute;</option>
+                <option value="Perú">Perú</option>
                 <option value="Bolivia">Bolivia</option>
                 <option value="Brasil">Brasil</option>
               </select>
@@ -77,7 +77,7 @@ export default function RegistrarVehiculo() {
         <div className="btn-group">
           <button type="button" className="btn btn--secondary" onClick={() => navigate('/ciudadano/dashboard')}>Cancelar</button>
           <button type="submit" className="btn btn--primary" disabled={loading}>
-            {loading ? 'Guardando...' : 'Guardar veh&iacute;culo'}
+            {loading ? 'Guardando...' : 'Guardar vehículo'}
           </button>
         </div>
       </form>

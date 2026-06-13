@@ -37,7 +37,7 @@ export default function ConsultarEstado() {
         { label: 'Inicio', to: '/ciudadano/dashboard' },
         { label: 'Mis solicitudes' },
       ]} />
-      <PageTitle title="Mis solicitudes" subtitle="Consulte el estado de sus tr&aacute;mites" />
+      <PageTitle title="Mis solicitudes" subtitle="Consulte el estado de sus trámites" />
 
       <SectionCard>
         <DataTable columns={columns} data={solicitudes} emptyMessage="No has realizado solicitudes de salida temporal" />

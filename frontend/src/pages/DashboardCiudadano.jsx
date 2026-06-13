@@ -43,14 +43,14 @@ export default function DashboardCiudadano() {
       <PageTitle title={`Bienvenido, ${user?.nombre}`} subtitle="Panel ciudadano" />
 
       <div className="dashboard-grid">
-        <SectionCard title="Mis veh&iacute;culos">
+        <SectionCard title="Mis vehículos">
           <div className="dashboard-stat">
             <div className="dashboard-stat__number">{vehiculos.length}</div>
-            <div className="dashboard-stat__label">Veh&iacute;culos registrados</div>
+            <div className="dashboard-stat__label">Vehículos registrados</div>
           </div>
           <div className="quick-actions">
             <button className="btn btn--primary" onClick={() => navigate('/ciudadano/vehiculos/registrar')}>
-              + Registrar veh&iacute;culo
+              + Registrar vehículo
             </button>
           </div>
         </SectionCard>

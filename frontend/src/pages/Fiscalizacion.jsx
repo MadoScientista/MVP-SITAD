@@ -36,7 +36,7 @@ export default function Fiscalizacion() {
       if (action === 'aprobar') {
         await api.post(`/api/v1/fiscalizacion/tramites/${selected.id}/aprobar`, { observacion })
       } else {
-        await api.post(`/api/v1/fiscalizacion/tramites/${selected.id}/rechazar`, { observacion: observacion || 'Sin observaci\u00f3n' })
+        await api.post(`/api/v1/fiscalizacion/tramites/${selected.id}/rechazar`, { observacion: observacion || 'Sin observación' })
       }
       setSelected(null)
       setAction(null)
@@ -75,9 +75,9 @@ export default function Fiscalizacion() {
     <div className="page-container">
       <Breadcrumb items={[
         { label: 'Inicio', to: '/funcionario/dashboard' },
-        { label: 'Fiscalizaci\u00f3n' },
+        { label: 'Fiscalización' },
       ]} />
-      <PageTitle title="Fiscalizaci\u00f3n" subtitle="Busque y revise tr\u00e1mites de salida temporal" />
+      <PageTitle title="Fiscalización" subtitle="Busque y revise trámites de salida temporal" />
 
       <ErrorMessage message={error} />
 
@@ -93,16 +93,16 @@ export default function Fiscalizacion() {
         </div>
 
         {loading ? <LoadingSpinner /> : (
-          <DataTable columns={columns} data={solicitudes} emptyMessage="No se encontraron tr\u00e1mites" />
+          <DataTable columns={columns} data={solicitudes} emptyMessage="No se encontraron trámites" />
         )}
       </SectionCard>
 
       <ConfirmDialog
         open={!!selected && !!action}
-        title={action === 'aprobar' ? 'Aprobar tr\u00e1mite' : 'Rechazar tr\u00e1mite'}
+        title={action === 'aprobar' ? 'Aprobar trámite' : 'Rechazar trámite'}
         message={action === 'aprobar'
-          ? `\u00bfEst\u00e1 seguro de aprobar el tr\u00e1mite ID ${selected?.id}?`
-          : `\u00bfEst\u00e1 seguro de rechazar el tr\u00e1mite ID ${selected?.id}?`}
+          ? `¿Está seguro de aprobar el trámite ID ${selected?.id}?`
+          : `¿Está seguro de rechazar el trámite ID ${selected?.id}?`}
         confirmText={action === 'aprobar' ? 'Aprobar' : 'Rechazar'}
         danger={action === 'rechazar'}
         onConfirm={handleConfirm}

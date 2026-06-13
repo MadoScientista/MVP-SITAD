@@ -10,13 +10,13 @@ export default function AppHeader() {
       <div className="app-header__brand">
         <span>SITAD</span>
         <small style={{ opacity: 0.8, fontWeight: 400 }}>
-          Sistema Integrado de Tramitaci&oacute;n Aduanera Digital
+          Sistema Integrado de Tramitación Aduanera Digital
         </small>
       </div>
       <div className="app-header__user">
         <span>{user?.nombre}</span>
         <button className="btn btn--sm" style={{ background: 'rgba(255,255,255,0.15)', color: '#fff' }} onClick={logout}>
-          Cerrar sesi&oacute;n
+          Cerrar sesión
         </button>
       </div>
     </header>

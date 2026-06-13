@@ -47,7 +47,7 @@ export default function LoginCiudadano() {
           </div>
 
           <button className="btn btn--primary" type="submit" disabled={loading}>
-            {loading ? 'Ingresando...' : 'Ingresar con Clave&uacute;nica'}
+            {loading ? 'Ingresando...' : 'Ingresar con ClaveÚnica'}
           </button>
         </form>
 
