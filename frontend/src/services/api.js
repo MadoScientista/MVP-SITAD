@@ -11,6 +11,7 @@ export function setToken(token) {
 export function clearToken() {
   localStorage.removeItem('accessToken');
   localStorage.removeItem('refreshToken');
+  localStorage.removeItem('user');
 }
 
 function getRefreshToken() {

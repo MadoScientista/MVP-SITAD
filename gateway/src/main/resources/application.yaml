@@ -2,9 +2,26 @@ spring:
   application:
     name: gateway
   cloud:
+    loadbalancer:
+      cache:
+        enabled: false
     gateway:
       server:
         webflux:
+          globalcors:
+            cors-configurations:
+              '[/**]':
+                allowed-origins:
+                  - "http://localhost:5173"
+                  - "http://127.0.0.1:5173"
+                allowed-methods:
+                  - GET
+                  - POST
+                  - PATCH
+                  - DELETE
+                allowed-headers:
+                  - Authorization
+                  - Content-Type
           routes:
             - id: auth-service
               uri: lb://auth
@@ -30,3 +47,5 @@ eureka:
   client:
     serviceUrl:
       defaultZone: http://eureka-server:8761/eureka
+  instance:
+    prefer-ip-address: true

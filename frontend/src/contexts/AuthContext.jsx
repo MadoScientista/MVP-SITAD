@@ -63,7 +63,8 @@ export function useAuth() {
 
 function parseJwt(token) {
   try {
-    return JSON.parse(atob(token.split('.')[1]))
+    const base64Url = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')
+    return JSON.parse(atob(base64Url))
   } catch {
     return {}
   }

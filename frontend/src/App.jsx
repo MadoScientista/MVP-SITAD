@@ -36,7 +36,8 @@ function ProtectedRoute({ children, roles }) {
   if (!isAuthenticated) return <Navigate to="/login/ciudadano" replace />
   if (roles && !roles.includes(user?.rol)) {
     if (user?.rol === 'FUNCIONARIO') return <Navigate to="/funcionario/dashboard" replace />
-    return <Navigate to="/ciudadano/dashboard" replace />
+    if (user?.rol === 'PASAJERO') return <Navigate to="/ciudadano/dashboard" replace />
+    return <Navigate to="/login/ciudadano" replace />
   }
   return children
 }

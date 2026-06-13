@@ -76,8 +76,8 @@ public class SimulacionService {
     private void inicializarDatos() {
         personas.put("11111111-1", new PersonaSimulada("11111111-1", "Administrador SITAD", "Chilena", "10-05-1985"));
         personas.put("22222222-2", new PersonaSimulada("22222222-2", "Inspector Fronterizo", "Chilena", "22-08-1992"));
-        personas.put("12345678-5", new PersonaSimulada("12345678-5", "Juan P�rez Gonz�lez", "Chilena", "15-03-1988"));
-        personas.put("98765432-1", new PersonaSimulada("98765432-1", "Mar�a Soto L�pez", "Chilena", "02-11-1995"));
+        personas.put("12345678-5", new PersonaSimulada("12345678-5", "Juan Pérez González", "Chilena", "15-03-1988"));
+        personas.put("98765432-1", new PersonaSimulada("98765432-1", "Marcela Soto López", "Chilena", "02-11-1995"));
 
         vehiculos.put("ABCD12", new VehiculoSimulado("ABCD12", "Toyota", "Corolla", 2020, "Chile", "12345678-5"));
         vehiculos.put("EFGH34", new VehiculoSimulado("EFGH34", "Hyundai", "Tucson", 2022, "Chile", "12345678-5"));

@@ -15,15 +15,26 @@ export default function DashboardCiudadano() {
   const [vehiculos, setVehiculos] = useState([])
   const [solicitudes, setSolicitudes] = useState([])
   const [loading, setLoading] = useState(true)
+  const [apiError, setApiError] = useState('')
 
   useEffect(() => {
+    let cancelled = false
     Promise.all([
-      api.get('/api/v1/vehicular/vehiculos'),
-      api.get('/api/v1/vehicular/solicitudes'),
+      api.get('/api/v1/vehicular/vehiculos').catch(() => []),
+      api.get('/api/v1/vehicular/solicitudes').catch(() => []),
     ])
-      .then(([v, s]) => { setVehiculos(v); setSolicitudes(s) })
-      .catch(() => {})
-      .finally(() => setLoading(false))
+      .then(([v, s]) => {
+        if (cancelled) return
+        setVehiculos(Array.isArray(v) ? v : [])
+        setSolicitudes(Array.isArray(s) ? s : [])
+      })
+      .catch(() => {
+        if (!cancelled) setApiError('Error al cargar datos')
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+    return () => { cancelled = true }
   }, [])
 
   const solicitudColumns = [
@@ -41,6 +52,8 @@ export default function DashboardCiudadano() {
     <div className="page-container">
       <Breadcrumb items={[{ label: 'Inicio' }]} />
       <PageTitle title={`Bienvenido, ${user?.nombre}`} subtitle="Panel ciudadano" />
+
+      {apiError && <div className="message message--error">{apiError}</div>}
 
       <div className="dashboard-grid">
         <SectionCard title="Mis vehículos">
