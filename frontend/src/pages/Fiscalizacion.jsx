@@ -86,6 +86,7 @@ export default function Fiscalizacion() {
           <select className="form-select" value={filtroEstado} onChange={(e) => setFiltroEstado(e.target.value)}>
             <option value="">Todos los estados</option>
             <option value="PRE_VALIDADO_DIGITAL">Pre Validado</option>
+            <option value="OBSERVADO">Observado</option>
             <option value="APROBADO_EN_VENTANILLA">Aprobado</option>
             <option value="RECHAZADO">Rechazado</option>
           </select>

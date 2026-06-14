@@ -314,14 +314,29 @@ textarea.form-input {
   text-transform: uppercase;
 }
 
-.status-badge--pendiente {
+.status-badge--borrador {
   background-color: #E9ECEF;
   color: #6C757D;
+}
+
+.status-badge--pendiente {
+  background-color: #FFF3CD;
+  color: #856404;
+}
+
+.status-badge--pendiente-doc {
+  background-color: #F8D7DA;
+  color: #842029;
 }
 
 .status-badge--prevalidado {
   background-color: #CFE2FF;
   color: #084298;
+}
+
+.status-badge--observado {
+  background-color: #FFF3CD;
+  color: #856404;
 }
 
 .status-badge--aprobado {
