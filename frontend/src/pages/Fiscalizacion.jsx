@@ -32,12 +32,13 @@ export default function Fiscalizacion() {
 
   const handleConfirm = async () => {
     if (!selected || !action) return
+    if (action === 'rechazar' && !observacion.trim()) {
+      setError('Debe ingresar una observación para rechazar el trámite')
+      return
+    }
     try {
-      if (action === 'aprobar') {
-        await api.post(`/api/v1/fiscalizacion/tramites/${selected.id}/aprobar`, { observacion })
-      } else {
-        await api.post(`/api/v1/fiscalizacion/tramites/${selected.id}/rechazar`, { observacion: observacion || 'Sin observación' })
-      }
+      const body = action === 'rechazar' ? { observacion } : { observacion }
+      await api.post(`/api/v1/fiscalizacion/tramites/${selected.id}/${action}`, body)
       setSelected(null)
       setAction(null)
       setObservacion('')
@@ -108,7 +109,22 @@ export default function Fiscalizacion() {
         danger={action === 'rechazar'}
         onConfirm={handleConfirm}
         onCancel={() => { setSelected(null); setAction(null); setObservacion('') }}
-      />
+      >
+        {action === 'rechazar' && (
+          <div className="form-group">
+            <label className="form-label" htmlFor="obs">Observación *</label>
+            <textarea
+              id="obs"
+              className="form-input"
+              rows={3}
+              value={observacion}
+              onChange={(e) => setObservacion(e.target.value)}
+              placeholder="Ingrese el motivo del rechazo"
+              autoFocus
+            />
+          </div>
+        )}
+      </ConfirmDialog>
     </div>
   )
 }
