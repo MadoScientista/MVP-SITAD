@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Service
 public class VehicularService {
@@ -35,7 +36,7 @@ public class VehicularService {
     @Transactional
     public VehiculoResponse registrarVehiculo(VehiculoRequest request, String propietarioRut) {
         if (vehiculoRepository.existsByPatente(request.patente().toUpperCase())) {
-            throw new IllegalArgumentException("La patente ya est� registrada");
+            throw new IllegalArgumentException("La patente ya est\u00E1 registrada");
         }
 
         Vehiculo vehiculo = new Vehiculo();
@@ -61,11 +62,7 @@ public class VehicularService {
     @Transactional
     public SolicitudResponse solicitarSalidaTemporal(SolicitudRequest request, String rutSolicitante) {
         Vehiculo vehiculo = vehiculoRepository.findById(request.vehiculoId())
-                .orElseThrow(() -> new NoSuchElementException("Veh�culo no encontrado"));
-
-        if (!vehiculo.getPropietarioRut().equals(rutSolicitante)) {
-            throw new IllegalArgumentException("El veh�culo no pertenece al ciudadano autenticado");
-        }
+                .orElseThrow(() -> new NoSuchElementException("Veh\u00EDculo no encontrado"));
 
         if (request.fechaRetorno().isBefore(request.fechaSalida())) {
             throw new IllegalArgumentException("La fecha de retorno debe ser posterior a la fecha de salida");
@@ -75,14 +72,23 @@ public class VehicularService {
             throw new IllegalArgumentException("La fecha de salida no puede ser anterior a hoy");
         }
 
+        if (!request.esPropietario() && (request.tipoAutorizacion() == null || request.tipoAutorizacion().isBlank())) {
+            throw new IllegalArgumentException("Debe indicar el tipo de autorizaci\u00F3n si el conductor no es el propietario");
+        }
+
         SalidaTemporalVehiculo solicitud = new SalidaTemporalVehiculo();
         solicitud.setVehiculo(vehiculo);
+        solicitud.setConductorRut(request.conductorRut());
+        solicitud.setConductorNombre(request.conductorNombre());
+        solicitud.setEsPropietario(request.esPropietario());
+        solicitud.setTipoAutorizacion(request.esPropietario() ? null : request.tipoAutorizacion());
         solicitud.setFechaSolicitud(LocalDateTime.now());
         solicitud.setFechaSalida(request.fechaSalida());
         solicitud.setFechaRetorno(request.fechaRetorno());
         solicitud.setPaisDestino(request.paisDestino());
         solicitud.setPasoFronterizo(request.pasoFronterizo());
-        solicitud.setEstado(EstadoTramite.PRE_VALIDADO_DIGITAL);
+        solicitud.setEstado(EstadoTramite.BORRADOR);
+        solicitud.setFechaEstado(LocalDateTime.now());
 
         solicitud = salidaRepository.save(solicitud);
         return toSolicitudResponse(solicitud);
@@ -91,23 +97,24 @@ public class VehicularService {
     @Transactional(readOnly = true)
     public List<SolicitudResponse> consultarSolicitudes(String rutCiudadano) {
         List<Vehiculo> vehiculos = vehiculoRepository.findByPropietarioRut(rutCiudadano);
-
-        if (vehiculos.isEmpty()) {
-            return List.of();
-        }
-
         List<Long> vehiculoIds = vehiculos.stream()
                 .map(Vehiculo::getId)
                 .toList();
 
-        return salidaRepository.findByVehiculoIdIn(vehiculoIds)
-                .stream()
+        List<SalidaTemporalVehiculo> comoPropietario = vehiculoIds.isEmpty()
+                ? List.of()
+                : salidaRepository.findByVehiculoIdIn(vehiculoIds);
+
+        List<SalidaTemporalVehiculo> comoConductor = salidaRepository.findByConductorRut(rutCiudadano);
+
+        return Stream.concat(comoPropietario.stream(), comoConductor.stream())
+                .distinct()
                 .map(this::toSolicitudResponse)
                 .toList();
     }
 
     @Transactional(readOnly = true)
-    public List<SolicitudResponse> buscarTramites(Optional<String> estado) {
+    public List<SolicitudResponse> buscarTramites(Optional<String> estado, Optional<String> conductorRut, Optional<String> patente) {
         List<SalidaTemporalVehiculo> solicitudes;
 
         if (estado.isPresent() && !estado.get().isBlank()) {
@@ -117,14 +124,29 @@ public class VehicularService {
             solicitudes = salidaRepository.findAll();
         }
 
+        if (conductorRut.isPresent() && !conductorRut.get().isBlank()) {
+            String rut = conductorRut.get();
+            solicitudes = solicitudes.stream()
+                    .filter(s -> rut.equals(s.getConductorRut()))
+                    .toList();
+        }
+
+        if (patente.isPresent() && !patente.get().isBlank()) {
+            String p = patente.get().toUpperCase();
+            solicitudes = solicitudes.stream()
+                    .filter(s -> p.equals(s.getVehiculo().getPatente()))
+                    .toList();
+        }
+
         return solicitudes.stream().map(this::toSolicitudResponse).toList();
     }
 
     @Transactional
     public SolicitudResponse actualizarEstadoTramite(Long id, EstadoTramite nuevoEstado) {
         SalidaTemporalVehiculo solicitud = salidaRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Tr�mite no encontrado"));
+                .orElseThrow(() -> new NoSuchElementException("Tr\u00E1mite no encontrado"));
         solicitud.setEstado(nuevoEstado);
+        solicitud.setFechaEstado(LocalDateTime.now());
         solicitud = salidaRepository.save(solicitud);
         return toSolicitudResponse(solicitud);
     }
@@ -132,25 +154,26 @@ public class VehicularService {
     @Transactional
     public DocumentoResponse agregarDocumento(DocumentoRequest request, String rutSolicitante) {
         SalidaTemporalVehiculo solicitud = salidaRepository.findById(request.solicitudId())
-                .orElseThrow(() -> new NoSuchElementException("Trámite no encontrado"));
+                .orElseThrow(() -> new NoSuchElementException("Tr\u00E1mite no encontrado"));
 
         Vehiculo vehiculo = solicitud.getVehiculo();
-        if (!vehiculo.getPropietarioRut().equals(rutSolicitante)) {
-            throw new IllegalArgumentException("El trámite no pertenece al ciudadano autenticado");
+        if (!vehiculo.getPropietarioRut().equals(rutSolicitante)
+                && !solicitud.getConductorRut().equals(rutSolicitante)) {
+            throw new IllegalArgumentException("El tr\u00E1mite no pertenece al ciudadano autenticado");
         }
 
         TipoDocumento tipo;
         try {
             tipo = TipoDocumento.valueOf(request.tipo().toUpperCase());
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Tipo de documento inválido: " + request.tipo());
+            throw new IllegalArgumentException("Tipo de documento inv\u00E1lido: " + request.tipo());
         }
 
         Documento documento = new Documento();
         documento.setNombre(request.nombre());
         documento.setTipo(tipo);
         documento.setArchivo(request.archivo());
-        documento.setSolicitudId(request.solicitudId());
+        documento.setSolicitud(solicitud);
         documento.setFechaCreacion(LocalDateTime.now());
 
         documento = documentoRepository.save(documento);
@@ -159,8 +182,9 @@ public class VehicularService {
 
     @Transactional(readOnly = true)
     public List<DocumentoResponse> listarDocumentos(Long solicitudId) {
-        return documentoRepository.findBySolicitudId(solicitudId)
-                .stream()
+        SalidaTemporalVehiculo solicitud = salidaRepository.findById(solicitudId)
+                .orElseThrow(() -> new NoSuchElementException("Tr\u00E1mite no encontrado"));
+        return solicitud.getDocumentos().stream()
                 .map(this::toDocumentoResponse)
                 .toList();
     }
@@ -172,18 +196,28 @@ public class VehicularService {
     }
 
     private SolicitudResponse toSolicitudResponse(SalidaTemporalVehiculo s) {
+        List<DocumentoResponse> docs = s.getDocumentos().stream()
+                .map(this::toDocumentoResponse)
+                .toList();
         return new SolicitudResponse(
                 s.getId(),
                 s.getVehiculo().getId(),
                 s.getVehiculo().getPatente(),
                 s.getVehiculo().getMarca(),
                 s.getVehiculo().getModelo(),
+                s.getConductorRut(),
+                s.getConductorNombre(),
+                s.getEsPropietario(),
+                s.getTipoAutorizacion(),
                 s.getFechaSalida().toString(),
                 s.getFechaRetorno().toString(),
                 s.getPaisDestino(),
                 s.getPasoFronterizo(),
                 s.getEstado().name(),
-                s.getFechaSolicitud().toString());
+                s.getObservacion(),
+                s.getFechaSolicitud().toString(),
+                s.getFechaEstado().toString(),
+                docs);
     }
 
     private DocumentoResponse toDocumentoResponse(Documento d) {
@@ -192,7 +226,6 @@ public class VehicularService {
                 d.getNombre(),
                 d.getTipo().name(),
                 d.getArchivo(),
-                d.getSolicitudId(),
                 d.getFechaCreacion().toString());
     }
 }

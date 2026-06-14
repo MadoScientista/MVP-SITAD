@@ -1,4 +1,4 @@
-package cl.sitad.vehicular.dto;
+package cl.sitad.fiscalizacion.dto;
 
 public record DocumentoResponse(
     Long id,

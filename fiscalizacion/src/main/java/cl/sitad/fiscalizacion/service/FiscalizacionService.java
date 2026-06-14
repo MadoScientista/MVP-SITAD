@@ -25,7 +25,7 @@ public class FiscalizacionService {
     }
 
     public List<TramiteResponse> buscarTramites(String estado) {
-        return vehicularClient.buscarTramites(estado != null ? estado : "");
+        return vehicularClient.buscarTramites(estado != null ? estado : "", null, null);
     }
 
     @Transactional

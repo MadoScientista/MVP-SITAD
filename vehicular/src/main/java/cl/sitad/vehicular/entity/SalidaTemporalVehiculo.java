@@ -4,6 +4,8 @@ import cl.sitad.vehicular.enums.EstadoTramite;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "salidas_temporales")
@@ -12,6 +14,18 @@ public class SalidaTemporalVehiculo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false)
+    private String conductorRut;
+
+    @Column(nullable = false)
+    private String conductorNombre;
+
+    @Column(nullable = false)
+    private Boolean esPropietario;
+
+    @Column
+    private String tipoAutorizacion;
 
     @Column(nullable = false)
     private LocalDateTime fechaSolicitud;
@@ -32,14 +46,31 @@ public class SalidaTemporalVehiculo {
     @Column(nullable = false)
     private EstadoTramite estado;
 
+    @Column
+    private String observacion;
+
+    @Column(nullable = false)
+    private LocalDateTime fechaEstado;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vehiculo_id", nullable = false)
     private Vehiculo vehiculo;
+
+    @OneToMany(mappedBy = "solicitud", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Documento> documentos = new ArrayList<>();
 
     public SalidaTemporalVehiculo() {}
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
+    public String getConductorRut() { return conductorRut; }
+    public void setConductorRut(String conductorRut) { this.conductorRut = conductorRut; }
+    public String getConductorNombre() { return conductorNombre; }
+    public void setConductorNombre(String conductorNombre) { this.conductorNombre = conductorNombre; }
+    public Boolean getEsPropietario() { return esPropietario; }
+    public void setEsPropietario(Boolean esPropietario) { this.esPropietario = esPropietario; }
+    public String getTipoAutorizacion() { return tipoAutorizacion; }
+    public void setTipoAutorizacion(String tipoAutorizacion) { this.tipoAutorizacion = tipoAutorizacion; }
     public LocalDateTime getFechaSolicitud() { return fechaSolicitud; }
     public void setFechaSolicitud(LocalDateTime fechaSolicitud) { this.fechaSolicitud = fechaSolicitud; }
     public LocalDate getFechaSalida() { return fechaSalida; }
@@ -52,6 +83,12 @@ public class SalidaTemporalVehiculo {
     public void setPasoFronterizo(String pasoFronterizo) { this.pasoFronterizo = pasoFronterizo; }
     public EstadoTramite getEstado() { return estado; }
     public void setEstado(EstadoTramite estado) { this.estado = estado; }
+    public String getObservacion() { return observacion; }
+    public void setObservacion(String observacion) { this.observacion = observacion; }
+    public LocalDateTime getFechaEstado() { return fechaEstado; }
+    public void setFechaEstado(LocalDateTime fechaEstado) { this.fechaEstado = fechaEstado; }
     public Vehiculo getVehiculo() { return vehiculo; }
     public void setVehiculo(Vehiculo vehiculo) { this.vehiculo = vehiculo; }
+    public List<Documento> getDocumentos() { return documentos; }
+    public void setDocumentos(List<Documento> documentos) { this.documentos = documentos; }
 }
