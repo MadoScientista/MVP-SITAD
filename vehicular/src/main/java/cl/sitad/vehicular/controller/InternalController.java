@@ -35,7 +35,7 @@ public class InternalController {
             @PathVariable Long id,
             @Valid @RequestBody EstadoUpdateRequest request) {
         EstadoTramite nuevoEstado = EstadoTramite.valueOf(request.estado().toUpperCase());
-        SolicitudResponse response = vehicularService.actualizarEstadoTramite(id, nuevoEstado);
+        SolicitudResponse response = vehicularService.actualizarEstadoTramite(id, nuevoEstado, request.observacion());
         return ResponseEntity.ok(response);
     }
 }

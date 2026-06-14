@@ -45,4 +45,14 @@ public class FiscalizacionController {
         ControlResponse response = fiscalizacionService.rechazarTramite(id, request.observacion(), funcionarioRut);
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/tramites/{id}/observar")
+    public ResponseEntity<ControlResponse> observarTramite(
+            @PathVariable Long id,
+            @Valid @RequestBody ObservarRequest request,
+            Authentication authentication) {
+        String funcionarioRut = authentication.getName();
+        ControlResponse response = fiscalizacionService.observarTramite(id, request.observacion(), funcionarioRut);
+        return ResponseEntity.ok(response);
+    }
 }

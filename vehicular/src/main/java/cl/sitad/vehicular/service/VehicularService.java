@@ -142,10 +142,13 @@ public class VehicularService {
     }
 
     @Transactional
-    public SolicitudResponse actualizarEstadoTramite(Long id, EstadoTramite nuevoEstado) {
+    public SolicitudResponse actualizarEstadoTramite(Long id, EstadoTramite nuevoEstado, String observacion) {
         SalidaTemporalVehiculo solicitud = salidaRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Tr\u00E1mite no encontrado"));
         solicitud.setEstado(nuevoEstado);
+        if (observacion != null) {
+            solicitud.setObservacion(observacion);
+        }
         solicitud.setFechaEstado(LocalDateTime.now());
         solicitud = salidaRepository.save(solicitud);
         return toSolicitudResponse(solicitud);
@@ -177,7 +180,41 @@ public class VehicularService {
         documento.setFechaCreacion(LocalDateTime.now());
 
         documento = documentoRepository.save(documento);
+
+        if (solicitud.getEstado() == EstadoTramite.BORRADOR) {
+            solicitud.setEstado(EstadoTramite.PENDIENTE_DOCUMENTACION);
+            solicitud.setFechaEstado(LocalDateTime.now());
+            salidaRepository.save(solicitud);
+        }
+
         return toDocumentoResponse(documento);
+    }
+
+    @Transactional
+    public SolicitudResponse prevalidarSolicitud(Long id) {
+        SalidaTemporalVehiculo solicitud = salidaRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Tr\u00E1mite no encontrado"));
+
+        if (solicitud.getEstado() != EstadoTramite.BORRADOR
+                && solicitud.getEstado() != EstadoTramite.PENDIENTE_DOCUMENTACION
+                && solicitud.getEstado() != EstadoTramite.OBSERVADO) {
+            throw new IllegalStateException("Solo se puede prevalidar una solicitud en estado BORRADOR, PENDIENTE_DOCUMENTACION u OBSERVADO");
+        }
+
+        boolean tieneDocumentos = !solicitud.getDocumentos().isEmpty();
+
+        if (solicitud.getFechaRetorno().isBefore(solicitud.getFechaSalida())) {
+            throw new IllegalArgumentException("La fecha de retorno debe ser posterior a la fecha de salida");
+        }
+
+        if (tieneDocumentos) {
+            solicitud.setEstado(EstadoTramite.PRE_VALIDADO_DIGITAL);
+        } else {
+            solicitud.setEstado(EstadoTramite.PENDIENTE_DOCUMENTACION);
+        }
+        solicitud.setFechaEstado(LocalDateTime.now());
+        solicitud = salidaRepository.save(solicitud);
+        return toSolicitudResponse(solicitud);
     }
 
     @Transactional(readOnly = true)

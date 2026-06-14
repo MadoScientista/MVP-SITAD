@@ -66,4 +66,10 @@ public class VehicularController {
         List<DocumentoResponse> response = vehicularService.listarDocumentos(id);
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/solicitudes/{id}/prevalidar")
+    public ResponseEntity<SolicitudResponse> prevalidarSolicitud(@PathVariable Long id) {
+        SolicitudResponse response = vehicularService.prevalidarSolicitud(id);
+        return ResponseEntity.ok(response);
+    }
 }
