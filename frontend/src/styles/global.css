@@ -677,6 +677,104 @@ textarea.form-input {
   font-size: 14px;
 }
 
+/* --- Tabs --- */
+.tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 2px solid #DEE2E6;
+  margin-bottom: 16px;
+}
+.tab {
+  padding: 10px 20px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #6C757D;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: color 0.2s, border-color 0.2s;
+}
+.tab:hover { color: #005AA0; }
+.tab--active {
+  color: #005AA0;
+  border-bottom-color: #005AA0;
+}
+
+/* --- Detail Grid --- */
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-16);
+}
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.detail-item__label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6C757D;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.detail-item__value {
+  font-size: 16px;
+  color: #212529;
+}
+
+/* --- Timeline --- */
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.timeline-item {
+  border-left: 3px solid #005AA0;
+  padding-left: 16px;
+  padding-bottom: 4px;
+}
+.timeline-item__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+.timeline-item__body {
+  margin: 4px 0;
+  font-size: 14px;
+  color: #495057;
+}
+.timeline-item__footer {
+  font-size: 12px;
+  color: #ADB5BD;
+}
+
+/* --- Empty Text --- */
+.empty-text {
+  text-align: center;
+  color: #6C757D;
+  padding: 24px;
+}
+
+/* --- Warning Button --- */
+.btn--warning {
+  background: #FFC107;
+  color: #212529;
+}
+.btn--warning:hover {
+  background: #E0A800;
+  color: #212529;
+}
+
+/* --- Status Badge Colors (complemento) --- */
+.status-badge--observado {
+  background: #FFF3CD;
+  color: #856404;
+}
+
 /* --- Utility Classes --- */
 .text-center { text-align: center; }
 .text-right { text-align: right; }

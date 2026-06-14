@@ -32,12 +32,12 @@ export default function Fiscalizacion() {
 
   const handleConfirm = async () => {
     if (!selected || !action) return
-    if (action === 'rechazar' && !observacion.trim()) {
-      setError('Debe ingresar una observación para rechazar el trámite')
+    if ((action === 'rechazar' || action === 'observar') && !observacion.trim()) {
+      setError('Debe ingresar una observación')
       return
     }
     try {
-      const body = action === 'rechazar' ? { observacion } : { observacion }
+      const body = { observacion }
       await api.post(`/api/v1/fiscalizacion/tramites/${selected.id}/${action}`, body)
       setSelected(null)
       setAction(null)
@@ -63,6 +63,9 @@ export default function Fiscalizacion() {
         <div style={{ display: 'flex', gap: 8 }}>
           <button className="btn btn--sm btn--primary" onClick={() => { setSelected(r); setAction('aprobar') }}>
             Aprobar
+          </button>
+          <button className="btn btn--sm btn--warning" onClick={() => { setSelected(r); setAction('observar') }}>
+            Observar
           </button>
           <button className="btn btn--sm btn--danger" onClick={() => { setSelected(r); setAction('rechazar') }}>
             Rechazar
@@ -101,16 +104,18 @@ export default function Fiscalizacion() {
 
       <ConfirmDialog
         open={!!selected && !!action}
-        title={action === 'aprobar' ? 'Aprobar trámite' : 'Rechazar trámite'}
+        title={action === 'aprobar' ? 'Aprobar trámite' : action === 'observar' ? 'Observar trámite' : 'Rechazar trámite'}
         message={action === 'aprobar'
           ? `¿Está seguro de aprobar el trámite ID ${selected?.id}?`
-          : `¿Está seguro de rechazar el trámite ID ${selected?.id}?`}
-        confirmText={action === 'aprobar' ? 'Aprobar' : 'Rechazar'}
-        danger={action === 'rechazar'}
+          : action === 'observar'
+            ? `¿Está seguro de observar el trámite ID ${selected?.id}?`
+            : `¿Está seguro de rechazar el trámite ID ${selected?.id}?`}
+        confirmText={action === 'aprobar' ? 'Aprobar' : action === 'observar' ? 'Observar' : 'Rechazar'}
+        danger={action !== 'aprobar'}
         onConfirm={handleConfirm}
         onCancel={() => { setSelected(null); setAction(null); setObservacion('') }}
       >
-        {action === 'rechazar' && (
+        {action !== 'aprobar' && (
           <div className="form-group">
             <label className="form-label" htmlFor="obs">Observación *</label>
             <textarea
@@ -119,7 +124,7 @@ export default function Fiscalizacion() {
               rows={3}
               value={observacion}
               onChange={(e) => setObservacion(e.target.value)}
-              placeholder="Ingrese el motivo del rechazo"
+              placeholder={action === 'observar' ? 'Ingrese la observación' : 'Ingrese el motivo del rechazo'}
               autoFocus
             />
           </div>

@@ -9,6 +9,8 @@ import StatusBadge from '../components/StatusBadge'
 import DataTable from '../components/DataTable'
 import LoadingSpinner from '../components/LoadingSpinner'
 
+const ESTADOS_NO_TERMINALES = ['BORRADOR', 'PENDIENTE_DOCUMENTACION', 'PRE_VALIDADO_DIGITAL', 'OBSERVADO']
+
 export default function DashboardCiudadano() {
   const { user } = useAuth()
   const navigate = useNavigate()
@@ -36,6 +38,15 @@ export default function DashboardCiudadano() {
       })
     return () => { cancelled = true }
   }, [])
+
+  const hoy = new Date()
+  const proximosViajes = solicitudes.filter((s) => {
+    if (!s.fechaSalida) return false
+    const salida = new Date(s.fechaSalida + (s.fechaSalida.includes('T') ? '' : 'T00:00:00'))
+    return salida >= hoy && ESTADOS_NO_TERMINALES.includes(s.estado)
+  })
+
+  const observacionesPendientes = solicitudes.filter((s) => s.estado === 'OBSERVADO')
 
   const solicitudColumns = [
     { label: 'Patente', key: 'patente' },
@@ -80,6 +91,38 @@ export default function DashboardCiudadano() {
           </div>
         </SectionCard>
       </div>
+
+      {proximosViajes.length > 0 && (
+        <SectionCard title="Próximos viajes" className="mt-24">
+          <DataTable
+            columns={[
+              ...solicitudColumns,
+              { label: 'Acción', render: (r) => <button className="btn btn--sm btn--primary" onClick={() => navigate(`/ciudadano/expedientes/${r.id}`)}>Ver</button> },
+            ]}
+            data={proximosViajes}
+            emptyMessage="Sin viajes próximos"
+          />
+        </SectionCard>
+      )}
+
+      {observacionesPendientes.length > 0 && (
+        <SectionCard title="Observaciones pendientes" className="mt-24">
+          <p className="form-text" style={{ marginBottom: 12 }}>
+            Los siguientes expedientes tienen observaciones del funcionario. Revise y corrija la información.
+          </p>
+          <DataTable
+            columns={[
+              { label: 'Patente', key: 'patente' },
+              { label: 'Destino', key: 'paisDestino' },
+              { label: 'Observación', key: 'observacion' },
+              { label: 'Estado', render: (r) => <StatusBadge estado={r.estado} /> },
+              { label: 'Acción', render: (r) => <button className="btn btn--sm btn--warning" onClick={() => navigate(`/ciudadano/expedientes/${r.id}`)}>Corregir</button> },
+            ]}
+            data={observacionesPendientes}
+            emptyMessage="Sin observaciones pendientes"
+          />
+        </SectionCard>
+      )}
 
       <SectionCard title="Solicitudes recientes" className="mt-24">
         <DataTable columns={solicitudColumns} data={solicitudes.slice(0, 5)} emptyMessage="No has realizado solicitudes" />

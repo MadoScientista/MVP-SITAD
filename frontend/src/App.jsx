@@ -10,6 +10,7 @@ import RegistrarVehiculo from './pages/RegistrarVehiculo'
 import SolicitarSalida from './pages/SolicitarSalida'
 import ConsultarEstado from './pages/ConsultarEstado'
 import Fiscalizacion from './pages/Fiscalizacion'
+import ExpedienteDetalle from './pages/ExpedienteDetalle'
 
 function Layout() {
   return (
@@ -56,8 +57,11 @@ export default function App() {
         <Route path="/ciudadano/solicitudes/nueva" element={<ProtectedRoute roles={['PASAJERO']}><SolicitarSalida /></ProtectedRoute>} />
         <Route path="/ciudadano/solicitudes" element={<ProtectedRoute roles={['PASAJERO']}><ConsultarEstado /></ProtectedRoute>} />
 
+        <Route path="/ciudadano/expedientes/:id" element={<ProtectedRoute roles={['PASAJERO']}><ExpedienteDetalle /></ProtectedRoute>} />
+
         <Route path="/funcionario/dashboard" element={<ProtectedRoute roles={['FUNCIONARIO']}><DashboardFuncionario /></ProtectedRoute>} />
         <Route path="/funcionario/fiscalizacion" element={<ProtectedRoute roles={['FUNCIONARIO']}><Fiscalizacion /></ProtectedRoute>} />
+        <Route path="/funcionario/expedientes/:id" element={<ProtectedRoute roles={['FUNCIONARIO']}><ExpedienteDetalle /></ProtectedRoute>} />
 
         <Route path="*" element={
           <div className="page-container text-center" style={{ paddingTop: 80 }}>

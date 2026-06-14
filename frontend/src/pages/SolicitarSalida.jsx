@@ -77,7 +77,11 @@ export default function SolicitarSalida() {
     setLoading(true)
     try {
       const solicitud = await api.post('/api/v1/vehicular/solicitudes', {
+        conductorRut: user.rut,
+        conductorNombre: user.nombre,
         vehiculoId: parseInt(form.vehiculoId, 10),
+        esPropietario: form.esPropietario === 'si',
+        tipoAutorizacion: form.esPropietario === 'no' ? form.autorizacion : null,
         fechaSalida: form.fechaSalida,
         fechaRetorno: form.fechaRetorno,
         paisDestino: form.paisDestino,
