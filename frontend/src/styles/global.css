@@ -578,6 +578,105 @@ textarea.form-input {
   flex: 1;
 }
 
+/* --- Wizard Steps --- */
+.wizard-steps {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  margin-bottom: var(--spacing-32);
+}
+
+.wizard-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: var(--color-surface);
+  border: 1px solid #DEE2E6;
+  opacity: 0.5;
+}
+
+.wizard-step--active {
+  opacity: 1;
+  border-color: var(--color-primary);
+  background: #E8F0FE;
+}
+
+.wizard-step--done {
+  opacity: 0.8;
+}
+
+.wizard-step__num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: #FFFFFF;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.wizard-step--active .wizard-step__num {
+  background: var(--color-primary);
+}
+
+.wizard-step--done .wizard-step__num {
+  background: #198754;
+}
+
+.wizard-step__label {
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* --- Radio Group --- */
+.radio-group {
+  display: flex;
+  gap: var(--spacing-16);
+  margin-top: var(--spacing-8);
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.radio-label input[type="radio"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-primary);
+}
+
+/* --- Form Text --- */
+.form-text {
+  font-size: 15px;
+  color: var(--color-text);
+  margin: 4px 0;
+  padding: 8px 12px;
+  background: #F8F9FA;
+  border-radius: 6px;
+}
+
+/* --- Document List --- */
+.document-list {
+  border: 1px solid #DEE2E6;
+  border-radius: 8px;
+  padding: 12px 16px;
+  background: #F8F9FA;
+}
+
+.document-item {
+  font-size: 14px;
+}
+
 /* --- Utility Classes --- */
 .text-center { text-align: center; }
 .text-right { text-align: right; }
