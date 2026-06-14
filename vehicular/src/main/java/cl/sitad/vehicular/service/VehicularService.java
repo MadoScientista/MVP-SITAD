@@ -1,9 +1,12 @@
 package cl.sitad.vehicular.service;
 
 import cl.sitad.vehicular.dto.*;
+import cl.sitad.vehicular.entity.Documento;
 import cl.sitad.vehicular.entity.SalidaTemporalVehiculo;
 import cl.sitad.vehicular.entity.Vehiculo;
 import cl.sitad.vehicular.enums.EstadoTramite;
+import cl.sitad.vehicular.enums.TipoDocumento;
+import cl.sitad.vehicular.repository.DocumentoRepository;
 import cl.sitad.vehicular.repository.SalidaTemporalVehiculoRepository;
 import cl.sitad.vehicular.repository.VehiculoRepository;
 import org.springframework.stereotype.Service;
@@ -19,11 +22,14 @@ public class VehicularService {
 
     private final VehiculoRepository vehiculoRepository;
     private final SalidaTemporalVehiculoRepository salidaRepository;
+    private final DocumentoRepository documentoRepository;
 
     public VehicularService(VehiculoRepository vehiculoRepository,
-                            SalidaTemporalVehiculoRepository salidaRepository) {
+                            SalidaTemporalVehiculoRepository salidaRepository,
+                            DocumentoRepository documentoRepository) {
         this.vehiculoRepository = vehiculoRepository;
         this.salidaRepository = salidaRepository;
+        this.documentoRepository = documentoRepository;
     }
 
     @Transactional
@@ -123,6 +129,42 @@ public class VehicularService {
         return toSolicitudResponse(solicitud);
     }
 
+    @Transactional
+    public DocumentoResponse agregarDocumento(DocumentoRequest request, String rutSolicitante) {
+        SalidaTemporalVehiculo solicitud = salidaRepository.findById(request.solicitudId())
+                .orElseThrow(() -> new NoSuchElementException("Trámite no encontrado"));
+
+        Vehiculo vehiculo = solicitud.getVehiculo();
+        if (!vehiculo.getPropietarioRut().equals(rutSolicitante)) {
+            throw new IllegalArgumentException("El trámite no pertenece al ciudadano autenticado");
+        }
+
+        TipoDocumento tipo;
+        try {
+            tipo = TipoDocumento.valueOf(request.tipo().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Tipo de documento inválido: " + request.tipo());
+        }
+
+        Documento documento = new Documento();
+        documento.setNombre(request.nombre());
+        documento.setTipo(tipo);
+        documento.setArchivo(request.archivo());
+        documento.setSolicitudId(request.solicitudId());
+        documento.setFechaCreacion(LocalDateTime.now());
+
+        documento = documentoRepository.save(documento);
+        return toDocumentoResponse(documento);
+    }
+
+    @Transactional(readOnly = true)
+    public List<DocumentoResponse> listarDocumentos(Long solicitudId) {
+        return documentoRepository.findBySolicitudId(solicitudId)
+                .stream()
+                .map(this::toDocumentoResponse)
+                .toList();
+    }
+
     private VehiculoResponse toVehiculoResponse(Vehiculo v) {
         return new VehiculoResponse(
                 v.getId(), v.getPatente(), v.getMarca(), v.getModelo(),
@@ -142,5 +184,15 @@ public class VehicularService {
                 s.getPasoFronterizo(),
                 s.getEstado().name(),
                 s.getFechaSolicitud().toString());
+    }
+
+    private DocumentoResponse toDocumentoResponse(Documento d) {
+        return new DocumentoResponse(
+                d.getId(),
+                d.getNombre(),
+                d.getTipo().name(),
+                d.getArchivo(),
+                d.getSolicitudId(),
+                d.getFechaCreacion().toString());
     }
 }

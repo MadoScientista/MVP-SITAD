@@ -51,4 +51,19 @@ public class VehicularController {
         List<SolicitudResponse> response = vehicularService.consultarSolicitudes(rut);
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/documentos")
+    public ResponseEntity<DocumentoResponse> agregarDocumento(
+            @Valid @RequestBody DocumentoRequest request,
+            Authentication authentication) {
+        String rut = authentication.getName();
+        DocumentoResponse response = vehicularService.agregarDocumento(request, rut);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @GetMapping("/solicitudes/{id}/documentos")
+    public ResponseEntity<List<DocumentoResponse>> listarDocumentos(@PathVariable Long id) {
+        List<DocumentoResponse> response = vehicularService.listarDocumentos(id);
+        return ResponseEntity.ok(response);
+    }
 }
