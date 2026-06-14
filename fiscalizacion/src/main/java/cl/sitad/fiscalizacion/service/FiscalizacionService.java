@@ -24,8 +24,12 @@ public class FiscalizacionService {
         this.controlRepository = controlRepository;
     }
 
-    public List<TramiteResponse> buscarTramites(String estado) {
-        return vehicularClient.buscarTramites(estado != null ? estado : "", null, null);
+    public List<TramiteResponse> buscarTramites(String estado, String patente, String rut, Long id) {
+        return vehicularClient.buscarTramites(
+                estado != null ? estado : "",
+                rut,
+                patente,
+                id);
     }
 
     @Transactional
@@ -74,6 +78,13 @@ public class FiscalizacionService {
 
         control = controlRepository.save(control);
         return toControlResponse(control);
+    }
+
+    public List<ControlResponse> listarHistorial(Long solicitudId) {
+        return controlRepository.findBySolicitudIdOrderByFechaControlDesc(solicitudId)
+                .stream()
+                .map(this::toControlResponse)
+                .toList();
     }
 
     private ControlResponse toControlResponse(ControlVentanilla c) {

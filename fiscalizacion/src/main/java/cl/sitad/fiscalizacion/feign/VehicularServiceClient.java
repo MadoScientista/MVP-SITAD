@@ -13,7 +13,8 @@ public interface VehicularServiceClient {
     @GetMapping("/api/v1/vehicular/internal/tramites")
     List<TramiteResponse> buscarTramites(@RequestParam("estado") String estado,
                                          @RequestParam(value = "conductorRut", required = false) String conductorRut,
-                                         @RequestParam(value = "patente", required = false) String patente);
+                                         @RequestParam(value = "patente", required = false) String patente,
+                                         @RequestParam(value = "id", required = false) Long id);
 
     @PatchMapping("/api/v1/vehicular/internal/tramites/{id}/estado")
     TramiteResponse actualizarEstado(@PathVariable("id") Long id,

@@ -21,8 +21,11 @@ public class FiscalizacionController {
 
     @GetMapping("/tramites")
     public ResponseEntity<List<TramiteResponse>> buscarTramites(
-            @RequestParam(value = "estado", required = false) String estado) {
-        List<TramiteResponse> response = fiscalizacionService.buscarTramites(estado);
+            @RequestParam(value = "estado", required = false) String estado,
+            @RequestParam(value = "patente", required = false) String patente,
+            @RequestParam(value = "rut", required = false) String rut,
+            @RequestParam(value = "id", required = false) Long id) {
+        List<TramiteResponse> response = fiscalizacionService.buscarTramites(estado, patente, rut, id);
         return ResponseEntity.ok(response);
     }
 
@@ -53,6 +56,12 @@ public class FiscalizacionController {
             Authentication authentication) {
         String funcionarioRut = authentication.getName();
         ControlResponse response = fiscalizacionService.observarTramite(id, request.observacion(), funcionarioRut);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/tramites/{id}/historial")
+    public ResponseEntity<List<ControlResponse>> listarHistorial(@PathVariable Long id) {
+        List<ControlResponse> response = fiscalizacionService.listarHistorial(id);
         return ResponseEntity.ok(response);
     }
 }

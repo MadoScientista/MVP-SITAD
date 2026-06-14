@@ -114,10 +114,12 @@ public class VehicularService {
     }
 
     @Transactional(readOnly = true)
-    public List<SolicitudResponse> buscarTramites(Optional<String> estado, Optional<String> conductorRut, Optional<String> patente) {
+    public List<SolicitudResponse> buscarTramites(Optional<String> estado, Optional<String> conductorRut, Optional<String> patente, Optional<Long> id) {
         List<SalidaTemporalVehiculo> solicitudes;
 
-        if (estado.isPresent() && !estado.get().isBlank()) {
+        if (id.isPresent()) {
+            solicitudes = salidaRepository.findById(id.get()).stream().toList();
+        } else if (estado.isPresent() && !estado.get().isBlank()) {
             EstadoTramite estadoEnum = EstadoTramite.valueOf(estado.get().toUpperCase());
             solicitudes = salidaRepository.findByEstado(estadoEnum);
         } else {
@@ -214,6 +216,13 @@ public class VehicularService {
         }
         solicitud.setFechaEstado(LocalDateTime.now());
         solicitud = salidaRepository.save(solicitud);
+        return toSolicitudResponse(solicitud);
+    }
+
+    @Transactional(readOnly = true)
+    public SolicitudResponse obtenerSolicitud(Long id) {
+        SalidaTemporalVehiculo solicitud = salidaRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Solicitud no encontrada"));
         return toSolicitudResponse(solicitud);
     }
 

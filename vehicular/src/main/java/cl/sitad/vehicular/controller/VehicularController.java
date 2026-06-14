@@ -52,6 +52,12 @@ public class VehicularController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/solicitudes/{id}")
+    public ResponseEntity<SolicitudResponse> obtenerSolicitud(@PathVariable Long id) {
+        SolicitudResponse response = vehicularService.obtenerSolicitud(id);
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/documentos")
     public ResponseEntity<DocumentoResponse> agregarDocumento(
             @Valid @RequestBody DocumentoRequest request,

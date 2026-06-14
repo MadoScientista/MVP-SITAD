@@ -25,8 +25,9 @@ public class InternalController {
     public ResponseEntity<List<SolicitudResponse>> buscarTramites(
             @RequestParam("estado") Optional<String> estado,
             @RequestParam(value = "conductorRut", required = false) Optional<String> conductorRut,
-            @RequestParam(value = "patente", required = false) Optional<String> patente) {
-        List<SolicitudResponse> response = vehicularService.buscarTramites(estado, conductorRut, patente);
+            @RequestParam(value = "patente", required = false) Optional<String> patente,
+            @RequestParam(value = "id", required = false) Optional<Long> id) {
+        List<SolicitudResponse> response = vehicularService.buscarTramites(estado, conductorRut, patente, id);
         return ResponseEntity.ok(response);
     }
 
