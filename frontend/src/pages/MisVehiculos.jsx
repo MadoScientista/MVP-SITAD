@@ -56,6 +56,12 @@ export default function MisVehiculos() {
             </p>
           </SectionCard>
 
+          <div className="btn-group" style={{ justifyContent: 'flex-start', marginBottom: 16 }}>
+            <button className="btn btn--primary" onClick={() => navigate('/ciudadano/vehiculos/registrar')}>
+              Registrar nuevo vehículo
+            </button>
+          </div>
+
           <SectionCard title="Vehículos registrados">
             {vehiculos.length === 0 ? (
               <p className="empty-text">No tienes vehículos registrados. Utilice el botón "Registrar vehículo" para agregar uno.</p>
@@ -97,7 +103,7 @@ export default function MisVehiculos() {
           </SectionCard>
         </div>
 
-        <SidebarNav currentPath={location.pathname} />
+        <SidebarNav currentPath={location.pathname} extraLinks={[{ label: 'Registrar vehículo', path: '/ciudadano/vehiculos/registrar' }]} />
       </div>
     </div>
   )

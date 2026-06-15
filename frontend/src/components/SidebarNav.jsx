@@ -6,13 +6,13 @@ const LINKS = [
   { label: 'Mis solicitudes', path: '/ciudadano/solicitudes' },
 ]
 
-export default function SidebarNav({ currentPath }) {
+export default function SidebarNav({ currentPath, extraLinks }) {
   const navigate = useNavigate()
 
   return (
     <aside className="sidebar-nav">
       <div className="sidebar-nav__title">Navegación</div>
-      {LINKS.map((link) => (
+      {[...LINKS, ...(extraLinks || [])].map((link) => (
         <button
           key={link.path}
           className={`sidebar-nav__btn ${currentPath === link.path ? 'sidebar-nav__btn--active' : ''}`}
