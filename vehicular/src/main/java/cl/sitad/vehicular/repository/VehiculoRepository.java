@@ -10,4 +10,5 @@ public interface VehiculoRepository extends JpaRepository<Vehiculo, Long> {
     List<Vehiculo> findByPropietarioRut(String propietarioRut);
     Optional<Vehiculo> findByPatente(String patente);
     boolean existsByPatente(String patente);
+    Optional<Vehiculo> findByIdAndPropietarioRut(Long id, String propietarioRut);
 }

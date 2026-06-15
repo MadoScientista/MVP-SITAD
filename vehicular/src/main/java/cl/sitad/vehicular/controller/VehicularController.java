@@ -36,6 +36,34 @@ public class VehicularController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/vehiculos/{id}")
+    public ResponseEntity<VehiculoResponse> obtenerVehiculo(
+            @PathVariable Long id,
+            Authentication authentication) {
+        String rut = authentication.getName();
+        VehiculoResponse response = vehicularService.obtenerVehiculo(id, rut);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/vehiculos/{id}")
+    public ResponseEntity<VehiculoResponse> actualizarVehiculo(
+            @PathVariable Long id,
+            @Valid @RequestBody VehiculoRequest request,
+            Authentication authentication) {
+        String rut = authentication.getName();
+        VehiculoResponse response = vehicularService.actualizarVehiculo(id, request, rut);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/vehiculos/{id}")
+    public ResponseEntity<Void> eliminarVehiculo(
+            @PathVariable Long id,
+            Authentication authentication) {
+        String rut = authentication.getName();
+        vehicularService.eliminarVehiculo(id, rut);
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping("/solicitudes")
     public ResponseEntity<SolicitudResponse> solicitarSalidaTemporal(
             @Valid @RequestBody SolicitudRequest request,

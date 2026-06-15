@@ -45,10 +45,48 @@ public class VehicularService {
         vehiculo.setModelo(request.modelo());
         vehiculo.setAnio(request.anio());
         vehiculo.setPaisMatricula(request.paisMatricula());
+        vehiculo.setNumeroChasis(request.numeroChasis());
+        vehiculo.setPropietarioNombre(request.propietarioNombre());
         vehiculo.setPropietarioRut(propietarioRut);
 
         vehiculo = vehiculoRepository.save(vehiculo);
         return toVehiculoResponse(vehiculo);
+    }
+
+    @Transactional(readOnly = true)
+    public VehiculoResponse obtenerVehiculo(Long id, String rut) {
+        Vehiculo vehiculo = vehiculoRepository.findByIdAndPropietarioRut(id, rut)
+            .orElseThrow(() -> new NoSuchElementException("Vehículo no encontrado o no pertenece al usuario"));
+        return toVehiculoResponse(vehiculo);
+    }
+
+    @Transactional
+    public VehiculoResponse actualizarVehiculo(Long id, VehiculoRequest request, String rut) {
+        Vehiculo vehiculo = vehiculoRepository.findByIdAndPropietarioRut(id, rut)
+            .orElseThrow(() -> new NoSuchElementException("Vehículo no encontrado o no pertenece al usuario"));
+
+        if (!vehiculo.getPatente().equals(request.patente().toUpperCase())
+            && vehiculoRepository.existsByPatente(request.patente().toUpperCase())) {
+            throw new IllegalArgumentException("La patente ya está registrada por otro vehículo");
+        }
+
+        vehiculo.setPatente(request.patente().toUpperCase());
+        vehiculo.setNumeroChasis(request.numeroChasis());
+        vehiculo.setMarca(request.marca());
+        vehiculo.setModelo(request.modelo());
+        vehiculo.setAnio(request.anio());
+        vehiculo.setPaisMatricula(request.paisMatricula());
+        vehiculo.setPropietarioNombre(request.propietarioNombre());
+
+        vehiculo = vehiculoRepository.save(vehiculo);
+        return toVehiculoResponse(vehiculo);
+    }
+
+    @Transactional
+    public void eliminarVehiculo(Long id, String rut) {
+        Vehiculo vehiculo = vehiculoRepository.findByIdAndPropietarioRut(id, rut)
+            .orElseThrow(() -> new NoSuchElementException("Vehículo no encontrado o no pertenece al usuario"));
+        vehiculoRepository.delete(vehiculo);
     }
 
     @Transactional(readOnly = true)
@@ -237,8 +275,8 @@ public class VehicularService {
 
     private VehiculoResponse toVehiculoResponse(Vehiculo v) {
         return new VehiculoResponse(
-                v.getId(), v.getPatente(), v.getMarca(), v.getModelo(),
-                v.getAnio(), v.getPaisMatricula(), v.getPropietarioRut());
+                v.getId(), v.getPatente(), v.getNumeroChasis(), v.getMarca(), v.getModelo(),
+                v.getAnio(), v.getPaisMatricula(), v.getPropietarioRut(), v.getPropietarioNombre());
     }
 
     private SolicitudResponse toSolicitudResponse(SalidaTemporalVehiculo s) {

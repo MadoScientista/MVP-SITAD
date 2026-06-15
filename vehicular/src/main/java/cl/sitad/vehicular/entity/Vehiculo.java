@@ -28,6 +28,12 @@ public class Vehiculo {
     @Column(nullable = false)
     private String propietarioRut;
 
+    @Column
+    private String numeroChasis;
+
+    @Column
+    private String propietarioNombre;
+
     public Vehiculo() {}
 
     public Long getId() { return id; }
@@ -44,4 +50,8 @@ public class Vehiculo {
     public void setPaisMatricula(String paisMatricula) { this.paisMatricula = paisMatricula; }
     public String getPropietarioRut() { return propietarioRut; }
     public void setPropietarioRut(String propietarioRut) { this.propietarioRut = propietarioRut; }
+    public String getNumeroChasis() { return numeroChasis; }
+    public void setNumeroChasis(String numeroChasis) { this.numeroChasis = numeroChasis; }
+    public String getPropietarioNombre() { return propietarioNombre; }
+    public void setPropietarioNombre(String propietarioNombre) { this.propietarioNombre = propietarioNombre; }
 }
