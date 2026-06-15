@@ -7,6 +7,7 @@ import LoginFuncionario from './pages/LoginFuncionario'
 import DashboardCiudadano from './pages/DashboardCiudadano'
 import DashboardFuncionario from './pages/DashboardFuncionario'
 import RegistrarVehiculo from './pages/RegistrarVehiculo'
+import MisVehiculos from './pages/MisVehiculos'
 import SolicitarSalida from './pages/SolicitarSalida'
 import ConsultarEstado from './pages/ConsultarEstado'
 import Fiscalizacion from './pages/Fiscalizacion'
@@ -53,7 +54,9 @@ export default function App() {
         <Route path="/login/funcionario" element={<GuestRoute><LoginFuncionario /></GuestRoute>} />
 
         <Route path="/ciudadano/dashboard" element={<ProtectedRoute roles={['PASAJERO']}><DashboardCiudadano /></ProtectedRoute>} />
+        <Route path="/ciudadano/vehiculos" element={<ProtectedRoute roles={['PASAJERO']}><MisVehiculos /></ProtectedRoute>} />
         <Route path="/ciudadano/vehiculos/registrar" element={<ProtectedRoute roles={['PASAJERO']}><RegistrarVehiculo /></ProtectedRoute>} />
+        <Route path="/ciudadano/vehiculos/editar/:id" element={<ProtectedRoute roles={['PASAJERO']}><RegistrarVehiculo /></ProtectedRoute>} />
         <Route path="/ciudadano/solicitudes/nueva" element={<ProtectedRoute roles={['PASAJERO']}><SolicitarSalida /></ProtectedRoute>} />
         <Route path="/ciudadano/solicitudes" element={<ProtectedRoute roles={['PASAJERO']}><ConsultarEstado /></ProtectedRoute>} />
 

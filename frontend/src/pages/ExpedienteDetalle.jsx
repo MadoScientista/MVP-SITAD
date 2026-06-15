@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { api } from '../services/api'
 import PageTitle from '../components/PageTitle'
 import Breadcrumb from '../components/Breadcrumb'
@@ -7,19 +7,12 @@ import SectionCard from '../components/SectionCard'
 import StatusBadge from '../components/StatusBadge'
 import LoadingSpinner from '../components/LoadingSpinner'
 import ErrorMessage from '../components/ErrorMessage'
-
-const TABS = [
-  { id: 'personales', label: 'Datos Personales' },
-  { id: 'vehiculo', label: 'Vehículo' },
-  { id: 'documentos', label: 'Documentos' },
-  { id: 'observaciones', label: 'Observaciones' },
-  { id: 'historial', label: 'Historial' },
-]
+import SidebarNav from '../components/SidebarNav'
 
 export default function ExpedienteDetalle() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const [tab, setTab] = useState('personales')
+  const location = useLocation()
   const [solicitud, setSolicitud] = useState(null)
   const [historial, setHistorial] = useState([])
   const [loading, setLoading] = useState(true)
@@ -78,148 +71,124 @@ export default function ExpedienteDetalle() {
 
       <ErrorMessage message={error} />
 
-      <div className="tabs">
-        {TABS.map((t) => (
-          <button key={t.id} className={`tab ${tab === t.id ? 'tab--active' : ''}`} onClick={() => setTab(t.id)}>
-            {t.label}
-          </button>
-        ))}
-      </div>
-
-      {tab === 'personales' && (
-        <SectionCard title="Datos del conductor">
-          <div className="detail-grid">
-            <div className="detail-item">
-              <span className="detail-item__label">RUT</span>
-              <span className="detail-item__value">{solicitud.conductorRut}</span>
-            </div>
-            <div className="detail-item">
-              <span className="detail-item__label">Nombre</span>
-              <span className="detail-item__value">{solicitud.conductorNombre}</span>
-            </div>
-            <div className="detail-item">
-              <span className="detail-item__label">Es propietario</span>
-              <span className="detail-item__value">{solicitud.esPropietario ? 'Sí' : 'No'}</span>
-            </div>
-            {solicitud.tipoAutorizacion && (
+      <div className="two-column-layout">
+        <div className="two-column-layout__main">
+          <SectionCard title="Información de la solicitud">
+            <div className="detail-grid">
               <div className="detail-item">
-                <span className="detail-item__label">Tipo de autorización</span>
-                <span className="detail-item__value">{solicitud.tipoAutorizacion}</span>
+                <span className="detail-item__label">RUT Conductor</span>
+                <span className="detail-item__value">{solicitud.conductorRut}</span>
               </div>
-            )}
-          </div>
-        </SectionCard>
-      )}
+              <div className="detail-item">
+                <span className="detail-item__label">Nombre Conductor</span>
+                <span className="detail-item__value">
+                  {solicitud.conductorNombre}
+                  {solicitud.conductorApellidoPaterno ? ` ${solicitud.conductorApellidoPaterno}` : ''}
+                  {solicitud.conductorApellidoMaterno ? ` ${solicitud.conductorApellidoMaterno}` : ''}
+                </span>
+              </div>
+              {solicitud.conductorNumeroDocumento && (
+                <div className="detail-item">
+                  <span className="detail-item__label">N° Documento</span>
+                  <span className="detail-item__value">{solicitud.conductorNumeroDocumento}</span>
+                </div>
+              )}
+              <div className="detail-item">
+                <span className="detail-item__label">Es propietario</span>
+                <span className="detail-item__value">{solicitud.esPropietario ? 'Sí' : 'No'}</span>
+              </div>
+              {solicitud.tipoAutorizacion && (
+                <div className="detail-item">
+                  <span className="detail-item__label">Tipo autorización</span>
+                  <span className="detail-item__value">{solicitud.tipoAutorizacion.replace(/_/g, ' ')}</span>
+                </div>
+              )}
+              <div className="detail-item">
+                <span className="detail-item__label">Patente</span>
+                <span className="detail-item__value">{solicitud.patente}</span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-item__label">Marca / Modelo</span>
+                <span className="detail-item__value">{solicitud.marca} {solicitud.modelo}</span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-item__label">País destino</span>
+                <span className="detail-item__value">{solicitud.paisDestino}</span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-item__label">Paso fronterizo</span>
+                <span className="detail-item__value">{solicitud.pasoFronterizo}</span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-item__label">Fecha salida</span>
+                <span className="detail-item__value">{solicitud.fechaSalida}</span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-item__label">Fecha retorno</span>
+                <span className="detail-item__value">{solicitud.fechaRetorno}</span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-item__label">Fecha solicitud</span>
+                <span className="detail-item__value">{solicitud.fechaSolicitud}</span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-item__label">Último cambio estado</span>
+                <span className="detail-item__value">{solicitud.fechaEstado}</span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-item__label">Estado actual</span>
+                <span className="detail-item__value"><StatusBadge estado={solicitud.estado} /></span>
+              </div>
+            </div>
+          </SectionCard>
 
-      {tab === 'vehiculo' && (
-        <SectionCard title="Datos del vehículo">
-          <div className="detail-grid">
-            <div className="detail-item">
-              <span className="detail-item__label">Patente</span>
-              <span className="detail-item__value">{solicitud.patente}</span>
-            </div>
-            <div className="detail-item">
-              <span className="detail-item__label">Marca</span>
-              <span className="detail-item__value">{solicitud.marca}</span>
-            </div>
-            <div className="detail-item">
-              <span className="detail-item__label">Modelo</span>
-              <span className="detail-item__value">{solicitud.modelo}</span>
-            </div>
-            <div className="detail-item">
-              <span className="detail-item__label">Salida</span>
-              <span className="detail-item__value">{solicitud.fechaSalida}</span>
-            </div>
-            <div className="detail-item">
-              <span className="detail-item__label">Retorno</span>
-              <span className="detail-item__value">{solicitud.fechaRetorno}</span>
-            </div>
-            <div className="detail-item">
-              <span className="detail-item__label">Destino</span>
-              <span className="detail-item__value">{solicitud.paisDestino}</span>
-            </div>
-            <div className="detail-item">
-              <span className="detail-item__label">Paso fronterizo</span>
-              <span className="detail-item__value">{solicitud.pasoFronterizo}</span>
-            </div>
-          </div>
-        </SectionCard>
-      )}
-
-      {tab === 'documentos' && (
-        <SectionCard title="Documentos asociados">
-          {solicitud.documentos && solicitud.documentos.length > 0 ? (
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Nombre</th>
-                  <th>Tipo</th>
-                  <th>Archivo</th>
-                  <th>Fecha</th>
-                </tr>
-              </thead>
-              <tbody>
-                {solicitud.documentos.map((doc) => (
-                  <tr key={doc.id}>
-                    <td>{doc.nombre}</td>
-                    <td>{doc.tipo.replace(/_/g, ' ')}</td>
-                    <td>{doc.archivo}</td>
-                    <td>{doc.fechaCreacion}</td>
+          {solicitud.documentos && solicitud.documentos.length > 0 && (
+            <SectionCard title="Documentos adjuntos">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Tipo</th>
+                    <th>Archivo</th>
+                    <th>Fecha</th>
                   </tr>
+                </thead>
+                <tbody>
+                  {solicitud.documentos.map((doc) => (
+                    <tr key={doc.id}>
+                      <td>{doc.nombre}</td>
+                      <td>{doc.tipo.replace(/_/g, ' ')}</td>
+                      <td>{doc.archivo}</td>
+                      <td>{doc.fechaCreacion}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </SectionCard>
+          )}
+
+          {historial.length > 0 && (
+            <SectionCard title="Historial de cambios y observaciones">
+              <div className="timeline">
+                {historial.map((h) => (
+                  <div key={h.id} className="timeline-item">
+                    <div className="timeline-item__header">
+                      <span className={`status-badge status-badge--${h.resultado.toLowerCase()}`}>
+                        {h.resultado}
+                      </span>
+                      <small>{h.fechaControl}</small>
+                    </div>
+                    {h.observacion && <p className="timeline-item__body">{h.observacion}</p>}
+                    <small className="timeline-item__footer">Funcionario: {h.funcionarioRut}</small>
+                  </div>
                 ))}
-              </tbody>
-            </table>
-          ) : (
-            <p className="empty-text">Sin documentos adjuntos</p>
+              </div>
+            </SectionCard>
           )}
-        </SectionCard>
-      )}
+        </div>
 
-      {tab === 'observaciones' && (
-        <SectionCard title="Observaciones registradas">
-          {historial.filter((h) => h.observacion).length > 0 ? (
-            <div className="timeline">
-              {historial.filter((h) => h.observacion).map((h) => (
-                <div key={h.id} className="timeline-item">
-                  <div className="timeline-item__header">
-                    <span className={`status-badge status-badge--${h.resultado.toLowerCase()}`}>
-                      {h.resultado}
-                    </span>
-                    <small>{h.fechaControl}</small>
-                  </div>
-                  <p className="timeline-item__body">{h.observacion}</p>
-                  <small className="timeline-item__footer">Funcionario: {h.funcionarioRut}</small>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="empty-text">Sin observaciones registradas</p>
-          )}
-        </SectionCard>
-      )}
-
-      {tab === 'historial' && (
-        <SectionCard title="Historial de cambios">
-          {historial.length > 0 ? (
-            <div className="timeline">
-              {historial.map((h) => (
-                <div key={h.id} className="timeline-item">
-                  <div className="timeline-item__header">
-                    <span className={`status-badge status-badge--${h.resultado.toLowerCase()}`}>
-                      {h.resultado}
-                    </span>
-                    <small>{h.fechaControl}</small>
-                  </div>
-                  {h.observacion && <p className="timeline-item__body">{h.observacion}</p>}
-                  <small className="timeline-item__footer">Funcionario: {h.funcionarioRut}</small>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="empty-text">Sin historial disponible</p>
-          )}
-        </SectionCard>
-      )}
+        <SidebarNav currentPath={location.pathname} />
+      </div>
     </div>
   )
 }
