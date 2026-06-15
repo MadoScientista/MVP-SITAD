@@ -118,6 +118,9 @@ public class VehicularService {
         solicitud.setVehiculo(vehiculo);
         solicitud.setConductorRut(request.conductorRut());
         solicitud.setConductorNombre(request.conductorNombre());
+        solicitud.setConductorNumeroDocumento(request.conductorNumeroDocumento());
+        solicitud.setConductorApellidoPaterno(request.conductorApellidoPaterno());
+        solicitud.setConductorApellidoMaterno(request.conductorApellidoMaterno());
         solicitud.setEsPropietario(request.esPropietario());
         solicitud.setTipoAutorizacion(request.esPropietario() ? null : request.tipoAutorizacion());
         solicitud.setFechaSolicitud(LocalDateTime.now());
@@ -290,7 +293,10 @@ public class VehicularService {
                 s.getVehiculo().getMarca(),
                 s.getVehiculo().getModelo(),
                 s.getConductorRut(),
+                s.getConductorNumeroDocumento(),
                 s.getConductorNombre(),
+                s.getConductorApellidoPaterno(),
+                s.getConductorApellidoMaterno(),
                 s.getEsPropietario(),
                 s.getTipoAutorizacion(),
                 s.getFechaSalida().toString(),

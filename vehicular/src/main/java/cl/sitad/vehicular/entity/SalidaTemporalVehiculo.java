@@ -21,6 +21,15 @@ public class SalidaTemporalVehiculo {
     @Column(nullable = false)
     private String conductorNombre;
 
+    @Column
+    private String conductorNumeroDocumento;
+
+    @Column
+    private String conductorApellidoPaterno;
+
+    @Column
+    private String conductorApellidoMaterno;
+
     @Column(nullable = false)
     private Boolean esPropietario;
 
@@ -67,6 +76,12 @@ public class SalidaTemporalVehiculo {
     public void setConductorRut(String conductorRut) { this.conductorRut = conductorRut; }
     public String getConductorNombre() { return conductorNombre; }
     public void setConductorNombre(String conductorNombre) { this.conductorNombre = conductorNombre; }
+    public String getConductorNumeroDocumento() { return conductorNumeroDocumento; }
+    public void setConductorNumeroDocumento(String conductorNumeroDocumento) { this.conductorNumeroDocumento = conductorNumeroDocumento; }
+    public String getConductorApellidoPaterno() { return conductorApellidoPaterno; }
+    public void setConductorApellidoPaterno(String conductorApellidoPaterno) { this.conductorApellidoPaterno = conductorApellidoPaterno; }
+    public String getConductorApellidoMaterno() { return conductorApellidoMaterno; }
+    public void setConductorApellidoMaterno(String conductorApellidoMaterno) { this.conductorApellidoMaterno = conductorApellidoMaterno; }
     public Boolean getEsPropietario() { return esPropietario; }
     public void setEsPropietario(Boolean esPropietario) { this.esPropietario = esPropietario; }
     public String getTipoAutorizacion() { return tipoAutorizacion; }
