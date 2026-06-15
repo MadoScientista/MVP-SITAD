@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
+import { useAuth } from '../contexts/AuthContext'
 import { api } from '../services/api'
 import PageTitle from '../components/PageTitle'
 import Breadcrumb from '../components/Breadcrumb'
@@ -7,16 +8,27 @@ import SectionCard from '../components/SectionCard'
 import StatusBadge from '../components/StatusBadge'
 import LoadingSpinner from '../components/LoadingSpinner'
 import ErrorMessage from '../components/ErrorMessage'
-import SidebarNav from '../components/SidebarNav'
+import ConfirmDialog from '../components/ConfirmDialog'
+
+const LINKS = [
+  { label: 'Solicitar ingreso o salida temporal de vehículo', path: '/ciudadano/solicitudes/nueva' },
+  { label: 'Mis vehículos', path: '/ciudadano/vehiculos' },
+  { label: 'Mis solicitudes', path: '/ciudadano/solicitudes' },
+]
 
 export default function ExpedienteDetalle() {
   const { id } = useParams()
   const navigate = useNavigate()
   const location = useLocation()
+  const { user } = useAuth()
+  const esFuncionario = user?.rol === 'FUNCIONARIO'
   const [solicitud, setSolicitud] = useState(null)
   const [historial, setHistorial] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [showConfirm, setShowConfirm] = useState(false)
+  const [action, setAction] = useState('')
+  const [observacion, setObservacion] = useState('')
 
   useEffect(() => {
     let cancelled = false
@@ -38,6 +50,38 @@ export default function ExpedienteDetalle() {
     return () => { cancelled = true }
   }, [id])
 
+  const handleAction = (tipo) => {
+    setAction(tipo)
+    setObservacion('')
+    setShowConfirm(true)
+  }
+
+  const handleConfirm = async () => {
+    if ((action === 'observar' || action === 'rechazar') && !observacion.trim()) {
+      setError('Debe ingresar una observación')
+      return
+    }
+    try {
+      const body = action === 'aprobar' ? {} : { observacion }
+      await api.post(`/api/v1/fiscalizacion/tramites/${id}/${action}`, body)
+      setShowConfirm(false)
+      setAction('')
+      setObservacion('')
+      const s = await api.get(`/api/v1/vehicular/solicitudes/${id}`)
+      setSolicitud(s)
+      const h = await api.get(`/api/v1/fiscalizacion/tramites/${id}/historial`).catch(() => [])
+      setHistorial(Array.isArray(h) ? h : [])
+    } catch (e) {
+      setError(e.message)
+    }
+  }
+
+  const handleCancel = () => {
+    setShowConfirm(false)
+    setAction('')
+    setObservacion('')
+  }
+
   if (loading) return <LoadingSpinner />
 
   if (error) {
@@ -58,10 +102,17 @@ export default function ExpedienteDetalle() {
     )
   }
 
+  const confirmTitle = action === 'aprobar' ? 'Pre-Aprobar trámite' : action === 'observar' ? 'Observar trámite' : 'Rechazar trámite'
+  const confirmMsg = action === 'aprobar'
+    ? `¿Está seguro de pre-aprobar el trámite ID ${id}?`
+    : action === 'observar'
+      ? `¿Está seguro de observar el trámite ID ${id}?`
+      : `¿Está seguro de rechazar el trámite ID ${id}?`
+
   return (
     <div className="page-container">
       <Breadcrumb items={[
-        { label: 'Inicio', to: '/ciudadano/dashboard' },
+        { label: 'Inicio', to: esFuncionario ? '/funcionario/dashboard' : '/ciudadano/dashboard' },
         { label: `Expediente #${id}` },
       ]} />
 
@@ -187,8 +238,62 @@ export default function ExpedienteDetalle() {
           )}
         </div>
 
-        <SidebarNav currentPath={location.pathname} />
+        <aside className="sidebar-nav">
+          <div className="sidebar-nav__title">Navegación</div>
+          {LINKS.map((link) => (
+            <button
+              key={link.path}
+              className={`sidebar-nav__btn ${location.pathname === link.path ? 'sidebar-nav__btn--active' : ''}`}
+              onClick={() => navigate(link.path)}
+            >
+              {link.label}
+            </button>
+          ))}
+          <button className="sidebar-nav__btn sidebar-nav__btn--back" onClick={() => navigate(-1)}>
+            Volver atrás
+          </button>
+
+          {esFuncionario && (
+            <>
+              <div className="sidebar-nav__title" style={{ marginTop: 16 }}>Acciones</div>
+              <button className="btn btn--primary" style={{ width: '100%', height: 40, fontSize: 14 }} onClick={() => handleAction('aprobar')}>
+                Pre-Aprobar
+              </button>
+              <button className="btn btn--warning" style={{ width: '100%', height: 40, fontSize: 14 }} onClick={() => handleAction('observar')}>
+                Observar
+              </button>
+              <button className="btn btn--danger" style={{ width: '100%', height: 40, fontSize: 14 }} onClick={() => handleAction('rechazar')}>
+                Rechazar
+              </button>
+            </>
+          )}
+        </aside>
       </div>
+
+      <ConfirmDialog
+        open={showConfirm}
+        title={confirmTitle}
+        message={confirmMsg}
+        confirmText={action === 'aprobar' ? 'Pre-Aprobar' : action === 'observar' ? 'Observar' : 'Rechazar'}
+        danger={action !== 'aprobar'}
+        onConfirm={handleConfirm}
+        onCancel={handleCancel}
+      >
+        {action !== 'aprobar' && (
+          <div className="form-group">
+            <label className="form-label" htmlFor="obs">Observación *</label>
+            <textarea
+              id="obs"
+              className="form-input"
+              rows={3}
+              value={observacion}
+              onChange={(e) => setObservacion(e.target.value)}
+              placeholder={action === 'observar' ? 'Ingrese la observación' : 'Ingrese el motivo del rechazo'}
+              autoFocus
+            />
+          </div>
+        )}
+      </ConfirmDialog>
     </div>
   )
 }
