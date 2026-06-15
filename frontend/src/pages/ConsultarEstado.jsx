@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { api } from '../services/api'
 import PageTitle from '../components/PageTitle'
 import Breadcrumb from '../components/Breadcrumb'
@@ -7,15 +7,19 @@ import SectionCard from '../components/SectionCard'
 import StatusBadge from '../components/StatusBadge'
 import DataTable from '../components/DataTable'
 import LoadingSpinner from '../components/LoadingSpinner'
+import SidebarNav from '../components/SidebarNav'
 
 const ESTADOS = ['', 'BORRADOR', 'PENDIENTE_DOCUMENTACION', 'PRE_VALIDADO_DIGITAL', 'OBSERVADO', 'APROBADO_EN_VENTANILLA', 'RECHAZADO']
 
 export default function ConsultarEstado() {
   const navigate = useNavigate()
+  const location = useLocation()
   const [solicitudes, setSolicitudes] = useState([])
   const [loading, setLoading] = useState(true)
   const [filtroEstado, setFiltroEstado] = useState('')
-  const [busquedaPatente, setBusquedaPatente] = useState('')
+  const [filtroFechaDesde, setFiltroFechaDesde] = useState('')
+  const [filtroFechaHasta, setFiltroFechaHasta] = useState('')
+  const [filtroVehiculo, setFiltroVehiculo] = useState('')
 
   useEffect(() => {
     api.get('/api/v1/vehicular/solicitudes')
@@ -27,22 +31,25 @@ export default function ConsultarEstado() {
   const filtradas = useMemo(() => {
     let result = solicitudes
     if (filtroEstado) result = result.filter((s) => s.estado === filtroEstado)
-    if (busquedaPatente.trim()) {
-      const p = busquedaPatente.trim().toUpperCase()
-      result = result.filter((s) => s.patente.toUpperCase().includes(p))
+    if (filtroFechaDesde) {
+      const desde = new Date(filtroFechaDesde + 'T00:00:00')
+      result = result.filter((s) => new Date(s.fechaSolicitud) >= desde)
     }
-    return result
-  }, [solicitudes, filtroEstado, busquedaPatente])
+    if (filtroFechaHasta) {
+      const hasta = new Date(filtroFechaHasta + 'T23:59:59')
+      result = result.filter((s) => new Date(s.fechaSolicitud) <= hasta)
+    }
+    if (filtroVehiculo.trim()) {
+      const q = filtroVehiculo.trim().toUpperCase()
+      result = result.filter((s) => s.patente.toUpperCase().includes(q) || s.marca.toUpperCase().includes(q))
+    }
+    return result.sort((a, b) => new Date(b.fechaSolicitud) - new Date(a.fechaSolicitud))
+  }, [solicitudes, filtroEstado, filtroFechaDesde, filtroFechaHasta, filtroVehiculo])
 
   const columns = [
-    { label: 'ID', key: 'id' },
+    { label: 'Fecha', key: 'fechaSolicitud' },
     { label: 'Patente', key: 'patente' },
-    { label: 'Destino', key: 'paisDestino' },
     { label: 'Paso Fronterizo', key: 'pasoFronterizo' },
-    { label: 'Fecha solicitud', key: 'fechaSolicitud' },
-    { label: 'Salida', key: 'fechaSalida' },
-    { label: 'Retorno', key: 'fechaRetorno' },
-    { label: 'Observación', key: 'observacion' },
     { label: 'Estado', render: (r) => <StatusBadge estado={r.estado} /> },
     { label: 'Acción', render: (r) => <button className="btn btn--sm btn--primary" onClick={() => navigate(`/ciudadano/expedientes/${r.id}`)}>Detalle</button> },
   ]
@@ -57,19 +64,27 @@ export default function ConsultarEstado() {
       ]} />
       <PageTitle title="Mis solicitudes" subtitle="Consulte el estado de sus trámites" />
 
-      <SectionCard>
-        <div className="search-bar" style={{ marginBottom: 16 }}>
-          <select className="form-select" value={filtroEstado} onChange={(e) => setFiltroEstado(e.target.value)}>
-            <option value="">Todos los estados</option>
-            {ESTADOS.filter(Boolean).map((e) => (
-              <option key={e} value={e}>{e.replace(/_/g, ' ')}</option>
-            ))}
-          </select>
-          <input className="form-input" placeholder="Buscar por patente" value={busquedaPatente} onChange={(e) => setBusquedaPatente(e.target.value)} />
+      <div className="two-column-layout">
+        <div className="two-column-layout__main">
+          <SectionCard>
+            <div className="search-bar">
+              <select className="form-select" value={filtroEstado} onChange={(e) => setFiltroEstado(e.target.value)}>
+                <option value="">Todos los estados</option>
+                {ESTADOS.filter(Boolean).map((e) => (
+                  <option key={e} value={e}>{e.replace(/_/g, ' ')}</option>
+                ))}
+              </select>
+              <input className="form-input" type="date" value={filtroFechaDesde} onChange={(e) => setFiltroFechaDesde(e.target.value)} placeholder="Fecha desde" />
+              <input className="form-input" type="date" value={filtroFechaHasta} onChange={(e) => setFiltroFechaHasta(e.target.value)} placeholder="Fecha hasta" />
+              <input className="form-input" placeholder="Buscar vehículo (patente/marca)" value={filtroVehiculo} onChange={(e) => setFiltroVehiculo(e.target.value)} />
+            </div>
+
+            <DataTable columns={columns} data={filtradas} emptyMessage="No has realizado solicitudes de salida temporal" />
+          </SectionCard>
         </div>
 
-        <DataTable columns={columns} data={filtradas} emptyMessage="No has realizado solicitudes de salida temporal" />
-      </SectionCard>
+        <SidebarNav currentPath={location.pathname} />
+      </div>
     </div>
   )
 }
