@@ -49,6 +49,13 @@ export default function MisVehiculos() {
 
       <div className="two-column-layout">
         <div className="two-column-layout__main">
+          <SectionCard title="Información">
+            <p className="form-text">
+              Para registrar un vehículo debe contar con la documentación del vehículo y del propietario.
+              Una vez registrado, podrá seleccionarlo al momento de realizar una solicitud de ingreso o salida temporal.
+            </p>
+          </SectionCard>
+
           <SectionCard title="Vehículos registrados">
             {vehiculos.length === 0 ? (
               <p className="empty-text">No tienes vehículos registrados. Utilice el botón "Registrar vehículo" para agregar uno.</p>

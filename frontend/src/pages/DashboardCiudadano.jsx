@@ -61,12 +61,77 @@ export default function DashboardCiudadano() {
 
       <div className="two-column-layout">
         <div className="two-column-layout__main">
-          <SectionCard title="Información">
+          <SectionCard>
+            <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 16 }}>Solicitar permiso para el ingreso o la salida temporal de un vehículo desde y hacia Argentina</h2>
+
+            <div className="btn-group" style={{ justifyContent: 'flex-start', marginTop: 0, marginBottom: 24 }}>
+              <button className="btn btn--primary" onClick={() => navigate('/ciudadano/solicitudes/nueva')}>
+                Solicitar ingreso o salida temporal de vehículo
+              </button>
+            </div>
+
+            <h4 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8, color: '#495057' }}>Descripción del trámite</h4>
             <p className="form-text">
-              Este sistema le permite solicitar el ingreso o salida temporal de vehículos
-              hacia y desde el territorio nacional. Utilice el menú de navegación para
-              gestionar sus vehículos, realizar solicitudes y consultar el estado de sus trámites.
+              Este trámite permite a chilenos y extranjeros con residencia temporal o definitiva en Chile solicitar el ingreso o la salida temporal de un vehículo y su equipaje desde o hacia Argentina.
             </p>
+            <p className="form-text">
+              El proceso está libre del pago de derechos e impuestos para automóviles que retornen al país de origen antes de 90 días corridos (plazo máximo para que sea gratuito).
+            </p>
+            <p className="form-text">
+              Adicionalmente, las personas deben efectuar el control migratorio a cargo de la Policía de Investigaciones (PDI) y el control fitozoosanitario del Servicio Agrícola y Ganadero (SAG).
+            </p>
+            <p className="form-text">
+              En el caso de trámites realizados en la web de aduana, debe imprimir el formulario para ser presentado en el paso fronterizo de salida/ingreso al país.
+            </p>
+
+            <h4 style={{ fontSize: 16, fontWeight: 700, margin: '16px 0 8px', color: '#495057' }}>Quién puede realizar o a quién está dirigido el trámite</h4>
+            <p className="form-text">
+              Chilenos y extranjeros con residencia temporal o definitiva en Chile o argentinos y chilenos con residencia en Argentina que salen desde Chile hacia Argentina, o que ingresan a Chile procedentes de Argentina, en sus vehículos particulares con fines de turismo.
+            </p>
+            <p className="form-text">
+              También considera conductores de vehículos autorizados por sus propietarios.
+            </p>
+
+            <h4 style={{ fontSize: 16, fontWeight: 700, margin: '16px 0 8px', color: '#495057' }}>Qué se necesita para hacer el trámite</h4>
+            <ul style={{ paddingLeft: 24, fontSize: 15, color: '#212529', lineHeight: 1.8 }}>
+              <li>Documento que acredite identidad del conductor,</li>
+              <li>Si el conductor no es el dueño del vehículo, debe tener una autorización notarial extendida por el propietario,</li>
+              <li>Documento que acredite propiedad del vehículo (Padrón), o documento que haga sus veces).</li>
+              <li>Seguro obligatorio contra daños a terceros vigente.</li>
+              <li>Contar con autorización por parte de la autoridad migratoria del país de destino, al momento de solicitar el ingreso del vehículo.</li>
+            </ul>
+
+            <h4 style={{ fontSize: 16, fontWeight: 700, margin: '16px 0 8px', color: '#495057' }}>Documentación requerida</h4>
+            <ol style={{ paddingLeft: 24, fontSize: 15, color: '#212529', lineHeight: 1.8 }}>
+              <li>Antecedentes que acrediten identidad del conductor, y propiedad del vehículo.</li>
+              <li>Poder notarial del propietario, en caso que el vehículo sea conducido por un tercero.</li>
+              <li>Seguro de responsabilidad civil para daños a terceros, que puede adquirir en cualquier compañía de seguros.</li>
+              <li>Si bien el Servicio Nacional de Aduanas de Chile no solicita el permiso de circulación y la revisión técnica, u otro documento similar, es importante tener la documentación al día para efectos de los controles realizados por Carabineros de Chile en la ruta.</li>
+            </ol>
+
+            <h4 style={{ fontSize: 16, fontWeight: 700, margin: '16px 0 8px', color: '#495057' }}>Aspectos a considerar</h4>
+            <p className="form-text">
+              Si una vez transcurrido el plazo de vigencia del régimen, el vehículo no ha realizado el retorno, los interesados deben regularizar el estado ante la Aduana más cercana.
+            </p>
+            <p className="form-text">
+              El permiso tiene una vigencia de 90 días corridos, o el menor plazo entre lo otorgado por la Aduana del país de origen y por la autoridad migratoria del país de destino. Si una vez transcurrido este plazo, el vehículo no ha realizado el retorno, los interesados deben regularizar el estado del régimen ante la Aduana más cercana. El plazo de vigencia en territorio argentino es otorgado y comunicado por la autoridad aduanera de ese país.
+            </p>
+            <p className="form-text">
+              Si bien el Servicio Nacional de Aduanas no solicita el permiso de circulación y la revisión técnica, u otro documento similar, es importante tener la documentación al día para efectos de los controles realizados por Carabineros de Chile en la ruta.
+            </p>
+            <p className="form-text">
+              El trámite se puede realizar durante todo el año.
+            </p>
+
+            <div className="message message--info" style={{ marginTop: 12 }}>
+              <strong>Costo del trámite:</strong> No tiene costo.
+            </div>
+
+            <div className="btn-group" style={{ justifyContent: 'flex-start', marginTop: 24 }}>
+              <button className="btn btn--primary" onClick={() => navigate('/ciudadano/solicitudes/nueva')}>
+                Solicitar ingreso o salida temporal de vehículo
+              </button>
+            </div>
           </SectionCard>
 
           {observacionesPendientes.length > 0 && (
