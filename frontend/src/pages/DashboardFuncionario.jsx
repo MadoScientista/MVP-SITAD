@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { api } from '../services/api'
@@ -9,8 +9,10 @@ import StatusBadge from '../components/StatusBadge'
 import DataTable from '../components/DataTable'
 import LoadingSpinner from '../components/LoadingSpinner'
 
+const ESTADOS_PENDIENTES = ['BORRADOR', 'PENDIENTE_DOCUMENTACION', 'PRE_VALIDADO_DIGITAL']
+
 const TABS = [
-  { id: 'PRE_VALIDADO_DIGITAL', label: 'Pendientes' },
+  { id: 'PENDIENTES', label: 'Pendientes' },
   { id: 'OBSERVADO', label: 'Observadas' },
   { id: 'APROBADO_EN_VENTANILLA', label: 'Aprobadas' },
   { id: 'RECHAZADO', label: 'Rechazadas' },
@@ -20,38 +22,47 @@ const TABS = [
 export default function DashboardFuncionario() {
   const { user } = useAuth()
   const navigate = useNavigate()
-  const [tab, setTab] = useState('PRE_VALIDADO_DIGITAL')
+  const [tab, setTab] = useState('PENDIENTES')
   const [tramites, setTramites] = useState([])
   const [loading, setLoading] = useState(true)
   const [searchPatente, setSearchPatente] = useState('')
   const [searchRut, setSearchRut] = useState('')
   const [searchId, setSearchId] = useState('')
 
-  const cargar = useCallback((estado) => {
+  const cargar = useCallback(() => {
     setLoading(true)
-    const params = new URLSearchParams()
-    if (estado && estado !== 'TODOS') params.set('estado', estado)
-    const qs = params.toString()
-    api.get(`/api/v1/fiscalizacion/tramites${qs ? `?${qs}` : ''}`)
+    api.get('/api/v1/fiscalizacion/tramites')
       .then(setTramites)
       .catch(() => setTramites([]))
       .finally(() => setLoading(false))
   }, [])
 
-  useEffect(() => { cargar(tab) }, [tab, cargar])
+  useEffect(() => { cargar() }, [cargar])
+
+  const filtradas = useMemo(() => {
+    let result = tramites
+    if (tab === 'PENDIENTES') {
+      result = result.filter((t) => ESTADOS_PENDIENTES.includes(t.estado))
+    } else if (tab !== 'TODOS') {
+      result = result.filter((t) => t.estado === tab)
+    }
+    if (searchPatente.trim()) {
+      const p = searchPatente.trim().toUpperCase()
+      result = result.filter((t) => t.patente.toUpperCase().includes(p))
+    }
+    if (searchRut.trim()) {
+      const r = searchRut.trim()
+      result = result.filter((t) => t.conductorRut?.includes(r))
+    }
+    if (searchId.trim()) {
+      result = result.filter((t) => String(t.id).includes(searchId.trim()))
+    }
+    return result
+  }, [tramites, tab, searchPatente, searchRut, searchId])
 
   const handleSearch = () => {
     setLoading(true)
-    const params = new URLSearchParams()
-    if (tab && tab !== 'TODOS') params.set('estado', tab)
-    if (searchPatente.trim()) params.set('patente', searchPatente.trim())
-    if (searchRut.trim()) params.set('rut', searchRut.trim())
-    if (searchId.trim()) params.set('id', searchId.trim())
-    const qs = params.toString()
-    api.get(`/api/v1/fiscalizacion/tramites${qs ? `?${qs}` : ''}`)
-      .then(setTramites)
-      .catch(() => setTramites([]))
-      .finally(() => setLoading(false))
+    cargar()
   }
 
   const columns = [
@@ -65,14 +76,9 @@ export default function DashboardFuncionario() {
     {
       label: 'Acción',
       render: (r) => (
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button className="btn btn--sm btn--primary" onClick={() => navigate(`/funcionario/expedientes/${r.id}`)}>
-            Detalle
-          </button>
-          <button className="btn btn--sm btn--secondary" onClick={() => navigate('/funcionario/fiscalizacion')}>
-            Revisar
-          </button>
-        </div>
+        <button className="btn btn--sm btn--primary" onClick={() => navigate(`/funcionario/expedientes/${r.id}`)}>
+          Ir a solicitud
+        </button>
       ),
     },
   ]
@@ -100,7 +106,7 @@ export default function DashboardFuncionario() {
           <button className="btn btn--primary" onClick={handleSearch}>Buscar</button>
         </div>
 
-        <DataTable columns={columns} data={tramites} emptyMessage="No se encontraron trámites" />
+        <DataTable columns={columns} data={filtradas} emptyMessage="No se encontraron trámites" />
       </SectionCard>
     </div>
   )
