@@ -64,7 +64,7 @@ export default function DashboardCiudadano() {
           <SectionCard>
             <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 16 }}>Solicitar permiso para el ingreso o la salida temporal de un vehículo desde y hacia Argentina</h2>
 
-            <div className="btn-group" style={{ justifyContent: 'flex-start', marginTop: 0, marginBottom: 24 }}>
+            <div className="btn-group" style={{ justifyContent: 'center', marginTop: 0, marginBottom: 24 }}>
               <button className="btn btn--primary" onClick={() => navigate('/ciudadano/solicitudes/nueva')}>
                 Solicitar ingreso o salida temporal de vehículo
               </button>
@@ -127,7 +127,7 @@ export default function DashboardCiudadano() {
               <strong>Costo del trámite:</strong> No tiene costo.
             </div>
 
-            <div className="btn-group" style={{ justifyContent: 'flex-start', marginTop: 24 }}>
+            <div className="btn-group" style={{ justifyContent: 'center', marginTop: 24 }}>
               <button className="btn btn--primary" onClick={() => navigate('/ciudadano/solicitudes/nueva')}>
                 Solicitar ingreso o salida temporal de vehículo
               </button>

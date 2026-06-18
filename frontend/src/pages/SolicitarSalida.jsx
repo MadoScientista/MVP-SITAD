@@ -29,7 +29,7 @@ export default function SolicitarSalida() {
     conductorApellidoPaterno: '',
     conductorApellidoMaterno: '',
     vehiculoId: '',
-    esPropietario: 'si',
+    esPropietario: '',
     tipoAutorizacion: '',
     fechaSalida: '',
     fechaRetorno: '',
@@ -141,23 +141,23 @@ export default function SolicitarSalida() {
             <FormSection>
               <div className="form-group">
                 <label htmlFor="conductorRut">RUN <span className="required">*</span></label>
-                <input id="conductorRut" name="conductorRut" className="form-input" value={form.conductorRut} onChange={handleChange} placeholder="12345678-9" required />
+                <input id="conductorRut" name="conductorRut" className="form-input" value={form.conductorRut} readOnly required />
               </div>
               <div className="form-group">
-                <label htmlFor="conductorNumeroDocumento">N° de documento</label>
-                <input id="conductorNumeroDocumento" name="conductorNumeroDocumento" className="form-input" value={form.conductorNumeroDocumento} onChange={handleChange} placeholder="Documento de identidad" />
+                <label htmlFor="conductorNumeroDocumento">N° de documento <span className="required">*</span></label>
+                <input id="conductorNumeroDocumento" name="conductorNumeroDocumento" className="form-input" value={form.conductorNumeroDocumento} onChange={handleChange} placeholder="Documento de identidad" required />
               </div>
               <div className="form-group">
                 <label htmlFor="conductorNombre">Nombres <span className="required">*</span></label>
-                <input id="conductorNombre" name="conductorNombre" className="form-input" value={form.conductorNombre} onChange={handleChange} placeholder="Nombres" required />
+                <input id="conductorNombre" name="conductorNombre" className="form-input" value={form.conductorNombre} readOnly required />
               </div>
               <div className="form-group">
-                <label htmlFor="conductorApellidoPaterno">Apellido paterno</label>
-                <input id="conductorApellidoPaterno" name="conductorApellidoPaterno" className="form-input" value={form.conductorApellidoPaterno} onChange={handleChange} placeholder="Apellido paterno" />
+                <label htmlFor="conductorApellidoPaterno">Apellido paterno <span className="required">*</span></label>
+                <input id="conductorApellidoPaterno" name="conductorApellidoPaterno" className="form-input" value={form.conductorApellidoPaterno} readOnly required />
               </div>
               <div className="form-group">
-                <label htmlFor="conductorApellidoMaterno">Apellido materno</label>
-                <input id="conductorApellidoMaterno" name="conductorApellidoMaterno" className="form-input" value={form.conductorApellidoMaterno} onChange={handleChange} placeholder="Apellido materno" />
+                <label htmlFor="conductorApellidoMaterno">Apellido materno <span className="required">*</span></label>
+                <input id="conductorApellidoMaterno" name="conductorApellidoMaterno" className="form-input" value={form.conductorApellidoMaterno} readOnly required />
               </div>
             </FormSection>
           </SectionCard>
@@ -247,34 +247,48 @@ export default function SolicitarSalida() {
           </SectionCard>
 
           <SectionCard title="Documentación del vehículo">
-            <FormSection>
-              <p className="form-text" style={{ marginBottom: 12 }}>Adjunte el padrón y el seguro internacional del vehículo.</p>
-              <div className="form-group" style={{ marginTop: 8 }}>
-                <label>Tipo de documento</label>
-                <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
-                  <select className="form-select" style={{ flex: 1 }} value={nuevoDocVehiculo.tipo} onChange={(e) => setNuevoDocVehiculo({ ...nuevoDocVehiculo, tipo: e.target.value })}>
-                    {TIPOS_DOC_VEHICULO.map((t) => (
-                      <option key={t} value={t}>{t.replace(/_/g, ' ')}</option>
-                    ))}
-                  </select>
-                  <input className="form-input" style={{ flex: 1 }} placeholder="Nombre del documento" value={nuevoDocVehiculo.nombre} onChange={(e) => setNuevoDocVehiculo({ ...nuevoDocVehiculo, nombre: e.target.value })} />
-                  <input className="form-input" style={{ flex: 1 }} placeholder="Archivo" value={nuevoDocVehiculo.archivo} onChange={(e) => setNuevoDocVehiculo({ ...nuevoDocVehiculo, archivo: e.target.value })} />
-                  <button type="button" className="btn btn--sm btn--secondary" onClick={() => agregarDocumento(documentosVehiculo, setDocumentosVehiculo, nuevoDocVehiculo, setNuevoDocVehiculo)} disabled={!nuevoDocVehiculo.nombre.trim() || !nuevoDocVehiculo.archivo.trim()}>
-                    + Agregar
-                  </button>
-                </div>
-                {documentosVehiculo.length > 0 && (
-                  <div className="document-list" style={{ marginTop: 12 }}>
-                    {documentosVehiculo.map((d, i) => (
-                      <div key={i} className="document-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid #DEE2E6' }}>
-                        <span><strong>{d.nombre}</strong> — {d.tipo.replace(/_/g, ' ')} — {d.archivo}</span>
-                        <button className="btn btn--sm btn--danger" onClick={() => eliminarDocumento(documentosVehiculo, setDocumentosVehiculo, i)}>Eliminar</button>
-                      </div>
-                    ))}
-                  </div>
-                )}
+            <div className="form-section">
+              <div className="drop-zone">
+                <div className="drop-zone__icon">📄</div>
+                <p className="drop-zone__text">
+                  Arrastra aquí tu documento o <strong>selecciona un archivo</strong>
+                </p>
+                <p className="drop-zone__text" style={{ fontSize: '0.75rem', marginTop: 4 }}>
+                  Adjunte el padrón y el seguro internacional del vehículo.
+                </p>
               </div>
-            </FormSection>
+              <div className="form-group">
+                <label htmlFor="docTipo">Tipo de documento <span className="required">*</span></label>
+                <select id="docTipo" className="form-select" value={nuevoDocVehiculo.tipo} onChange={(e) => setNuevoDocVehiculo({ ...nuevoDocVehiculo, tipo: e.target.value })}>
+                  {TIPOS_DOC_VEHICULO.map((t) => (
+                    <option key={t} value={t}>{t.replace(/_/g, ' ')}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="form-group">
+                <label htmlFor="docNombre">Nombre del documento <span className="required">*</span></label>
+                <input id="docNombre" className="form-input" placeholder="Ej: padrón" value={nuevoDocVehiculo.nombre} onChange={(e) => setNuevoDocVehiculo({ ...nuevoDocVehiculo, nombre: e.target.value })} />
+              </div>
+              <div className="form-group">
+                <label htmlFor="docArchivo">Archivo adjunto <span className="required">*</span></label>
+                <input id="docArchivo" className="form-input" placeholder="URL o ruta del archivo" value={nuevoDocVehiculo.archivo} onChange={(e) => setNuevoDocVehiculo({ ...nuevoDocVehiculo, archivo: e.target.value })} />
+              </div>
+              <div className="btn-group" style={{ justifyContent: 'flex-start', marginTop: 0 }}>
+                <button type="button" className="btn btn--sm btn--secondary" onClick={() => agregarDocumento(documentosVehiculo, setDocumentosVehiculo, nuevoDocVehiculo, setNuevoDocVehiculo)} disabled={!nuevoDocVehiculo.nombre.trim() || !nuevoDocVehiculo.archivo.trim()}>
+                  + Agregar documento
+                </button>
+              </div>
+              {documentosVehiculo.length > 0 && (
+                <div className="document-list" style={{ marginTop: 12 }}>
+                  {documentosVehiculo.map((d, i) => (
+                    <div key={i} className="document-item" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid #DEE2E6' }}>
+                      <span><strong>{d.nombre}</strong> — {d.tipo.replace(/_/g, ' ')} — {d.archivo}</span>
+                      <button className="btn btn--sm btn--danger" onClick={() => eliminarDocumento(documentosVehiculo, setDocumentosVehiculo, i)}>Eliminar</button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </SectionCard>
 
           <SectionCard title="Viaje">

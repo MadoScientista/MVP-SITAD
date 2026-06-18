@@ -4,14 +4,11 @@ export default function Breadcrumb({ items }) {
   return (
     <nav className="breadcrumb">
       {items.map((item, i) => (
-        <span key={i}>
+        <span key={i} className="breadcrumb__item">
           {item.to ? (
             <Link to={item.to}>{item.label}</Link>
           ) : (
-            <span>{item.label}</span>
-          )}
-          {i < items.length - 1 && (
-            <span className="breadcrumb__separator"> &gt; </span>
+            <span className="breadcrumb__item--current">{item.label}</span>
           )}
         </span>
       ))}
