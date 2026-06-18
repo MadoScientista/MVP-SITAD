@@ -33,7 +33,7 @@ public class FiscalizacionService {
     }
 
     @Transactional
-    public ControlResponse aprobarTramite(Long solicitudId, String observacion, String funcionarioRut) {
+    public ControlResponse preAprobarTramite(Long solicitudId, String observacion, String funcionarioRut) {
         vehicularClient.actualizarEstado(
                 solicitudId, new EstadoUpdateRequest("APROBADO_EN_VENTANILLA"));
 

@@ -42,7 +42,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(FeignException.class)
     public ResponseEntity<ErrorResponse> handleFeign(FeignException ex) {
-        log.error("Error en comunicación Feign: {}", ex.getMessage(), ex);
+        log.error("Error en comunicación Feign - status: {}, body: {}, message: {}",
+                ex.status(), ex.contentUTF8(), ex.getMessage(), ex);
         return ResponseEntity
                 .status(HttpStatus.BAD_GATEWAY)
                 .body(new ErrorResponse("external_error", "Error al comunicarse con otro servicio"));

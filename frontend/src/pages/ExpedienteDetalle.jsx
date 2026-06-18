@@ -62,7 +62,7 @@ export default function ExpedienteDetalle() {
       return
     }
     try {
-      const body = action === 'aprobar' ? {} : { observacion }
+      const body = action === 'preAprobar' ? {} : { observacion }
       await api.post(`/api/v1/fiscalizacion/tramites/${id}/${action}`, body)
       setShowConfirm(false)
       setAction('')
@@ -102,8 +102,8 @@ export default function ExpedienteDetalle() {
     )
   }
 
-  const confirmTitle = action === 'aprobar' ? 'Pre-Aprobar trámite' : action === 'observar' ? 'Observar trámite' : 'Rechazar trámite'
-  const confirmMsg = action === 'aprobar'
+  const confirmTitle = action === 'preAprobar' ? 'Pre-Aprobar trámite' : action === 'observar' ? 'Observar trámite' : 'Rechazar trámite'
+  const confirmMsg = action === 'preAprobar'
     ? `¿Está seguro de pre-aprobar el trámite ID ${id}?`
     : action === 'observar'
       ? `¿Está seguro de observar el trámite ID ${id}?`
@@ -256,7 +256,7 @@ export default function ExpedienteDetalle() {
           {esFuncionario && (
             <>
               <div className="sidebar-nav__title" style={{ marginTop: 16 }}>Acciones</div>
-              <button className="btn btn--primary" style={{ width: '100%', height: 40, fontSize: 14 }} onClick={() => handleAction('aprobar')}>
+              <button className="btn btn--primary" style={{ width: '100%', height: 40, fontSize: 14 }} onClick={() => handleAction('preAprobar')}>
                 Pre-Aprobar
               </button>
               <button className="btn btn--warning" style={{ width: '100%', height: 40, fontSize: 14 }} onClick={() => handleAction('observar')}>
@@ -274,12 +274,12 @@ export default function ExpedienteDetalle() {
         open={showConfirm}
         title={confirmTitle}
         message={confirmMsg}
-        confirmText={action === 'aprobar' ? 'Pre-Aprobar' : action === 'observar' ? 'Observar' : 'Rechazar'}
-        danger={action !== 'aprobar'}
+        confirmText={action === 'preAprobar' ? 'Pre-Aprobar' : action === 'observar' ? 'Observar' : 'Rechazar'}
+        danger={action !== 'preAprobar'}
         onConfirm={handleConfirm}
         onCancel={handleCancel}
       >
-        {action !== 'aprobar' && (
+        {action !== 'preAprobar' && (
           <div className="form-group">
             <label className="form-label" htmlFor="obs">Observación *</label>
             <textarea

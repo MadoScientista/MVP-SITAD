@@ -17,7 +17,7 @@ export default function Fiscalizacion() {
   const [showConfirm, setShowConfirm] = useState(false)
   const [action, setAction] = useState('')
   const [observacion, setObservacion] = useState('')
-  const [aprobado, setAprobado] = useState(false)
+  const [preAprobado, setPreAprobado] = useState(false)
   const [rutPasajero, setRutPasajero] = useState('')
 
   const handleSearch = async () => {
@@ -25,7 +25,7 @@ export default function Fiscalizacion() {
     setLoading(true)
     setError('')
     setTramite(null)
-    setAprobado(false)
+    setPreAprobado(false)
     try {
       const data = await api.get(`/api/v1/fiscalizacion/tramites?id=${searchId.trim()}`)
       if (Array.isArray(data) && data.length > 0) {
@@ -41,7 +41,7 @@ export default function Fiscalizacion() {
   }
 
   const handleAction = (tipo) => {
-    if (tipo === 'aprobar') {
+    if (tipo === 'preAprobar') {
       setAction(tipo)
       setShowConfirm(true)
     } else {
@@ -57,11 +57,11 @@ export default function Fiscalizacion() {
       return
     }
     try {
-      const body = action === 'aprobar' ? {} : { observacion }
+      const body = action === 'preAprobar' ? {} : { observacion }
       await api.post(`/api/v1/fiscalizacion/tramites/${tramite.id}/${action}`, body)
       setShowConfirm(false)
-      if (action === 'aprobar') {
-        setAprobado(true)
+      if (action === 'preAprobar') {
+        setPreAprobado(true)
       }
       setAction('')
       setObservacion('')
@@ -79,13 +79,13 @@ export default function Fiscalizacion() {
   const handleNuevaFiscalizacion = () => {
     setSearchId('')
     setTramite(null)
-    setAprobado(false)
+    setPreAprobado(false)
     setError('')
   }
 
-  const confirmTitle = action === 'aprobar' ? 'Aprobar trámite' : action === 'observar' ? 'Observar trámite' : 'Rechazar trámite'
-  const confirmMsg = action === 'aprobar'
-    ? `¿Está seguro de aprobar el trámite ID ${tramite?.id}?`
+  const confirmTitle = action === 'preAprobar' ? 'Pre-Aprobar trámite' : action === 'observar' ? 'Observar trámite' : 'Rechazar trámite'
+  const confirmMsg = action === 'preAprobar'
+    ? `¿Está seguro de pre-aprobar el trámite ID ${tramite?.id}?`
     : action === 'observar'
       ? `¿Está seguro de observar el trámite ID ${tramite?.id}?`
       : `¿Está seguro de rechazar el trámite ID ${tramite?.id}?`
@@ -109,7 +109,7 @@ export default function Fiscalizacion() {
         </div>
       </SectionCard>
 
-      {tramite && !aprobado && (
+      {tramite && !preAprobado && (
         <div className="two-column-layout" style={{ marginTop: 16 }}>
           <div className="two-column-layout__main">
             <SectionCard title="Alertas policiales">
@@ -169,8 +169,8 @@ export default function Fiscalizacion() {
             </SectionCard>
 
             <div className="btn-group" style={{ justifyContent: 'flex-start', marginTop: 8 }}>
-              <button className="btn btn--primary" onClick={() => handleAction('aprobar')}>
-                Aprobar
+              <button className="btn btn--primary" onClick={() => handleAction('preAprobar')}>
+                Pre-Aprobar
               </button>
               <button className="btn btn--warning" onClick={() => handleAction('observar')}>
                 Observar
@@ -193,12 +193,12 @@ export default function Fiscalizacion() {
         </div>
       )}
 
-      {tramite && aprobado && (
+      {tramite && preAprobado && (
         <div className="two-column-layout" style={{ marginTop: 16 }}>
           <div className="two-column-layout__main">
-            <SectionCard title="Trámite aprobado">
+            <SectionCard title="Trámite pre-aprobado">
               <div className="message message--success">
-                El trámite ID {tramite.id} ha sido aprobado exitosamente.
+                El trámite ID {tramite.id} ha sido pre-aprobado exitosamente.
               </div>
 
               <div className="form-group" style={{ marginTop: 24 }}>
@@ -230,12 +230,12 @@ export default function Fiscalizacion() {
         open={showConfirm}
         title={confirmTitle}
         message={confirmMsg}
-        confirmText={action === 'aprobar' ? 'Aprobar' : action === 'observar' ? 'Observar' : 'Rechazar'}
-        danger={action !== 'aprobar'}
+        confirmText={action === 'preAprobar' ? 'Pre-Aprobar' : action === 'observar' ? 'Observar' : 'Rechazar'}
+        danger={action !== 'preAprobar'}
         onConfirm={handleConfirm}
         onCancel={handleCancel}
       >
-        {action !== 'aprobar' && (
+        {action !== 'preAprobar' && (
           <div className="form-group">
             <label className="form-label" htmlFor="obs">Observación *</label>
             <textarea

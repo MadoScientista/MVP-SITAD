@@ -29,13 +29,13 @@ public class FiscalizacionController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/tramites/{id}/aprobar")
-    public ResponseEntity<ControlResponse> aprobarTramite(
+    @PostMapping("/tramites/{id}/preAprobar")
+    public ResponseEntity<ControlResponse> preAprobarTramite(
             @PathVariable Long id,
-            @Valid @RequestBody AprobarRequest request,
+            @Valid @RequestBody PreAprobarRequest request,
             Authentication authentication) {
         String funcionarioRut = authentication.getName();
-        ControlResponse response = fiscalizacionService.aprobarTramite(id, request.observacion(), funcionarioRut);
+        ControlResponse response = fiscalizacionService.preAprobarTramite(id, request.observacion(), funcionarioRut);
         return ResponseEntity.ok(response);
     }
 
