@@ -49,3 +49,14 @@ eureka:
       defaultZone: http://eureka-server:8761/eureka
   instance:
     prefer-ip-address: true
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka

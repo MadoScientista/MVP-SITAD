@@ -1,0 +1,77 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "1. Eureka Server",
+            "request": "launch",
+            "mainClass": "cl.sitad.eureka.EurekaServerApplication",
+            "projectName": "eureka-server",
+            "vmArgs": "-Dspring.profiles.active=local",
+            "env": {
+                "JWT_SECRET": "JWT_SECRET_REEMPLAZADO",
+                "DB_PASSWORD": "sitad"
+            }
+        },
+        {
+            "type": "java",
+            "name": "2. Gateway",
+            "request": "launch",
+            "mainClass": "cl.sitad.gateway.GatewayApplication",
+            "projectName": "gateway",
+            "vmArgs": "-Dspring.profiles.active=local",
+            "env": {
+                "JWT_SECRET": "JWT_SECRET_REEMPLAZADO",
+                "DB_PASSWORD": "sitad"
+            }
+        },
+        {
+            "type": "java",
+            "name": "3. Auth",
+            "request": "launch",
+            "mainClass": "cl.sitad.auth.AuthApplication",
+            "projectName": "auth",
+            "vmArgs": "-Dspring.profiles.active=local",
+            "env": {
+                "JWT_SECRET": "JWT_SECRET_REEMPLAZADO",
+                "DB_PASSWORD": "sitad"
+            }
+        },
+        {
+            "type": "java",
+            "name": "4. Vehicular",
+            "request": "launch",
+            "mainClass": "cl.sitad.vehicular.VehicularApplication",
+            "projectName": "vehicular",
+            "vmArgs": "-Dspring.profiles.active=local",
+            "env": {
+                "JWT_SECRET": "JWT_SECRET_REEMPLAZADO",
+                "DB_PASSWORD": "sitad"
+            }
+        },
+        {
+            "type": "java",
+            "name": "5. Fiscalizacion",
+            "request": "launch",
+            "mainClass": "cl.sitad.fiscalizacion.FiscalizacionApplication",
+            "projectName": "fiscalizacion",
+            "vmArgs": "-Dspring.profiles.active=local",
+            "env": {
+                "JWT_SECRET": "JWT_SECRET_REEMPLAZADO",
+                "DB_PASSWORD": "sitad"
+            }
+        },
+        {
+            "type": "java",
+            "name": "6. Servicio Externo",
+            "request": "launch",
+            "mainClass": "cl.sitad.externo.ExternoApplication",
+            "projectName": "servicio-externo",
+            "vmArgs": "-Dspring.profiles.active=local",
+            "env": {
+                "JWT_SECRET": "JWT_SECRET_REEMPLAZADO",
+                "DB_PASSWORD": "sitad"
+            }
+        }
+    ]
+}
