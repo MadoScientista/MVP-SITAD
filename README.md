@@ -29,9 +29,9 @@ Sistema Integrado de Tramitación Aduanera Digital.
 Abrir MySQL Workbench, conectarse a la instancia local y ejecutar el script `utilidadDB/init-db.sql`, o manualmente:
 
 ```sql
-CREATE DATABASE auth_db;
-CREATE DATABASE vehicular_db;
-CREATE DATABASE fiscalizacion_db;
+CREATE DATABASE IF NOT EXISTS auth_db;
+CREATE DATABASE IF NOT EXISTS vehicular_db;
+CREATE DATABASE IF NOT EXISTS fiscalizacion_db;
 
 CREATE USER IF NOT EXISTS 'sitad'@'localhost' IDENTIFIED BY 'sitad';
 
