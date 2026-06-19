@@ -26,44 +26,54 @@ export default function LoginFuncionario() {
   }
 
   return (
-    <div className="login-page">
-      <div className="login-card">
-        <div className="login-card__logo">SITAD</div>
-        <p className="login-card__subtitle">Acceso Funcionario</p>
+    <div className="login-page login-page--funcionario">
+      <div className={`login-card${loading ? ' login-card--loading' : ''}`} role="main">
 
-        <form onSubmit={handleSubmit}>
-          <ErrorMessage message={error} />
+        <div className="login-card__service-identity">
+          <h1 className="login-card__service-name">SITAD</h1>
+          <p className="login-card__service-description">
+            Sistema Integrado de Tramitación Aduanera Digital
+          </p>
+        </div>
 
-          <div className="form-group">
-            <label htmlFor="rut">RUT <span className="required">*</span></label>
-            <input
-              id="rut"
-              className="form-input"
-              type="text"
-              placeholder="11.111.111-1"
-              value={rut}
-              onChange={(e) => setRut(e.target.value)}
-              required
-            />
-          </div>
+        <hr className="login-card__divider" aria-hidden="true" />
 
-          <div className="form-group">
-            <label htmlFor="password">Contraseña <span className="required">*</span></label>
-            <input
-              id="password"
-              className="form-input"
-              type="password"
-              placeholder="Ingrese su contraseña"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
+        <div className="login-card__cta">
 
-          <button className="btn btn--primary" type="submit" disabled={loading}>
-            {loading ? 'Ingresando...' : 'Iniciar Sesión'}
-          </button>
-        </form>
+          <form onSubmit={handleSubmit} style={{ width: '100%' }}>
+            <ErrorMessage message={error} />
+
+            <div className="form-group">
+              <label htmlFor="rut">RUT <span className="required">*</span></label>
+              <input
+                id="rut"
+                className="form-input"
+                type="text"
+                placeholder="11.111.111-1"
+                value={rut}
+                onChange={(e) => setRut(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="password">Contraseña <span className="required">*</span></label>
+              <input
+                id="password"
+                className="form-input"
+                type="password"
+                placeholder="Ingrese su contraseña"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+
+            <button className="btn btn--primary" type="submit" disabled={loading} style={{ width: '100%' }}>
+              {loading ? 'Ingresando...' : 'Iniciar Sesión'}
+            </button>
+          </form>
+        </div>
 
         <div className="login-card__footer">
           <Link to="/login/ciudadano">Acceso ciudadano</Link>

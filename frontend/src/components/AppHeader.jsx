@@ -1,8 +1,10 @@
 import { useAuth } from '../contexts/AuthContext'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 
 export default function AppHeader() {
   const { user, logout, isAuthenticated } = useAuth()
+  const location = useLocation()
+  const esLoginFuncionario = location.pathname === '/login/funcionario'
 
   return (
     <>
@@ -27,7 +29,7 @@ export default function AppHeader() {
             />
           </div>
           {!isAuthenticated && (
-            <span className="site-header__subtitle">Plataforma para pasajeros</span>
+            <span className="site-header__subtitle">{esLoginFuncionario ? 'Plataforma institucional' : 'Plataforma para pasajeros'}</span>
           )}
           {isAuthenticated && (
             <>

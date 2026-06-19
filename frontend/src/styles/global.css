@@ -818,6 +818,10 @@ textarea.form-input {
   padding: var(--space-lg);
 }
 
+.login-page--funcionario {
+  background-color: #C8D6E5;
+}
+
 .login-card {
   background-color: var(--color-white);
   border: 1px solid var(--color-accent);
@@ -924,6 +928,10 @@ textarea.form-input {
   text-align: center;
   margin: 0;
   line-height: 1.5;
+}
+
+.text-claveunica {
+  color: #0F69C4;
 }
 
 .login-card__cta {

@@ -40,7 +40,7 @@ export default function LoginCiudadano() {
 
         <div className="login-card__cta">
           <p className="login-card__instruction">
-            Inicia sesión con tu ClaveÚnica
+            Inicia sesión con tu <strong className="text-claveunica">ClaveÚnica</strong>
           </p>
 
           <form onSubmit={handleSubmit} style={{ width: '100%' }}>
