@@ -104,6 +104,7 @@ export default function DashboardFuncionario() {
           <input className="form-input" style={{ width: 160 }} placeholder="RUN" value={searchRut} onChange={(e) => setSearchRut(e.target.value)} />
           <input className="form-input" style={{ width: 140 }} placeholder="N° Expediente" value={searchId} onChange={(e) => setSearchId(e.target.value)} />
           <button className="btn btn--primary" onClick={handleSearch}>Buscar</button>
+          <button className="btn btn--secondary" onClick={() => navigate('/funcionario/fiscalizacion')}>Nueva Fiscalización</button>
         </div>
 
         <DataTable columns={columns} data={filtradas} emptyMessage="No se encontraron trámites" />
