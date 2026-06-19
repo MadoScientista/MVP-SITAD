@@ -216,10 +216,10 @@ export default function Fiscalizacion() {
             </SectionCard>
 
             <SectionCard title="Código de aprobación QR">
-              <div style={{ display: 'flex', gap: 24, alignItems: 'flex-start', flexWrap: 'wrap' }}>
-                <QrCodeDisplay data={`SITAD-APROBACION:${tramite.id}:${tramite.codigoAprobacion}`} size={180} />
-                <div style={{ fontSize: 14, color: '#6C757D', lineHeight: 1.8 }}>
-                  <p>El pasajero puede presentar este código QR en el paso fronterizo.</p>
+              <div style={{ textAlign: 'center' }}>
+                <QrCodeDisplay data={`SITAD-APROBACION:${tramite.id}:${tramite.codigoAprobacion}`} size={200} />
+                <div style={{ fontSize: 14, color: '#6C757D', lineHeight: 1.8, marginTop: 16 }}>
+                  <p>El pasajero debe presentar este código QR en el paso fronterizo.</p>
                   <p><strong>Código:</strong> <code style={{ fontSize: 12 }}>{tramite.codigoAprobacion}</code></p>
                   <p><strong>Patente:</strong> {tramite.patente}</p>
                   <p><strong>Conductor:</strong> {tramite.conductorNombre} {tramite.conductorApellidoPaterno || ''}</p>

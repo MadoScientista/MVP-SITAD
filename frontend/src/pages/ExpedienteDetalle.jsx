@@ -221,10 +221,14 @@ export default function ExpedienteDetalle() {
 
           {solicitud.estado === 'APROBADO_EN_VENTANILLA' && solicitud.codigoAprobacion && (
             <SectionCard title="Código de aprobación QR">
-              <div style={{ display: 'flex', gap: 24, alignItems: 'flex-start', flexWrap: 'wrap' }}>
-                <QrCodeDisplay data={`SITAD-APROBACION:${solicitud.id}:${solicitud.codigoAprobacion}`} size={180} />
-                <div style={{ fontSize: 14, color: '#6C757D', lineHeight: 1.8 }}>
-                  <p>Presente este código QR en el paso fronterizo para validar su permiso de salida/ingreso temporal.</p>
+              <div style={{ textAlign: 'center' }}>
+                <QrCodeDisplay data={`SITAD-APROBACION:${solicitud.id}:${solicitud.codigoAprobacion}`} size={200} />
+                <div style={{ fontSize: 14, color: '#6C757D', lineHeight: 1.8, marginTop: 16 }}>
+                  {esFuncionario ? (
+                    <p>Código QR de aprobación del trámite. El pasajero debe presentarlo en el paso fronterizo.</p>
+                  ) : (
+                    <p>Presente este código QR en el paso fronterizo para validar su permiso de salida/ingreso temporal.</p>
+                  )}
                   <p><strong>Código:</strong> <code style={{ fontSize: 12 }}>{solicitud.codigoAprobacion}</code></p>
                   <p><strong>Vigencia:</strong> {solicitud.fechaSalida} — {solicitud.fechaRetorno}</p>
                 </div>

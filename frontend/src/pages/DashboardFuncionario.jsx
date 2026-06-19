@@ -76,16 +76,9 @@ export default function DashboardFuncionario() {
     {
       label: 'Acción',
       render: (r) => (
-        <div style={{ display: 'flex', gap: 4 }}>
-          <button className="btn btn--sm btn--primary" onClick={() => navigate(`/funcionario/expedientes/${r.id}`)}>
-            Ir a solicitud
-          </button>
-          {r.estado === 'APROBADO_EN_VENTANILLA' && r.codigoAprobacion && (
-            <button className="btn btn--sm btn--secondary" title="Ver código QR" onClick={() => navigate(`/funcionario/expedientes/${r.id}`)}>
-              QR
-            </button>
-          )}
-        </div>
+        <button className="btn btn--sm btn--primary" onClick={() => navigate(`/funcionario/expedientes/${r.id}`)}>
+          Ir a solicitud
+        </button>
       ),
     },
   ]

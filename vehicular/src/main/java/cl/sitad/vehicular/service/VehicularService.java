@@ -155,7 +155,7 @@ public class VehicularService {
                 .toList();
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public List<SolicitudResponse> buscarTramites(Optional<String> estado, Optional<String> conductorRut, Optional<String> patente, Optional<Long> id) {
         List<SalidaTemporalVehiculo> solicitudes;
 
@@ -182,6 +182,7 @@ public class VehicularService {
                     .toList();
         }
 
+        solicitudes.forEach(this::asegurarCodigoAprobacion);
         return solicitudes.stream().map(this::toSolicitudResponse).toList();
     }
 
@@ -264,11 +265,19 @@ public class VehicularService {
         return toSolicitudResponse(solicitud);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public SolicitudResponse obtenerSolicitud(Long id) {
         SalidaTemporalVehiculo solicitud = salidaRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Solicitud no encontrada"));
+        asegurarCodigoAprobacion(solicitud);
         return toSolicitudResponse(solicitud);
+    }
+
+    private void asegurarCodigoAprobacion(SalidaTemporalVehiculo solicitud) {
+        if (solicitud.getEstado() == EstadoTramite.APROBADO_EN_VENTANILLA && solicitud.getCodigoAprobacion() == null) {
+            solicitud.setCodigoAprobacion(UUID.randomUUID().toString());
+            salidaRepository.save(solicitud);
+        }
     }
 
     @Transactional(readOnly = true)
