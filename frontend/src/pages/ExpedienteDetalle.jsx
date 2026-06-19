@@ -218,7 +218,25 @@ export default function ExpedienteDetalle() {
             </SectionCard>
           )}
 
-          {historial.length > 0 && (
+          {historial.filter(h => h.observacion).length > 0 && (
+            <SectionCard title="Observaciones">
+              <div className="timeline">
+                {historial.filter(h => h.observacion).map((h) => (
+                  <div key={h.id} className="timeline-item">
+                    <div className="timeline-item__header">
+                      <span className={`status-badge status-badge--${h.resultado.toLowerCase()}`}>
+                        {h.resultado}
+                      </span>
+                      <small>{h.fechaControl}</small>
+                    </div>
+                    <p className="timeline-item__body">{h.observacion}</p>
+                  </div>
+                ))}
+              </div>
+            </SectionCard>
+          )}
+
+          {esFuncionario && historial.length > 0 && (
             <SectionCard title="Historial de cambios y observaciones">
               <div className="timeline">
                 {historial.map((h) => (

@@ -26,6 +26,9 @@ export default function AppHeader() {
               alt="SITAD - Sistema Integrado de Tramitación Aduanera Digital"
             />
           </div>
+          {!isAuthenticated && (
+            <span className="site-header__subtitle">Plataforma para pasajeros</span>
+          )}
           {isAuthenticated && (
             <>
               <nav className="site-nav">
