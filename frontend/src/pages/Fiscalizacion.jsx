@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../services/api'
 import PageTitle from '../components/PageTitle'
@@ -9,9 +9,14 @@ import ErrorMessage from '../components/ErrorMessage'
 import ConfirmDialog from '../components/ConfirmDialog'
 import QrCodeDisplay from '../components/QrCodeDisplay'
 
+const spinKeyframes = `
+@keyframes spin { to { transform: rotate(360deg); } }
+`
+
 export default function Fiscalizacion() {
   const navigate = useNavigate()
   const [searchId, setSearchId] = useState('')
+  const [searchRut, setSearchRut] = useState('')
   const [tramite, setTramite] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -19,9 +24,11 @@ export default function Fiscalizacion() {
   const [action, setAction] = useState('')
   const [observacion, setObservacion] = useState('')
   const [preAprobado, setPreAprobado] = useState(false)
-  const [rutPasajero, setRutPasajero] = useState('')
+  const [escanearTipo, setEscanearTipo] = useState('')
+  const searchIdRef = useRef(null)
+  const searchRutRef = useRef(null)
 
-  const handleSearch = async () => {
+  const buscarPorId = async () => {
     if (!searchId.trim()) return
     setLoading(true)
     setError('')
@@ -38,6 +45,50 @@ export default function Fiscalizacion() {
       setError(e.message)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const buscarPorRut = async (rut) => {
+    const r = rut || searchRut.trim()
+    if (!r) return
+    setLoading(true)
+    setError('')
+    setTramite(null)
+    setPreAprobado(false)
+    try {
+      const data = await api.get(`/api/v1/fiscalizacion/tramites?rut=${r}`)
+      if (Array.isArray(data) && data.length > 0) {
+        setTramite(data[0])
+      } else {
+        setError('No se encontraron trámites para ese RUT')
+      }
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const simularEscaner = async (tipo) => {
+    setEscanearTipo(tipo)
+    setError('')
+    await new Promise(r => setTimeout(r, 1000))
+    try {
+      if (tipo === 'qr') {
+        const data = await api.get('/api/v1/fiscalizacion/tramites?estado=APROBADO_EN_VENTANILLA')
+        if (Array.isArray(data) && data.length > 0) {
+          setTramite(data[0])
+        } else {
+          setError('No hay trámites pre-aprobados')
+        }
+      } else if (tipo === 'cedula') {
+        setSearchRut('12345678-9')
+        await buscarPorRut('12345678-9')
+      }
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setEscanearTipo('')
     }
   }
 
@@ -97,6 +148,7 @@ export default function Fiscalizacion() {
 
   return (
     <div className="page-container">
+      <style>{spinKeyframes}</style>
       <Breadcrumb items={[
         { label: 'Inicio', to: '/funcionario/dashboard' },
         { label: 'Fiscalización' },
@@ -105,141 +157,204 @@ export default function Fiscalizacion() {
 
       <ErrorMessage message={error} />
 
-      <SectionCard title="Buscar trámite">
-        <div className="search-bar">
-          <input className="form-input" style={{ width: 200 }} placeholder="N° de trámite / ID" value={searchId} onChange={(e) => setSearchId(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') handleSearch() }} />
-          <button className="btn btn--primary" onClick={handleSearch} disabled={loading || !searchId.trim()}>
-            {loading ? 'Buscando...' : 'Buscar'}
+      <div className="two-column-layout">
+        <div className="two-column-layout__main">
+
+          {!tramite && (
+            <SectionCard title="Buscar trámite">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+
+                <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
+                  <div style={{
+                    width: 400, height: 400, border: '2px dashed #ADB5BD', borderRadius: 8,
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, flexShrink: 0,
+                    backgroundColor: '#F2F2F2',
+                  }}>
+                    {escanearTipo === 'qr' ? (
+                      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" style={{ animation: 'spin 1s linear infinite' }}>
+                        <circle cx="12" cy="12" r="10" stroke="#0D6EFD" strokeWidth="2.5" strokeDasharray="31.4 31.4" strokeLinecap="round" />
+                      </svg>
+                    ) : (
+                      <>
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#6C757D" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="3" y="3" width="7" height="7" rx="1" />
+                          <rect x="14" y="3" width="7" height="7" rx="1" />
+                          <rect x="3" y="14" width="7" height="7" rx="1" />
+                          <rect x="14" y="14" width="7" height="7" rx="1" />
+                        </svg>
+                        <span style={{ fontSize: 14, color: '#6C757D', textAlign: 'center' }}>Ubique el código QR aquí</span>
+                      </>
+                    )}
+                  </div>
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontWeight: 600, marginBottom: 6, color: '#212529' }}>Escanear código QR de solicitud</div>
+                  <p style={{ fontSize: 13, color: '#6C757D', lineHeight: 1.5, margin: '0 auto 12px auto', maxWidth: 360 }}>
+                    Solicite al pasajero mostrar el código QR de pre aprobación digital y ubíquelo frente al escaner hasta que se vea correctamente en el visor de la izquierda. Luego pinche en escanear.
+                  </p>
+                  <button className="btn btn--primary" onClick={() => simularEscaner('qr')} disabled={escanearTipo !== ''}>
+                    {escanearTipo === 'qr' ? 'Escaneando...' : 'Escanear'}
+                  </button>
+                </div>
+                </div>
+
+                <hr style={{ border: 'none', borderTop: '1px solid #DEE2E6', margin: 0 }} />
+
+                <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
+                  <div style={{
+                    width: 400, height: 248, border: '2px dashed #ADB5BD', borderRadius: 8,
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, flexShrink: 0,
+                    backgroundColor: '#F2F2F2',
+                  }}>
+                    {escanearTipo === 'cedula' ? (
+                      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" style={{ animation: 'spin 1s linear infinite' }}>
+                        <circle cx="12" cy="12" r="10" stroke="#0D6EFD" strokeWidth="2.5" strokeDasharray="31.4 31.4" strokeLinecap="round" />
+                      </svg>
+                    ) : (
+                      <>
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#6C757D" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="2" y="4" width="20" height="16" rx="2" />
+                          <circle cx="8" cy="10" r="2" />
+                          <path d="M20 16l-3.5-3.5a2 2 0 0 0-2.83 0L10 16" />
+                          <path d="M14 14l-1-1a2 2 0 0 0-2.83 0l-3.5 3.5" />
+                        </svg>
+                        <span style={{ fontSize: 14, color: '#6C757D', textAlign: 'center' }}>Ubique la cédula de identidad aquí</span>
+                      </>
+                    )}
+                  </div>
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontWeight: 600, marginBottom: 6, color: '#212529' }}>Escanear cédula de identidad</div>
+                    <p style={{ fontSize: 13, color: '#6C757D', lineHeight: 1.5, margin: '0 auto 12px auto', maxWidth: 360 }}>
+                      Solicite al pasajero su cédula de identidad y ubíquela frente al escaner hasta que se vea correctamente en el visor de la izquierda.
+                    </p>
+                    <button className="btn btn--primary" onClick={() => simularEscaner('cedula')} disabled={escanearTipo !== ''}>
+                      {escanearTipo === 'cedula' ? 'Escaneando...' : 'Escanear'}
+                    </button>
+                  </div>
+                </div>
+
+                <hr style={{ border: 'none', borderTop: '1px solid #DEE2E6', margin: 0 }} />
+
+                <div>
+                  <div style={{ fontWeight: 600, marginBottom: 10, color: '#212529' }}>Ingresar número de trámite</div>
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                    <input ref={searchIdRef} className="form-input" style={{ width: 220 }} placeholder="N° de trámite / ID" value={searchId} onChange={(e) => setSearchId(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') buscarPorId() }} />
+                  <button className="btn btn--primary" onClick={buscarPorId} disabled={loading}>
+                    {loading ? 'Buscando...' : 'Buscar'}
+                  </button>
+                  </div>
+                </div>
+
+              </div>
+            </SectionCard>
+          )}
+
+          {tramite && !preAprobado && (
+            <>
+              <SectionCard title="Alertas policiales">
+                <div className="message message--success">
+                  No se registran alertas activas para este trámite.
+                </div>
+                <ul style={{ paddingLeft: 24, fontSize: 14, color: '#6C757D', lineHeight: 1.8, marginTop: 8 }}>
+                  <li>Encargos por robo: Sin novedad</li>
+                  <li>Arraigo nacional: Sin novedad</li>
+                  <li>Órdenes de detención: Sin novedad</li>
+                </ul>
+              </SectionCard>
+
+              <SectionCard title="Información de la solicitud">
+                <div className="detail-grid">
+                  <div className="detail-item">
+                    <span className="detail-item__label">ID Trámite</span>
+                    <span className="detail-item__value">{tramite.id}</span>
+                  </div>
+                  <div className="detail-item">
+                    <span className="detail-item__label">Estado</span>
+                    <span className="detail-item__value"><StatusBadge estado={tramite.estado} /></span>
+                  </div>
+                  <div className="detail-item">
+                    <span className="detail-item__label">RUT Conductor</span>
+                    <span className="detail-item__value">{tramite.conductorRut}</span>
+                  </div>
+                  <div className="detail-item">
+                    <span className="detail-item__label">Nombre Conductor</span>
+                    <span className="detail-item__value">{tramite.conductorNombre}</span>
+                  </div>
+                  <div className="detail-item">
+                    <span className="detail-item__label">Patente</span>
+                    <span className="detail-item__value">{tramite.patente}</span>
+                  </div>
+                  <div className="detail-item">
+                    <span className="detail-item__label">Marca / Modelo</span>
+                    <span className="detail-item__value">{tramite.marca} {tramite.modelo}</span>
+                  </div>
+                  <div className="detail-item">
+                    <span className="detail-item__label">País destino</span>
+                    <span className="detail-item__value">{tramite.paisDestino}</span>
+                  </div>
+                  <div className="detail-item">
+                    <span className="detail-item__label">Paso fronterizo</span>
+                    <span className="detail-item__value">{tramite.pasoFronterizo}</span>
+                  </div>
+                  <div className="detail-item">
+                    <span className="detail-item__label">Fecha salida</span>
+                    <span className="detail-item__value">{tramite.fechaSalida}</span>
+                  </div>
+                  <div className="detail-item">
+                    <span className="detail-item__label">Fecha retorno</span>
+                    <span className="detail-item__value">{tramite.fechaRetorno}</span>
+                  </div>
+                </div>
+              </SectionCard>
+
+              <div className="btn-group" style={{ justifyContent: 'flex-start', marginTop: 8 }}>
+                <button className="btn btn--primary" onClick={() => handleAction('preAprobar')}>
+                  Pre-Aprobar
+                </button>
+                <button className="btn btn--warning" onClick={() => handleAction('observar')}>
+                  Observar
+                </button>
+                <button className="btn btn--danger" onClick={() => handleAction('rechazar')}>
+                  Rechazar
+                </button>
+              </div>
+            </>
+          )}
+
+          {tramite && preAprobado && (
+            <>
+              <SectionCard title="Trámite pre-aprobado">
+                <div className="message message--success">
+                  El trámite ID {tramite.id} ha sido pre-aprobado exitosamente.
+                </div>
+              </SectionCard>
+
+              <SectionCard title="Código de aprobación QR">
+                <div style={{ textAlign: 'center' }}>
+                  <QrCodeDisplay data={`SITAD-APROBACION:${tramite.id}:${tramite.codigoAprobacion}`} size={200} />
+                  <div style={{ fontSize: 14, color: '#6C757D', lineHeight: 1.8, marginTop: 16 }}>
+                    <p>El pasajero debe presentar este código QR en el paso fronterizo.</p>
+                    <p><strong>Código:</strong> <code style={{ fontSize: 12 }}>{tramite.codigoAprobacion}</code></p>
+                    <p><strong>Patente:</strong> {tramite.patente}</p>
+                    <p><strong>Conductor:</strong> {tramite.conductorNombre} {tramite.conductorApellidoPaterno || ''}</p>
+                    <p><strong>Vigencia:</strong> {tramite.fechaSalida} — {tramite.fechaRetorno}</p>
+                  </div>
+                </div>
+              </SectionCard>
+            </>
+          )}
+
+        </div>
+
+        <aside className="sidebar-nav">
+          <div className="sidebar-nav__title">Opciones</div>
+          <button className="sidebar-nav__btn" onClick={handleNuevaFiscalizacion}>
+            Nueva fiscalización
           </button>
-        </div>
-      </SectionCard>
-
-      {tramite && !preAprobado && (
-        <div className="two-column-layout" style={{ marginTop: 16 }}>
-          <div className="two-column-layout__main">
-            <SectionCard title="Alertas policiales">
-              <div className="message message--info">
-                No se registran alertas activas para este trámite.
-              </div>
-              <ul style={{ paddingLeft: 24, fontSize: 14, color: '#6C757D', lineHeight: 1.8, marginTop: 8 }}>
-                <li>Encargos por robo: Sin novedad</li>
-                <li>Arraigo nacional: Sin novedad</li>
-                <li>Órdenes de detención: Sin novedad</li>
-              </ul>
-            </SectionCard>
-
-            <SectionCard title="Información de la solicitud">
-              <div className="detail-grid">
-                <div className="detail-item">
-                  <span className="detail-item__label">ID Trámite</span>
-                  <span className="detail-item__value">{tramite.id}</span>
-                </div>
-                <div className="detail-item">
-                  <span className="detail-item__label">Estado</span>
-                  <span className="detail-item__value"><StatusBadge estado={tramite.estado} /></span>
-                </div>
-                <div className="detail-item">
-                  <span className="detail-item__label">RUT Conductor</span>
-                  <span className="detail-item__value">{tramite.conductorRut}</span>
-                </div>
-                <div className="detail-item">
-                  <span className="detail-item__label">Nombre Conductor</span>
-                  <span className="detail-item__value">{tramite.conductorNombre}</span>
-                </div>
-                <div className="detail-item">
-                  <span className="detail-item__label">Patente</span>
-                  <span className="detail-item__value">{tramite.patente}</span>
-                </div>
-                <div className="detail-item">
-                  <span className="detail-item__label">Marca / Modelo</span>
-                  <span className="detail-item__value">{tramite.marca} {tramite.modelo}</span>
-                </div>
-                <div className="detail-item">
-                  <span className="detail-item__label">País destino</span>
-                  <span className="detail-item__value">{tramite.paisDestino}</span>
-                </div>
-                <div className="detail-item">
-                  <span className="detail-item__label">Paso fronterizo</span>
-                  <span className="detail-item__value">{tramite.pasoFronterizo}</span>
-                </div>
-                <div className="detail-item">
-                  <span className="detail-item__label">Fecha salida</span>
-                  <span className="detail-item__value">{tramite.fechaSalida}</span>
-                </div>
-                <div className="detail-item">
-                  <span className="detail-item__label">Fecha retorno</span>
-                  <span className="detail-item__value">{tramite.fechaRetorno}</span>
-                </div>
-              </div>
-            </SectionCard>
-
-            <div className="btn-group" style={{ justifyContent: 'flex-start', marginTop: 8 }}>
-              <button className="btn btn--primary" onClick={() => handleAction('preAprobar')}>
-                Pre-Aprobar
-              </button>
-              <button className="btn btn--warning" onClick={() => handleAction('observar')}>
-                Observar
-              </button>
-              <button className="btn btn--danger" onClick={() => handleAction('rechazar')}>
-                Rechazar
-              </button>
-            </div>
-          </div>
-
-          <aside className="sidebar-nav">
-            <div className="sidebar-nav__title">Opciones</div>
-            <button className="sidebar-nav__btn" onClick={handleNuevaFiscalizacion}>
-              Nueva fiscalización
-            </button>
-            <button className="sidebar-nav__btn sidebar-nav__btn--back" onClick={() => navigate(-1)}>
-              Atrás
-            </button>
-          </aside>
-        </div>
-      )}
-
-      {tramite && preAprobado && (
-        <div className="two-column-layout" style={{ marginTop: 16 }}>
-          <div className="two-column-layout__main">
-            <SectionCard title="Trámite pre-aprobado">
-              <div className="message message--success">
-                El trámite ID {tramite.id} ha sido pre-aprobado exitosamente.
-              </div>
-
-              <div className="form-group" style={{ marginTop: 24 }}>
-                <label htmlFor="rutPasajero">Ingrese RUT del pasajero</label>
-                <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
-                  <input id="rutPasajero" className="form-input" style={{ flex: 1 }} placeholder="12345678-9" value={rutPasajero} onChange={(e) => setRutPasajero(e.target.value)} />
-                  <button className="btn btn--primary">Buscar</button>
-                </div>
-              </div>
-            </SectionCard>
-
-            <SectionCard title="Código de aprobación QR">
-              <div style={{ textAlign: 'center' }}>
-                <QrCodeDisplay data={`SITAD-APROBACION:${tramite.id}:${tramite.codigoAprobacion}`} size={200} />
-                <div style={{ fontSize: 14, color: '#6C757D', lineHeight: 1.8, marginTop: 16 }}>
-                  <p>El pasajero debe presentar este código QR en el paso fronterizo.</p>
-                  <p><strong>Código:</strong> <code style={{ fontSize: 12 }}>{tramite.codigoAprobacion}</code></p>
-                  <p><strong>Patente:</strong> {tramite.patente}</p>
-                  <p><strong>Conductor:</strong> {tramite.conductorNombre} {tramite.conductorApellidoPaterno || ''}</p>
-                  <p><strong>Vigencia:</strong> {tramite.fechaSalida} — {tramite.fechaRetorno}</p>
-                </div>
-              </div>
-            </SectionCard>
-          </div>
-
-          <aside className="sidebar-nav">
-            <div className="sidebar-nav__title">Opciones</div>
-            <button className="sidebar-nav__btn" onClick={handleNuevaFiscalizacion}>
-              Nueva fiscalización
-            </button>
-            <button className="sidebar-nav__btn sidebar-nav__btn--back" onClick={() => navigate(-1)}>
-              Atrás
-            </button>
-          </aside>
-        </div>
-      )}
+          <button className="sidebar-nav__btn sidebar-nav__btn--back" onClick={() => navigate(-1)}>
+            Atrás
+          </button>
+        </aside>
+      </div>
 
       <ConfirmDialog
         open={showConfirm}
