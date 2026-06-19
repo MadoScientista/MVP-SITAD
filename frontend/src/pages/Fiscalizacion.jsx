@@ -7,6 +7,7 @@ import SectionCard from '../components/SectionCard'
 import StatusBadge from '../components/StatusBadge'
 import ErrorMessage from '../components/ErrorMessage'
 import ConfirmDialog from '../components/ConfirmDialog'
+import QrCodeDisplay from '../components/QrCodeDisplay'
 
 export default function Fiscalizacion() {
   const navigate = useNavigate()
@@ -61,6 +62,10 @@ export default function Fiscalizacion() {
       await api.post(`/api/v1/fiscalizacion/tramites/${tramite.id}/${action}`, body)
       setShowConfirm(false)
       if (action === 'preAprobar') {
+        const data = await api.get(`/api/v1/fiscalizacion/tramites?id=${tramite.id}`)
+        if (Array.isArray(data) && data.length > 0) {
+          setTramite(data[0])
+        }
         setPreAprobado(true)
       }
       setAction('')
@@ -206,9 +211,19 @@ export default function Fiscalizacion() {
                 <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
                   <input id="rutPasajero" className="form-input" style={{ flex: 1 }} placeholder="12345678-9" value={rutPasajero} onChange={(e) => setRutPasajero(e.target.value)} />
                   <button className="btn btn--primary">Buscar</button>
-                  <button className="btn btn--secondary" title="Escanear código QR">
-                    Escanear QR
-                  </button>
+                </div>
+              </div>
+            </SectionCard>
+
+            <SectionCard title="Código de aprobación QR">
+              <div style={{ display: 'flex', gap: 24, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+                <QrCodeDisplay data={`SITAD-APROBACION:${tramite.id}:${tramite.codigoAprobacion}`} size={180} />
+                <div style={{ fontSize: 14, color: '#6C757D', lineHeight: 1.8 }}>
+                  <p>El pasajero puede presentar este código QR en el paso fronterizo.</p>
+                  <p><strong>Código:</strong> <code style={{ fontSize: 12 }}>{tramite.codigoAprobacion}</code></p>
+                  <p><strong>Patente:</strong> {tramite.patente}</p>
+                  <p><strong>Conductor:</strong> {tramite.conductorNombre} {tramite.conductorApellidoPaterno || ''}</p>
+                  <p><strong>Vigencia:</strong> {tramite.fechaSalida} — {tramite.fechaRetorno}</p>
                 </div>
               </div>
             </SectionCard>

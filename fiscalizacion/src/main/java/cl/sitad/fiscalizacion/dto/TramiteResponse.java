@@ -21,6 +21,7 @@ public record TramiteResponse(
     String pasoFronterizo,
     String estado,
     String observacion,
+    String codigoAprobacion,
     String fechaSolicitud,
     String fechaEstado,
     List<DocumentoResponse> documentos

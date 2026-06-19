@@ -9,6 +9,7 @@ import StatusBadge from '../components/StatusBadge'
 import LoadingSpinner from '../components/LoadingSpinner'
 import ErrorMessage from '../components/ErrorMessage'
 import ConfirmDialog from '../components/ConfirmDialog'
+import QrCodeDisplay from '../components/QrCodeDisplay'
 
 const LINKS = [
   { label: 'Solicitar ingreso o salida temporal de vehículo', path: '/ciudadano/solicitudes/nueva' },
@@ -215,6 +216,19 @@ export default function ExpedienteDetalle() {
                   ))}
                 </tbody>
               </table>
+            </SectionCard>
+          )}
+
+          {solicitud.estado === 'APROBADO_EN_VENTANILLA' && solicitud.codigoAprobacion && (
+            <SectionCard title="Código de aprobación QR">
+              <div style={{ display: 'flex', gap: 24, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+                <QrCodeDisplay data={`SITAD-APROBACION:${solicitud.id}:${solicitud.codigoAprobacion}`} size={180} />
+                <div style={{ fontSize: 14, color: '#6C757D', lineHeight: 1.8 }}>
+                  <p>Presente este código QR en el paso fronterizo para validar su permiso de salida/ingreso temporal.</p>
+                  <p><strong>Código:</strong> <code style={{ fontSize: 12 }}>{solicitud.codigoAprobacion}</code></p>
+                  <p><strong>Vigencia:</strong> {solicitud.fechaSalida} — {solicitud.fechaRetorno}</p>
+                </div>
+              </div>
             </SectionCard>
           )}
 

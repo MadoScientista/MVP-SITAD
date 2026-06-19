@@ -10,7 +10,7 @@ import DataTable from '../components/DataTable'
 import LoadingSpinner from '../components/LoadingSpinner'
 import SidebarNav from '../components/SidebarNav'
 
-const ESTADOS_NO_TERMINALES = ['BORRADOR', 'PENDIENTE_DOCUMENTACION', 'PRE_VALIDADO_DIGITAL', 'OBSERVADO']
+const ESTADOS_VIAJE_ACTIVO = ['BORRADOR', 'PENDIENTE_DOCUMENTACION', 'PRE_VALIDADO_DIGITAL', 'OBSERVADO', 'APROBADO_EN_VENTANILLA']
 
 export default function DashboardCiudadano() {
   const { user } = useAuth()
@@ -45,7 +45,7 @@ export default function DashboardCiudadano() {
   const proximosViajes = solicitudes.filter((s) => {
     if (!s.fechaSalida) return false
     const salida = new Date(s.fechaSalida + (s.fechaSalida.includes('T') ? '' : 'T00:00:00'))
-    return salida >= hoy && ESTADOS_NO_TERMINALES.includes(s.estado)
+    return salida >= hoy && ESTADOS_VIAJE_ACTIVO.includes(s.estado)
   })
 
   const observacionesPendientes = solicitudes.filter((s) => s.estado === 'OBSERVADO')
@@ -153,7 +153,7 @@ export default function DashboardCiudadano() {
             </SectionCard>
           )}
 
-          <SectionCard title="Próximos viajes">
+              <SectionCard title="Próximos viajes">
             <DataTable
               columns={[
                 { label: 'Patente', key: 'patente' },
@@ -162,7 +162,14 @@ export default function DashboardCiudadano() {
                 { label: 'Salida', key: 'fechaSalida' },
                 { label: 'Retorno', key: 'fechaRetorno' },
                 { label: 'Estado', render: (r) => <StatusBadge estado={r.estado} /> },
-                { label: 'Acción', render: (r) => <button className="btn btn--sm btn--primary" onClick={() => navigate(`/ciudadano/expedientes/${r.id}`)}>Ver</button> },
+                { label: 'Acción', render: (r) => (
+                  <div style={{ display: 'flex', gap: 4 }}>
+                    <button className="btn btn--sm btn--primary" onClick={() => navigate(`/ciudadano/expedientes/${r.id}`)}>Ver</button>
+                    {r.estado === 'APROBADO_EN_VENTANILLA' && r.codigoAprobacion && (
+                      <button className="btn btn--sm btn--secondary" title="Ver código QR" onClick={() => navigate(`/ciudadano/expedientes/${r.id}`)}>QR</button>
+                    )}
+                  </div>
+                )},
               ]}
               data={proximosViajes}
               emptyMessage="Sin viajes próximos"

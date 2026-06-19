@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 @Service
@@ -192,6 +193,9 @@ public class VehicularService {
         if (observacion != null) {
             solicitud.setObservacion(observacion);
         }
+        if (nuevoEstado == EstadoTramite.APROBADO_EN_VENTANILLA && solicitud.getCodigoAprobacion() == null) {
+            solicitud.setCodigoAprobacion(UUID.randomUUID().toString());
+        }
         solicitud.setFechaEstado(LocalDateTime.now());
         solicitud = salidaRepository.save(solicitud);
         return toSolicitudResponse(solicitud);
@@ -276,6 +280,31 @@ public class VehicularService {
                 .toList();
     }
 
+    public QrDataResponse obtenerQrData(Long id) {
+        SalidaTemporalVehiculo solicitud = salidaRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Tr\u00E1mite no encontrado"));
+        if (solicitud.getEstado() != EstadoTramite.APROBADO_EN_VENTANILLA) {
+            throw new IllegalStateException("El tr\u00E1mite no est\u00E1 aprobado");
+        }
+        if (solicitud.getCodigoAprobacion() == null) {
+            throw new IllegalStateException("El tr\u00E1mite no tiene c\u00F3digo de aprobaci\u00F3n");
+        }
+        return new QrDataResponse(
+                solicitud.getId(),
+                solicitud.getCodigoAprobacion(),
+                solicitud.getVehiculo().getPatente(),
+                solicitud.getVehiculo().getMarca(),
+                solicitud.getVehiculo().getModelo(),
+                solicitud.getConductorRut(),
+                solicitud.getConductorNombre(),
+                solicitud.getConductorApellidoPaterno(),
+                solicitud.getConductorApellidoMaterno(),
+                solicitud.getFechaSalida().toString(),
+                solicitud.getFechaRetorno().toString(),
+                solicitud.getPaisDestino(),
+                solicitud.getPasoFronterizo());
+    }
+
     private VehiculoResponse toVehiculoResponse(Vehiculo v) {
         return new VehiculoResponse(
                 v.getId(), v.getPatente(), v.getNumeroChasis(), v.getMarca(), v.getModelo(),
@@ -305,6 +334,7 @@ public class VehicularService {
                 s.getPasoFronterizo(),
                 s.getEstado().name(),
                 s.getObservacion(),
+                s.getCodigoAprobacion(),
                 s.getFechaSolicitud().toString(),
                 s.getFechaEstado().toString(),
                 docs);

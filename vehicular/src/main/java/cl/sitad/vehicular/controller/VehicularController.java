@@ -106,4 +106,10 @@ public class VehicularController {
         SolicitudResponse response = vehicularService.prevalidarSolicitud(id);
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/solicitudes/{id}/qr")
+    public ResponseEntity<QrDataResponse> obtenerQrData(@PathVariable Long id) {
+        QrDataResponse response = vehicularService.obtenerQrData(id);
+        return ResponseEntity.ok(response);
+    }
 }

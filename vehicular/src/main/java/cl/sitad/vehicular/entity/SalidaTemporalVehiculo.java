@@ -58,6 +58,9 @@ public class SalidaTemporalVehiculo {
     @Column
     private String observacion;
 
+    @Column
+    private String codigoAprobacion;
+
     @Column(nullable = false)
     private LocalDateTime fechaEstado;
 
@@ -100,6 +103,8 @@ public class SalidaTemporalVehiculo {
     public void setEstado(EstadoTramite estado) { this.estado = estado; }
     public String getObservacion() { return observacion; }
     public void setObservacion(String observacion) { this.observacion = observacion; }
+    public String getCodigoAprobacion() { return codigoAprobacion; }
+    public void setCodigoAprobacion(String codigoAprobacion) { this.codigoAprobacion = codigoAprobacion; }
     public LocalDateTime getFechaEstado() { return fechaEstado; }
     public void setFechaEstado(LocalDateTime fechaEstado) { this.fechaEstado = fechaEstado; }
     public Vehiculo getVehiculo() { return vehiculo; }
