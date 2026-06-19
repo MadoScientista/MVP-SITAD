@@ -11,10 +11,15 @@ import ErrorMessage from '../components/ErrorMessage'
 import ConfirmDialog from '../components/ConfirmDialog'
 import QrCodeDisplay from '../components/QrCodeDisplay'
 
-const LINKS = [
+const LINKS_CIUDADANO = [
   { label: 'Solicitar ingreso o salida temporal de vehículo', path: '/ciudadano/solicitudes/nueva' },
   { label: 'Mis vehículos', path: '/ciudadano/vehiculos' },
   { label: 'Mis solicitudes', path: '/ciudadano/solicitudes' },
+]
+
+const LINKS_FUNCIONARIO = [
+  { label: 'Panel de solicitudes', path: '/funcionario/dashboard' },
+  { label: 'Nueva Fiscalización', path: '/funcionario/fiscalizacion' },
 ]
 
 export default function ExpedienteDetalle() {
@@ -276,7 +281,7 @@ export default function ExpedienteDetalle() {
 
         <aside className="sidebar-nav">
           <div className="sidebar-nav__title">Navegación</div>
-          {LINKS.map((link) => (
+          {(esFuncionario ? LINKS_FUNCIONARIO : LINKS_CIUDADANO).map((link) => (
             <button
               key={link.path}
               className={`sidebar-nav__btn ${location.pathname === link.path ? 'sidebar-nav__btn--active' : ''}`}
