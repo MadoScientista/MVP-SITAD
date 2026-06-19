@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams, useLocation } from 'react-router-dom'
+import { useAuth } from '../contexts/AuthContext'
 import { api } from '../services/api'
 import PageTitle from '../components/PageTitle'
 import Breadcrumb from '../components/Breadcrumb'
@@ -13,6 +14,7 @@ export default function RegistrarVehiculo() {
   const navigate = useNavigate()
   const location = useLocation()
   const { id } = useParams()
+  const { user } = useAuth()
   const esEdicion = Boolean(id)
 
   const [form, setForm] = useState({
@@ -123,7 +125,7 @@ export default function RegistrarVehiculo() {
                 </div>
                 <div className="form-group">
                   <label htmlFor="propietarioNombre">Propietario</label>
-                  <input id="propietarioNombre" name="propietarioNombre" className="form-input" value={form.propietarioNombre} onChange={handleChange} placeholder="Nombre del propietario" />
+                  <input id="propietarioNombre" name="propietarioNombre" className="form-input" value={user?.nombre || ''} readOnly />
                 </div>
               </FormSection>
             </SectionCard>

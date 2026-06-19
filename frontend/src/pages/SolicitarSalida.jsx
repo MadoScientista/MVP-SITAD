@@ -149,15 +149,15 @@ export default function SolicitarSalida() {
               </div>
               <div className="form-group">
                 <label htmlFor="conductorNombre">Nombres <span className="required">*</span></label>
-                <input id="conductorNombre" name="conductorNombre" className="form-input" value={form.conductorNombre} readOnly required />
+                <input id="conductorNombre" name="conductorNombre" className="form-input" value="Juan" readOnly required />
               </div>
               <div className="form-group">
                 <label htmlFor="conductorApellidoPaterno">Apellido paterno <span className="required">*</span></label>
-                <input id="conductorApellidoPaterno" name="conductorApellidoPaterno" className="form-input" value={form.conductorApellidoPaterno} readOnly required />
+                <input id="conductorApellidoPaterno" name="conductorApellidoPaterno" className="form-input" value="Pérez" readOnly required />
               </div>
               <div className="form-group">
                 <label htmlFor="conductorApellidoMaterno">Apellido materno <span className="required">*</span></label>
-                <input id="conductorApellidoMaterno" name="conductorApellidoMaterno" className="form-input" value={form.conductorApellidoMaterno} readOnly required />
+                <input id="conductorApellidoMaterno" name="conductorApellidoMaterno" className="form-input" value="González" readOnly required />
               </div>
             </FormSection>
           </SectionCard>

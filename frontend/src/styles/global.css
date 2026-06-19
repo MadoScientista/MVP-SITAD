@@ -238,7 +238,7 @@ blockquote, .text-cite {
 .site-header__logo {
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
+  gap: 4px;
 }
 
 .site-header__logo-img {
@@ -703,8 +703,8 @@ textarea.form-input {
 }
 
 .status-badge--pendiente-doc {
-  background-color: #F8D7DA;
-  color: #842029;
+  background-color: #FFF0D9;
+  color: #B86C00;
 }
 
 .status-badge--prevalidado {
@@ -1083,10 +1083,10 @@ textarea.form-input {
 .drop-zone {
   border: 2px dashed var(--color-accent);
   border-radius: var(--border-radius);
-  padding: var(--space-lg);
+  padding: calc(var(--space-lg) * 2) var(--space-lg);
   text-align: center;
   cursor: pointer;
-  background-color: var(--color-neutral);
+  background-color: #F5F5F5;
   transition: border-color 0.2s, background-color 0.2s;
   margin-bottom: var(--space-sm);
 }

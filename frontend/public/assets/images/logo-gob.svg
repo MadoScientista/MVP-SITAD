@@ -1,4 +1,4 @@
-<svg width="110" height="32" viewBox="0 0 110 32" xmlns="http://www.w3.org/2000/svg">
-  <polygon fill="#006FB3" points="0,6 54.6666667,6 54.6666667,0 0,0"/>
-  <polygon fill="#E53F40" points="54.6666667,6 109.333333,6 109.333333,0 54.6666667,0"/>
+<svg width="8" height="48" viewBox="0 0 8 48" xmlns="http://www.w3.org/2000/svg">
+  <polygon fill="#006FB3" points="0,0 8,0 8,24 0,24"/>
+  <polygon fill="#E53F40" points="0,24 8,24 8,48 0,48"/>
 </svg>

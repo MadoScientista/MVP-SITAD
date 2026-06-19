@@ -18,6 +18,7 @@ export default function AppHeader() {
               className="site-header__logo-img"
               src="/assets/images/logo-gob.svg"
               alt="Gobierno de Chile"
+              style={{ height: 38 }}
             />
             <img
               className="site-header__logo-img"

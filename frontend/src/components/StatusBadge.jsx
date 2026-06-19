@@ -11,7 +11,7 @@ const classMap = {
 const labelMap = {
   BORRADOR: 'Borrador',
   PENDIENTE: 'Pendiente',
-  PENDIENTE_DOCUMENTACION: 'Pendiente Doc.',
+  PENDIENTE_DOCUMENTACION: 'Pendiente',
   PRE_VALIDADO_DIGITAL: 'Pre Validado',
   OBSERVADO: 'Observado',
   APROBADO_EN_VENTANILLA: 'Aprobado',
