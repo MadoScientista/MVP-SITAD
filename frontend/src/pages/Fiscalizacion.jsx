@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../services/api'
 import PageTitle from '../components/PageTitle'
@@ -24,8 +24,39 @@ export default function Fiscalizacion() {
   const [observacion, setObservacion] = useState('')
   const [aprobado, setAprobado] = useState(false)
   const [escanearTipo, setEscanearTipo] = useState('')
+  const [camaraActiva, setCamaraActiva] = useState(false)
+  const videoRef = useRef(null)
+  const streamRef = useRef(null)
   const searchIdRef = useRef(null)
   const searchRutRef = useRef(null)
+
+  const activarCamara = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true })
+      streamRef.current = stream
+      setCamaraActiva(true)
+    } catch {
+      setError('No se pudo acceder a la cámara')
+    }
+  }
+
+  useEffect(() => {
+    if (camaraActiva && videoRef.current && streamRef.current) {
+      videoRef.current.srcObject = streamRef.current
+    }
+  }, [camaraActiva])
+
+  useEffect(() => {
+    return () => {
+      streamRef.current?.getTracks().forEach(t => t.stop())
+    }
+  }, [])
+
+  const detenerCamara = () => {
+    streamRef.current?.getTracks().forEach(t => t.stop())
+    streamRef.current = null
+    setCamaraActiva(false)
+  }
 
   const buscarPorId = async () => {
     if (!searchId.trim()) return
@@ -69,6 +100,7 @@ export default function Fiscalizacion() {
   }
 
   const simularEscaner = async (tipo) => {
+    detenerCamara()
     setEscanearTipo(tipo)
     setError('')
     await new Promise(r => setTimeout(r, 1000))
@@ -132,6 +164,7 @@ export default function Fiscalizacion() {
   }
 
   const handleNuevaFiscalizacion = () => {
+    detenerCamara()
     setSearchId('')
     setTramite(null)
     setAprobado(false)
@@ -167,28 +200,36 @@ export default function Fiscalizacion() {
                   <div style={{
                     width: 400, height: 400, border: '2px dashed #ADB5BD', borderRadius: 8,
                     display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, flexShrink: 0,
-                    backgroundColor: '#F2F2F2',
+                    backgroundColor: '#F2F2F2', overflow: 'hidden', position: 'relative',
                   }}>
                     {escanearTipo === 'qr' ? (
                       <svg width="64" height="64" viewBox="0 0 24 24" fill="none" style={{ animation: 'spin 1s linear infinite' }}>
                         <circle cx="12" cy="12" r="10" stroke="#0D6EFD" strokeWidth="2.5" strokeDasharray="31.4 31.4" strokeLinecap="round" />
                       </svg>
+                    ) : camaraActiva ? (
+                      <>
+                        <video ref={videoRef} autoPlay playsInline style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <button className="btn btn--secondary" style={{ position: 'absolute', bottom: 12 }} onClick={detenerCamara}>
+                          Detener escáner
+                        </button>
+                      </>
                     ) : (
                       <>
                         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#6C757D" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                          <rect x="3" y="3" width="7" height="7" rx="1" />
-                          <rect x="14" y="3" width="7" height="7" rx="1" />
-                          <rect x="3" y="14" width="7" height="7" rx="1" />
-                          <rect x="14" y="14" width="7" height="7" rx="1" />
+                          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                          <circle cx="12" cy="13" r="4" />
                         </svg>
-                        <span style={{ fontSize: 14, color: '#6C757D', textAlign: 'center' }}>Ubique el código QR aquí</span>
+                        <span style={{ fontSize: 14, color: '#6C757D', textAlign: 'center' }}>Active el escáner y ubique el código QR aquí</span>
+                        <button className="btn btn--primary" onClick={activarCamara}>
+                          Activar escáner
+                        </button>
                       </>
                     )}
                   </div>
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ fontWeight: 600, marginBottom: 6, color: '#212529' }}>Escanear código QR de solicitud</div>
                   <p style={{ fontSize: 13, color: '#6C757D', lineHeight: 1.5, margin: '0 auto 12px auto', maxWidth: 360 }}>
-                    Solicite al pasajero mostrar el código QR de pre aprobación digital y ubíquelo frente al escaner hasta que se vea correctamente en el visor de la izquierda. Luego pinche en escanear.
+                    Solicite al pasajero mostrar el código QR de pre aprobación digital y ubíquelo frente al escáner hasta que se vea correctamente en el visor de la izquierda. Luego pinche en escanear.
                   </p>
                   <button className="btn btn--primary" onClick={() => simularEscaner('qr')} disabled={escanearTipo !== ''}>
                     {escanearTipo === 'qr' ? 'Escaneando...' : 'Escanear'}
@@ -223,7 +264,7 @@ export default function Fiscalizacion() {
                   <div style={{ textAlign: 'center' }}>
                     <div style={{ fontWeight: 600, marginBottom: 6, color: '#212529' }}>Escanear cédula de identidad</div>
                     <p style={{ fontSize: 13, color: '#6C757D', lineHeight: 1.5, margin: '0 auto 12px auto', maxWidth: 360 }}>
-                      Solicite al pasajero su cédula de identidad y ubíquela frente al escaner hasta que se vea correctamente en el visor de la izquierda.
+                      Solicite al pasajero su cédula de identidad y ubíquela frente al escáner hasta que se vea correctamente en el visor de la izquierda.
                     </p>
                     <button className="btn btn--primary" onClick={() => simularEscaner('cedula')} disabled={escanearTipo !== ''}>
                       {escanearTipo === 'cedula' ? 'Escaneando...' : 'Escanear'}
