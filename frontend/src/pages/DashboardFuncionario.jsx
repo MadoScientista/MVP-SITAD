@@ -9,9 +9,11 @@ import StatusBadge from '../components/StatusBadge'
 import DataTable from '../components/DataTable'
 import LoadingSpinner from '../components/LoadingSpinner'
 
-const ESTADOS_PENDIENTES = ['BORRADOR', 'PENDIENTE_DOCUMENTACION', 'PRE_VALIDADO_DIGITAL']
+const ESTADOS_PENDIENTES = ['BORRADOR', 'PENDIENTE_DOCUMENTACION']
+const ESTADO_PRE_VALIDADO = 'PRE_VALIDADO_DIGITAL'
 
 const TABS = [
+  { id: 'PRE_VALIDADO_DIGITAL', label: 'Pre Validado' },
   { id: 'PENDIENTES', label: 'Pendientes' },
   { id: 'OBSERVADO', label: 'Observadas' },
   { id: 'APROBADO_EN_VENTANILLA', label: 'Aprobadas' },
@@ -22,7 +24,7 @@ const TABS = [
 export default function DashboardFuncionario() {
   const { user } = useAuth()
   const navigate = useNavigate()
-  const [tab, setTab] = useState('PENDIENTES')
+  const [tab, setTab] = useState('PRE_VALIDADO_DIGITAL')
   const [tramites, setTramites] = useState([])
   const [loading, setLoading] = useState(true)
   const [searchPatente, setSearchPatente] = useState('')
