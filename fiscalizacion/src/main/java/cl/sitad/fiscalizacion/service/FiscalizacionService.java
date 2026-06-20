@@ -33,7 +33,7 @@ public class FiscalizacionService {
     }
 
     @Transactional
-    public ControlResponse preAprobarTramite(Long solicitudId, String observacion, String funcionarioRut) {
+    public ControlResponse aprobarTramite(Long solicitudId, String observacion, String funcionarioRut) {
         vehicularClient.actualizarEstado(
                 solicitudId, new EstadoUpdateRequest("APROBADO_EN_VENTANILLA"));
 
@@ -41,6 +41,22 @@ public class FiscalizacionService {
         control.setSolicitudId(solicitudId);
         control.setFechaControl(LocalDateTime.now());
         control.setResultado("APROBADO");
+        control.setObservacion(observacion);
+        control.setFuncionarioRut(funcionarioRut);
+
+        control = controlRepository.save(control);
+        return toControlResponse(control);
+    }
+
+    @Transactional
+    public ControlResponse preAprobarTramite(Long solicitudId, String observacion, String funcionarioRut) {
+        vehicularClient.actualizarEstado(
+                solicitudId, new EstadoUpdateRequest("PRE_VALIDADO_DIGITAL"));
+
+        ControlVentanilla control = new ControlVentanilla();
+        control.setSolicitudId(solicitudId);
+        control.setFechaControl(LocalDateTime.now());
+        control.setResultado("PRE_APROBADO");
         control.setObservacion(observacion);
         control.setFuncionarioRut(funcionarioRut);
 

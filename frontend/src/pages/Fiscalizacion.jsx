@@ -7,7 +7,6 @@ import SectionCard from '../components/SectionCard'
 import StatusBadge from '../components/StatusBadge'
 import ErrorMessage from '../components/ErrorMessage'
 import ConfirmDialog from '../components/ConfirmDialog'
-import QrCodeDisplay from '../components/QrCodeDisplay'
 
 const spinKeyframes = `
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -23,7 +22,7 @@ export default function Fiscalizacion() {
   const [showConfirm, setShowConfirm] = useState(false)
   const [action, setAction] = useState('')
   const [observacion, setObservacion] = useState('')
-  const [preAprobado, setPreAprobado] = useState(false)
+  const [aprobado, setAprobado] = useState(false)
   const [escanearTipo, setEscanearTipo] = useState('')
   const searchIdRef = useRef(null)
   const searchRutRef = useRef(null)
@@ -33,7 +32,7 @@ export default function Fiscalizacion() {
     setLoading(true)
     setError('')
     setTramite(null)
-    setPreAprobado(false)
+    setAprobado(false)
     try {
       const data = await api.get(`/api/v1/fiscalizacion/tramites?id=${searchId.trim()}`)
       if (Array.isArray(data) && data.length > 0) {
@@ -54,7 +53,7 @@ export default function Fiscalizacion() {
     setLoading(true)
     setError('')
     setTramite(null)
-    setPreAprobado(false)
+    setAprobado(false)
     try {
       const data = await api.get(`/api/v1/fiscalizacion/tramites?rut=${r}`)
       if (Array.isArray(data) && data.length > 0) {
@@ -93,7 +92,7 @@ export default function Fiscalizacion() {
   }
 
   const handleAction = (tipo) => {
-    if (tipo === 'preAprobar') {
+    if (tipo === 'aprobar') {
       setAction(tipo)
       setShowConfirm(true)
     } else {
@@ -109,15 +108,15 @@ export default function Fiscalizacion() {
       return
     }
     try {
-      const body = action === 'preAprobar' ? {} : { observacion }
+      const body = action === 'aprobar' ? {} : { observacion }
       await api.post(`/api/v1/fiscalizacion/tramites/${tramite.id}/${action}`, body)
       setShowConfirm(false)
-      if (action === 'preAprobar') {
+      if (action === 'aprobar') {
         const data = await api.get(`/api/v1/fiscalizacion/tramites?id=${tramite.id}`)
         if (Array.isArray(data) && data.length > 0) {
           setTramite(data[0])
         }
-        setPreAprobado(true)
+        setAprobado(true)
       }
       setAction('')
       setObservacion('')
@@ -135,13 +134,13 @@ export default function Fiscalizacion() {
   const handleNuevaFiscalizacion = () => {
     setSearchId('')
     setTramite(null)
-    setPreAprobado(false)
+    setAprobado(false)
     setError('')
   }
 
-  const confirmTitle = action === 'preAprobar' ? 'Pre-Aprobar trámite' : action === 'observar' ? 'Observar trámite' : 'Rechazar trámite'
-  const confirmMsg = action === 'preAprobar'
-    ? `¿Está seguro de pre-aprobar el trámite ID ${tramite?.id}?`
+  const confirmTitle = action === 'aprobar' ? 'Aprobar Paso' : action === 'observar' ? 'Observar trámite' : 'Rechazar trámite'
+  const confirmMsg = action === 'aprobar'
+    ? `¿Está seguro de aprobar el paso del trámite ID ${tramite?.id}?`
     : action === 'observar'
       ? `¿Está seguro de observar el trámite ID ${tramite?.id}?`
       : `¿Está seguro de rechazar el trámite ID ${tramite?.id}?`
@@ -248,7 +247,7 @@ export default function Fiscalizacion() {
             </SectionCard>
           )}
 
-          {tramite && !preAprobado && (
+          {tramite && !aprobado && (
             <>
               <SectionCard title="Alertas policiales">
                 <div className="message message--success">
@@ -306,9 +305,34 @@ export default function Fiscalizacion() {
                 </div>
               </SectionCard>
 
+              {tramite.documentos && tramite.documentos.length > 0 && (
+                <SectionCard title="Documentos adjuntos">
+                  <table className="data-table">
+                    <thead>
+                      <tr>
+                        <th>Nombre</th>
+                        <th>Tipo</th>
+                        <th>Archivo</th>
+                        <th>Fecha</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {tramite.documentos.map((doc) => (
+                        <tr key={doc.id}>
+                          <td>{doc.nombre}</td>
+                          <td>{doc.tipo.replace(/_/g, ' ')}</td>
+                          <td>{doc.archivo}</td>
+                          <td>{doc.fechaCreacion}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </SectionCard>
+              )}
+
               <div className="btn-group" style={{ justifyContent: 'flex-start', marginTop: 8 }}>
-                <button className="btn btn--primary" onClick={() => handleAction('preAprobar')}>
-                  Pre-Aprobar
+                <button className="btn btn--primary" onClick={() => handleAction('aprobar')}>
+                  Aprobar Paso
                 </button>
                 <button className="btn btn--warning" onClick={() => handleAction('observar')}>
                   Observar
@@ -320,27 +344,17 @@ export default function Fiscalizacion() {
             </>
           )}
 
-          {tramite && preAprobado && (
-            <>
-              <SectionCard title="Trámite pre-aprobado">
-                <div className="message message--success">
-                  El trámite ID {tramite.id} ha sido pre-aprobado exitosamente.
-                </div>
-              </SectionCard>
-
-              <SectionCard title="Código de aprobación QR">
-                <div style={{ textAlign: 'center' }}>
-                  <QrCodeDisplay data={`SITAD-APROBACION:${tramite.id}:${tramite.codigoAprobacion}`} size={200} />
-                  <div style={{ fontSize: 14, color: '#6C757D', lineHeight: 1.8, marginTop: 16 }}>
-                    <p>El pasajero debe presentar este código QR en el paso fronterizo.</p>
-                    <p><strong>Código:</strong> <code style={{ fontSize: 12 }}>{tramite.codigoAprobacion}</code></p>
-                    <p><strong>Patente:</strong> {tramite.patente}</p>
-                    <p><strong>Conductor:</strong> {tramite.conductorNombre} {tramite.conductorApellidoPaterno || ''}</p>
-                    <p><strong>Vigencia:</strong> {tramite.fechaSalida} — {tramite.fechaRetorno}</p>
-                  </div>
-                </div>
-              </SectionCard>
-            </>
+          {tramite && aprobado && (
+            <SectionCard title="Paso aprobado">
+              <div className="message message--success">
+                El paso del trámite ID {tramite.id} ha sido aprobado exitosamente.
+              </div>
+              <div style={{ marginTop: 16, textAlign: 'center' }}>
+                <button className="btn btn--primary" onClick={handleNuevaFiscalizacion}>
+                  Nueva fiscalización
+                </button>
+              </div>
+            </SectionCard>
           )}
 
         </div>
@@ -360,12 +374,12 @@ export default function Fiscalizacion() {
         open={showConfirm}
         title={confirmTitle}
         message={confirmMsg}
-        confirmText={action === 'preAprobar' ? 'Pre-Aprobar' : action === 'observar' ? 'Observar' : 'Rechazar'}
-        danger={action !== 'preAprobar'}
+        confirmText={action === 'aprobar' ? 'Aprobar Paso' : action === 'observar' ? 'Observar' : 'Rechazar'}
+        danger={action !== 'aprobar'}
         onConfirm={handleConfirm}
         onCancel={handleCancel}
       >
-        {action !== 'preAprobar' && (
+        {action !== 'aprobar' && (
           <div className="form-group">
             <label className="form-label" htmlFor="obs">Observación *</label>
             <textarea
