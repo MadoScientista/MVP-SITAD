@@ -10,7 +10,7 @@ CREATE DATABASE IF NOT EXISTS auth_db;
 CREATE DATABASE IF NOT EXISTS vehicular_db;
 CREATE DATABASE IF NOT EXISTS fiscalizacion_db;
 
-CREATE USER IF NOT EXISTS 'sitad'@'localhost' IDENTIFIED BY 'sitad';
+CREATE USER IF NOT EXISTS 'sitad'@'localhost' IDENTIFIED BY 'SitadDb2026!';
 
 GRANT ALL PRIVILEGES ON auth_db.* TO 'sitad'@'localhost';
 GRANT ALL PRIVILEGES ON vehicular_db.* TO 'sitad'@'localhost';
