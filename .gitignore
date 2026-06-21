@@ -2,6 +2,7 @@ consideraciones
 target/
 *.iml
 .idea
+.vscode/
 
 # Environment variables
 .env
