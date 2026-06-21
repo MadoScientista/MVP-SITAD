@@ -88,6 +88,8 @@ services:
     environment:
       JWT_SECRET: ${JWT_SECRET}
       DB_PASSWORD: ${DB_PASSWORD}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      INSPECTOR_PASSWORD: ${INSPECTOR_PASSWORD}
     ports:
       - "8081:8081"
     networks:

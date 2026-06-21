@@ -5,6 +5,7 @@ import cl.sitad.auth.entity.Usuario;
 import cl.sitad.auth.enums.NombreRol;
 import cl.sitad.auth.repository.RolRepository;
 import cl.sitad.auth.repository.UsuarioRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -19,12 +20,19 @@ public class DataInitializer implements CommandLineRunner {
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
 
+    private final String adminPassword;
+    private final String inspectorPassword;
+
     public DataInitializer(RolRepository rolRepository,
                            UsuarioRepository usuarioRepository,
-                           PasswordEncoder passwordEncoder) {
+                           PasswordEncoder passwordEncoder,
+                           @Value("${ADMIN_PASSWORD:Admin123!}") String adminPassword,
+                           @Value("${INSPECTOR_PASSWORD:Inspector123!}") String inspectorPassword) {
         this.rolRepository = rolRepository;
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
+        this.adminPassword = adminPassword;
+        this.inspectorPassword = inspectorPassword;
     }
 
     @Override
@@ -41,7 +49,7 @@ public class DataInitializer implements CommandLineRunner {
         admin.setRut("11111111-1");
         admin.setNombre("Administrador SITAD");
         admin.setEmail("admin@sitad.cl");
-        admin.setPassword(passwordEncoder.encode("ADMIN_PASSWORD_REEMPLAZADO"));
+        admin.setPassword(passwordEncoder.encode(adminPassword));
         admin.setRoles(Set.of(pasajero, funcionario));
         usuarioRepository.save(admin);
 
@@ -49,7 +57,7 @@ public class DataInitializer implements CommandLineRunner {
         inspector.setRut("22222222-2");
         inspector.setNombre("Inspector Fronterizo");
         inspector.setEmail("inspector@sitad.cl");
-        inspector.setPassword(passwordEncoder.encode("INSPECTOR_PASSWORD_REEMPLAZADO"));
+        inspector.setPassword(passwordEncoder.encode(inspectorPassword));
         inspector.setRoles(Set.of(funcionario));
         usuarioRepository.save(inspector);
     }
