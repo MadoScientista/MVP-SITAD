@@ -26,8 +26,8 @@ public class DataInitializer implements CommandLineRunner {
     public DataInitializer(RolRepository rolRepository,
                            UsuarioRepository usuarioRepository,
                            PasswordEncoder passwordEncoder,
-                           @Value("${ADMIN_PASSWORD:Admin123!}") String adminPassword,
-                           @Value("${INSPECTOR_PASSWORD:Inspector123!}") String inspectorPassword) {
+                           @Value("${ADMIN_PASSWORD}") String adminPassword,
+                           @Value("${INSPECTOR_PASSWORD}") String inspectorPassword) {
         this.rolRepository = rolRepository;
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
