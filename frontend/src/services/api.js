@@ -1,26 +1,38 @@
 const API_BASE = '';
 
+let accessToken = null;
+
 export function getToken() {
-  return localStorage.getItem('accessToken');
+  return accessToken;
 }
 
 export function setToken(token) {
-  localStorage.setItem('accessToken', token);
+  accessToken = token;
 }
 
 export function clearToken() {
-  localStorage.removeItem('accessToken');
-  localStorage.removeItem('refreshToken');
-  localStorage.removeItem('user');
+  accessToken = null;
 }
 
-function getRefreshToken() {
-  return localStorage.getItem('refreshToken');
-}
+async function refreshAccessToken() {
+  try {
+    const response = await fetch(`${API_BASE}/api/v1/auth/refresh`, {
+      method: 'POST',
+      credentials: 'include',
+    });
 
-export function setTokens(accessToken, refreshToken) {
-  localStorage.setItem('accessToken', accessToken);
-  localStorage.setItem('refreshToken', refreshToken);
+    if (!response.ok) {
+      clearToken();
+      return false;
+    }
+
+    const data = await response.json();
+    accessToken = data.accessToken;
+    return true;
+  } catch {
+    clearToken();
+    return false;
+  }
 }
 
 async function request(endpoint, options = {}) {
@@ -31,20 +43,34 @@ async function request(endpoint, options = {}) {
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options.headers,
     },
+    credentials: 'include',
     ...options,
   };
 
   if (config.body && typeof config.body === 'object') {
     config.body = JSON.stringify(config.body);
   }
+  delete config.headers['Content-Type'];
 
-  let response = await fetch(`${API_BASE}${endpoint}`, config);
+  const headers = new Headers({
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...options.headers,
+  });
 
-  if (response.status === 403 && getRefreshToken()) {
+  let response = await fetch(`${API_BASE}${endpoint}`, {
+    ...config,
+    headers,
+  });
+
+  if (response.status === 403) {
     const refreshed = await refreshAccessToken();
     if (refreshed) {
-      config.headers.Authorization = `Bearer ${getToken()}`;
-      response = await fetch(`${API_BASE}${endpoint}`, config);
+      headers.set('Authorization', `Bearer ${getToken()}`);
+      response = await fetch(`${API_BASE}${endpoint}`, {
+        ...config,
+        headers,
+      });
     }
   }
 
@@ -55,31 +81,6 @@ async function request(endpoint, options = {}) {
   }
 
   return data;
-}
-
-async function refreshAccessToken() {
-  try {
-    const refreshToken = getRefreshToken();
-    if (!refreshToken) return false;
-
-    const response = await fetch(`${API_BASE}/api/v1/auth/refresh`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refreshToken }),
-    });
-
-    if (!response.ok) {
-      clearToken();
-      return false;
-    }
-
-    const data = await response.json();
-    setToken(data.accessToken);
-    return true;
-  } catch {
-    clearToken();
-    return false;
-  }
 }
 
 export const api = {

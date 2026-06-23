@@ -23,6 +23,8 @@ import java.time.LocalDateTime;
 @Service
 public class AuthService {
 
+    public record LoginTokens(String accessToken, String refreshToken, long expiresIn) {}
+
     private final UsuarioRepository usuarioRepository;
     private final RolRepository rolRepository;
     private final SesionRepository sesionRepository;
@@ -48,7 +50,7 @@ public class AuthService {
     }
 
     @Transactional
-    public LoginResponse loginCiudadano(LoginCiudadanoRequest request) {
+    public LoginTokens loginCiudadano(LoginCiudadanoRequest request) {
         ClaveUnicaResponse claveUnica = servicioExternoClient.validarClaveUnica(request.rut());
 
         if (!claveUnica.valido()) {
@@ -73,11 +75,11 @@ public class AuthService {
 
         guardarRefreshToken(refreshTokenStr, usuario, sesion);
 
-        return new LoginResponse(accessToken, refreshTokenStr, jwtService.getAccessTokenExpiration());
+        return new LoginTokens(accessToken, refreshTokenStr, jwtService.getAccessTokenExpiration());
     }
 
     @Transactional
-    public LoginResponse loginFuncionario(LoginFuncionarioRequest request) {
+    public LoginTokens loginFuncionario(LoginFuncionarioRequest request) {
         Usuario usuario = usuarioRepository.findByRut(request.rut())
                 .orElseThrow(() -> new IllegalArgumentException("Credenciales inv�lidas"));
 
@@ -99,12 +101,12 @@ public class AuthService {
 
         guardarRefreshToken(refreshTokenStr, usuario, sesion);
 
-        return new LoginResponse(accessToken, refreshTokenStr, jwtService.getAccessTokenExpiration());
+        return new LoginTokens(accessToken, refreshTokenStr, jwtService.getAccessTokenExpiration());
     }
 
     @Transactional
-    public RefreshResponse refresh(RefreshRequest request) {
-        RefreshToken refreshTokenEntity = refreshTokenRepository.findByToken(request.refreshToken())
+    public RefreshResponse refresh(String refreshTokenStr) {
+        RefreshToken refreshTokenEntity = refreshTokenRepository.findByToken(refreshTokenStr)
                 .orElseThrow(() -> new IllegalArgumentException("Refresh token inv�lido"));
 
         if (refreshTokenEntity.isRevocado()) {
@@ -125,8 +127,8 @@ public class AuthService {
     }
 
     @Transactional
-    public LogoutResponse logout(RefreshRequest request) {
-        RefreshToken refreshTokenEntity = refreshTokenRepository.findByToken(request.refreshToken())
+    public LogoutResponse logout(String refreshTokenStr) {
+        RefreshToken refreshTokenEntity = refreshTokenRepository.findByToken(refreshTokenStr)
                 .orElseThrow(() -> new IllegalArgumentException("Refresh token inv�lido"));
 
         refreshTokenEntity.setRevocado(true);
