@@ -4,6 +4,7 @@ import cl.sitad.externo.dto.ClaveUnicaResponse;
 import cl.sitad.externo.dto.RegistroCivilPersonaResponse;
 import cl.sitad.externo.dto.RegistroCivilPersonaResponse.VehiculoInfo;
 import cl.sitad.externo.dto.RegistroCivilVehiculoResponse;
+import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,8 +17,13 @@ public class SimulacionService {
     private final Map<String, PersonaSimulada> personas = new ConcurrentHashMap<>();
     private final Map<String, VehiculoSimulado> vehiculos = new ConcurrentHashMap<>();
 
-    public SimulacionService() {
+    @PostConstruct
+    public void init() {
         inicializarDatos();
+    }
+
+    public void addPersonaSimulada(String rut, String nombre, String nacionalidad, String fechaNacimiento) {
+        personas.put(rut, new PersonaSimulada(rut, nombre, nacionalidad, fechaNacimiento));
     }
 
     public ClaveUnicaResponse validarClaveUnica(String rut) {
@@ -27,8 +33,7 @@ public class SimulacionService {
 
         PersonaSimulada persona = personas.get(rut);
         if (persona == null) {
-            persona = new PersonaSimulada(rut, "Ciudadano " + rut, "Chilena", "15-01-1990");
-            personas.put(rut, persona);
+            return new ClaveUnicaResponse(false, null, null, null);
         }
 
         return new ClaveUnicaResponse(true, rut, persona.nombre(), rut + "@claveunica.cl");
@@ -74,15 +79,12 @@ public class SimulacionService {
     }
 
     private void inicializarDatos() {
-        personas.put("11111111-1", new PersonaSimulada("11111111-1", "Administrador SITAD", "Chilena", "10-05-1985"));
-        personas.put("22222222-2", new PersonaSimulada("22222222-2", "Inspector Fronterizo", "Chilena", "22-08-1992"));
         personas.put("12345678-5", new PersonaSimulada("12345678-5", "Juan Pérez González", "Chilena", "15-03-1988"));
         personas.put("98765432-1", new PersonaSimulada("98765432-1", "Marcela Soto López", "Chilena", "02-11-1995"));
 
         vehiculos.put("ABCD12", new VehiculoSimulado("ABCD12", "Toyota", "Corolla", 2020, "Chile", "12345678-5"));
         vehiculos.put("EFGH34", new VehiculoSimulado("EFGH34", "Hyundai", "Tucson", 2022, "Chile", "12345678-5"));
         vehiculos.put("IJKL56", new VehiculoSimulado("IJKL56", "Mitsubishi", "L200", 2021, "Chile", "98765432-1"));
-        vehiculos.put("MNOP78", new VehiculoSimulado("MNOP78", "Ford", "Ranger", 2023, "Chile", "11111111-1"));
     }
 
     private record PersonaSimulada(String rut, String nombre, String nacionalidad, String fechaNacimiento) {}
