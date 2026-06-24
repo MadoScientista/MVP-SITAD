@@ -1,32 +1,98 @@
-# SITAD - MVP
+# SITAD — Sistema Integrado de Tramitación Aduanera Digital
 
-Sistema Integrado de Tramitación Aduanera Digital.
-
-## Stack
-
-| Capa | Tecnología |
-|---|---|
-| Frontend | React 19 + Vite 6 |
-| Backend | Java 25+ / Spring Boot 4.0.7 / Spring Cloud 2025.1.2 |
-| Service Discovery | Netflix Eureka |
-| API Gateway | Spring Cloud Gateway |
-| Base de datos | MySQL 8.0 (auth_db, vehicular_db, fiscalizacion_db) |
+Plataforma para gestionar solicitudes de salida temporal de vehículos desde Chile. Los ciudadanos pueden solicitar permisos y los funcionarios aduaneros pueden revisarlos, aprobarlos o rechazarlos.
 
 ---
 
 ## Requisitos
 
-- Java JDK 25+
-- Maven 3.9+
-- Node.js 22+
-- MySQL 8.0 (local)
-- VS Code + Extension Pack for Java + Spring Boot Extension Pack
+Antes de empezar, necesitas instalar estos programas en tu computador. Todos son gratuitos.
+
+| Programa | Versión | Para qué sirve | Descarga |
+|---|---|---|---|
+| **Java JDK** | 25 o superior | Ejecutar el backend | https://adoptium.net/ (Temurin 25) |
+| **Maven** | 3.9 o superior | Compilar el código Java | https://maven.apache.org/download.cgi |
+| **Node.js** | 22 o superior | Ejecutar el frontend | https://nodejs.org/ (versión LTS) |
+| **MySQL** | 8.0 | Base de datos | https://dev.mysql.com/downloads/installer/ |
+| **VS Code** | — | Editor de código | https://code.visualstudio.com/ |
+
+### Extensiones de VS Code necesarias
+
+Abre VS Code, ve a la barra lateral izquierda → Extensiones (`Ctrl+Shift+X`) y busca e instala:
+
+1. **Extension Pack for Java** (Microsoft) — incluye todo lo necesario para Java
+2. **Spring Boot Extension Pack** (VMware) — permite ejecutar los servicios desde VS Code
+
+### Verificar instalación
+
+Abre una terminal PowerShell y ejecuta estos comandos. Deberías ver algo similar:
+
+```powershell
+java -version
+# openjdk version "25" ...
+
+mvn -version
+# Apache Maven 3.9.x ...
+
+node -v
+# v22.x ...
+
+mysql --version
+# mysql Ver 8.0.x ...
+```
+
+Si algún comando no se reconoce, reinicia VS Code después de instalar ese programa.
 
 ---
 
-## 1. Base de datos
+## 1. Clonar el proyecto
 
-Abrir MySQL Workbench, conectarse a la instancia local y ejecutar el script `utilidadDB/init-db.sql`, o manualmente con la contraseña que uses:
+```powershell
+git clone <url-del-repositorio>
+cd MVP-SITAD
+```
+
+Luego abre la carpeta `MVP-SITAD` en VS Code: `Archivo → Abrir carpeta` (o `Ctrl+K Ctrl+O`).
+
+---
+
+## 2. Preparar VS Code
+
+### 2.1 Copiar configuración de ejecución
+
+El proyecto incluye un archivo de ejemplo con la configuración para ejecutar los servicios. Cópialo:
+
+```powershell
+Copy-Item .vscode\launch.json.example .vscode\launch.json
+```
+
+Esto crea el archivo `launch.json` que VS Code necesita para poder iniciar los servicios desde el panel "Run and Debug".
+
+### 2.2 Abrir el panel Run and Debug
+
+Haz clic en el ícono de **reproducción ▶** en la barra lateral izquierda (o presiona `Ctrl+Shift+D`). Deberías ver 6 configuraciones numeradas del 1 al 6:
+- **1. Eureka Server**
+- **2. Gateway**
+- **3. Auth**
+- **4. Vehicular**
+- **5. Fiscalizacion**
+- **6. Servicio Externo**
+
+> Si no ves ninguna configuración, verifica que copiaste el archivo `launch.json` en el paso anterior. VS Code a veces necesita recargar la ventana (`Ctrl+Shift+P` → "Developer: Reload Window").
+
+---
+
+## 3. Configurar la base de datos
+
+### 3.1 Asegurarse de que MySQL esté corriendo
+
+Busca "MySQL" en el menú Inicio y abre **MySQL Workbench**. Conéctate a la instancia local.
+
+> Si no sabes cómo iniciar MySQL, puedes abrir "Services" (`services.msc`) y asegurarte de que el servicio "MySQL80" esté en ejecución.
+
+### 3.2 Ejecutar el script de inicialización
+
+En MySQL Workbench, abre una pestaña SQL (Archivo → Nueva pestaña SQL) y pega el siguiente contenido. Luego haz clic en el rayo ⚡ para ejecutarlo:
 
 ```sql
 CREATE DATABASE IF NOT EXISTS auth_db;
@@ -41,118 +107,256 @@ GRANT ALL PRIVILEGES ON fiscalizacion_db.* TO 'sitad'@'localhost';
 FLUSH PRIVILEGES;
 ```
 
-> Asume MySQL corriendo en `localhost:3306`. Si usas otro puerto, ajusta las URLs en los perfiles `local` de cada `application.yaml`.
+> También puedes abrir directamente el archivo `utilidadDB/init-db.sql` desde VS Code y copiarlo a MySQL Workbench.
+
+**Qué deberías ver:** Mensajes verdes "Query OK" en cada línea.
+
+### 3.3 Crear el archivo .env (si no aparece)
+
+Puedes saltarte este paso si ya creaste el archivo. Si no lo has hecho, ejecuta el script automático del paso 4 y él lo creará por ti.
+
+> Si tu contraseña de MySQL es distinta a `SitadDb2026!`, tendrás que editar `.env` después del paso 4 y poner la correcta en `DB_PASSWORD`. Luego carga las variables otra vez.
 
 ---
 
-## 2. Compilar librería compartida
+## 4. Configurar variables de entorno
 
-```bash
-cd sitad-common
-mvn clean install
-```
-
-Esto instala `sitad-common` en el repositorio local de Maven. Los demás módulos la necesitan como dependencia.
-
----
-
-## 3. Variables de entorno
-
-El proyecto requiere las siguientes variables. Copiar `.env.example` a `.env` y ajustar los valores, luego cargarlos en la terminal:
+El proyecto necesita variables como la clave secreta de los tokens. Para configurarlas automáticamente:
 
 ```powershell
-Get-Content .env | ForEach-Object {
-    if ($_ -match '^(.+?)=(.+)$') {
-        [Environment]::SetEnvironmentVariable($matches[1], $matches[2], 'Process')
-    }
-}
+.\scripts\cargar_env.ps1
 ```
 
-Variables requeridas:
+Si PowerShell te pregunta sobre permisos de ejecución, escribe `S` (Sí) o ejecuta antes:
 
-| Variable | Descripción |
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+```
+
+**Qué hace este script:**
+- Crea el archivo `.env` (si no existe) basado en `.env.example`
+- Genera una clave secreta aleatoria para `JWT_SECRET`
+- Configura contraseñas por defecto para la base de datos y los usuarios
+- Carga todas las variables en la terminal actual
+
+> **Importante:** las variables cargadas solo duran mientras esta terminal esté abierta. Si cierras la terminal y vuelves a abrir, ejecuta `.\scripts\cargar_env.ps1` otra vez.
+
+---
+
+## 5. Compilar la librería compartida
+
+Varios servicios dependen de una librería común (`sitad-common`) que debe compilarse primero.
+
+En la terminal PowerShell (con las variables de entorno cargadas), ejecuta:
+
+```powershell
+cd sitad-common
+mvn clean install
+cd ..
+```
+
+**Qué deberías ver:** Al final, un mensaje `BUILD SUCCESS`. Si ves `BUILD FAILURE`, probablemente Maven no está bien instalado (revisa requisitos).
+
+> Este paso puede tardar 1-2 minutos la primera vez mientras descarga dependencias de internet. Las siguientes veces será más rápido.
+
+---
+
+## 6. Iniciar el backend (los 6 servicios)
+
+### Asegurarse de que las variables están cargadas
+
+Antes de iniciar VS Code, abre una terminal PowerShell y carga las variables:
+
+```powershell
+.\scripts\cargar_env.ps1
+```
+
+Luego **abre VS Code desde esa misma terminal**:
+
+```powershell
+code .
+```
+
+Esto es importante porque VS Code hereda las variables de entorno de la terminal donde se abre.
+
+### Orden de arranque
+
+Ve al panel **Run and Debug** (`Ctrl+Shift+D`). Verás una lista con 6 configuraciones. Debes iniciarlas en este orden:
+
+#### Paso 6.1 — Eureka Server
+- En la lista desplegable, elige **"1. Eureka Server"**
+- Presiona el botón verde de reproducción ▶ (o `F5`)
+- Espera a que termine de arrancar. Lo sabrás cuando veas una barra de progreso naranja.
+
+**Verifica:** Abre http://localhost:8761 en tu navegador. Deberías ver el panel de Eureka (está en inglés, es normal).
+
+#### Paso 6.2 — Los 4 servicios (en paralelo)
+Ahora inicia estos 4 servicios. Puedes hacerlos **uno por uno** o en ventanas separadas:
+
+| Servicio | Configuración |
 |---|---|
-| `JWT_SECRET` | Clave HMAC-SHA ≥ 256 bits. Generar con: `python -c "import secrets, base64; print(base64.b64encode(secrets.token_bytes(64)).decode())"` |
-| `DB_PASSWORD` | Contraseña del usuario `sitad` en MySQL |
-| `ADMIN_PASSWORD` | Password del usuario semilla "Administrador SITAD" (opcional, default: `Admin123!`) |
-| `INSPECTOR_PASSWORD` | Password del usuario semilla "Inspector Fronterizo" (opcional, default: `Inspector123!`) |
+| Auth | **"3. Auth"** |
+| Vehicular | **"4. Vehicular"** |
+| Fiscalizacion | **"5. Fiscalizacion"** |
+| Servicio Externo | **"6. Servicio Externo"** |
+
+Para cada uno:
+- Elígelo en la lista desplegable del panel Run and Debug
+- Presiona el botón verde ▶
+
+**Espera** a que los 4 estén iniciados antes de continuar al siguiente paso. Cada uno tarda ~20-40 segundos. Puedes monitorear el progreso en la barra naranja de VS Code.
+
+#### Paso 6.3 — Gateway
+- Elige **"2. Gateway"** en la lista
+- Presiona el botón verde ▶
+
+**Espera** unos 20 segundos hasta que termine de iniciar.
+
+### Verificar que todo el backend funciona
+
+Abre http://localhost:8761 en tu navegador. Deberías ver **5 servicios registrados** en la tabla "Instances currently registered with Eureka":
+- `AUTH`, `VEHICULAR`, `FISCALIZACION`, `SERVICIO-EXTERNO`, `GATEWAY`
+
+Cada uno debe tener estado **"UP" (1)**.
+
+> Si ves menos servicios o algunos aparecen como "DOWN", espera 30 segundos más y recarga la página. Si persiste, ve a la sección de Solución de problemas.
 
 ---
 
-## 4. Perfil "local"
+## 7. Iniciar el frontend
 
-Cada microservicio tiene un bloque `---` en su `application.yaml` con el perfil `local` que sobrescribe las URLs de Docker por `localhost`. Para activarlo:
+Abre una **nueva terminal PowerShell** (no cierres la anterior, el backend debe seguir corriendo). Carga las variables y ejecuta:
 
-### Desde VS Code (Run & Debug)
-
-Abrir la vista **Run and Debug** (`Ctrl+Shift+D`) y ejecutar en orden:
-
-1. **"1. Eureka Server"** → esperar a que http://localhost:8761 esté disponible
-2. **"3. Auth"**, **"4. Vehicular"**, **"5. Fiscalizacion"**, **"6. Servicio Externo"** → en paralelo
-3. **"2. Gateway"**
-
-Cada configuración ya tiene `vmArgs: "-Dspring.profiles.active=local"` y las variables de entorno configuradas localmente en `launch.json`.
-
-> **Nota:** `.vscode/` está en `.gitignore`. Cada desarrollador debe tener su propio `launch.json` con las credenciales locales. Si no existe, copiar el `.env` y cargar las variables en la terminal antes de iniciar VS Code.
-
-### Desde terminal
-
-```bash
-cd eureka-server
-mvn spring-boot:run -Dspring-boot.run.profiles=local
-```
-
-Repetir para cada módulo, en el mismo orden. Antes de ejecutar, cargar las variables del `.env` en la terminal (ver paso 3).
-
----
-
-## 5. Frontend
-
-```bash
+```powershell
 cd frontend
 npm install
 npm run dev
 ```
 
-El frontend corre en `http://localhost:5173`. Las peticiones `/api/*` se proxy al gateway en `http://localhost:8080` (configurado en `vite.config.js`).
+**Qué deberías ver:** Un mensaje que dice "Local: http://localhost:5173".
+
+> `npm install` solo es necesario la primera vez. Las siguientes veces puedes saltarlo y ejecutar directo `npm run dev`.
 
 ---
 
-## 6. Orden de arranque (resumen)
+## 8. Verificar que todo funciona
 
-```
-1. MySQL (auth_db, vehicular_db, fiscalizacion_db)
-2. Eureka Server (puerto 8761)
-3. Auth (8081), Vehicular (8082), Fiscalizacion (8083), Servicio Externo (8084)
-4. Gateway (8080)
-5. Frontend (5173)
-```
+Abre estas URLs en tu navegador:
 
----
-
-## 7. URLs
-
-| Servicio | URL |
+| URL | Qué deberías ver |
 |---|---|
-| Frontend | http://localhost:5173 |
-| API Gateway | http://localhost:8080 |
-| Eureka Dashboard | http://localhost:8761 |
+| http://localhost:5173 | La página de inicio de SITAD con dos botones: "Pasajero" y "Funcionario" |
+| http://localhost:8761 | Panel de Eureka con 5 servicios "UP" |
+| http://localhost:8080/api/v1/auth/ping | Mensaje `{"mensaje":"ok"}` o similar |
+
+Si alguna no funciona, ve a la sección **Solución de problemas**.
 
 ---
 
-## 8. Usuarios por defecto (seeders)
+## 9. Usuarios de prueba
 
-Al iniciar AuthService con la base de datos vacía, se crean automáticamente:
+### Funcionario (login con RUT + contraseña)
 
-| Usuario | RUT | Rol | Password (configurable vía env var) |
+Estos usuarios se crean automáticamente al iniciar AuthService:
+
+| Usuario | RUT | Contraseña (definida en .env) | Rol |
 |---|---|---|---|
-| Administrador SITAD | `11111111-1` | PASAJERO + FUNCIONARIO | `ADMIN_PASSWORD` (default: `Admin123!`) |
-| Inspector Fronterizo | `22222222-2` | FUNCIONARIO | `INSPECTOR_PASSWORD` (default: `Inspector123!`) |
+| Administrador SITAD | `11111111-1` | `Admin2026!`¹ | Pasajero + Funcionario |
+| Inspector Fronterizo | `22222222-2` | `Inspector2026!`¹ | Funcionario |
+
+¹ Valor por defecto de `scripts/cargar_env.ps1`. Si cambiaste las variables en `.env`, usa esa contraseña.
+
+### Ciudadano (login solo con RUT, vía ClaveÚnica simulada)
+
+En el login de pasajero, ingresa solo el RUT (sin contraseña). El sistema simula la validación de ClaveÚnica:
+
+| RUT | Nombre | Vehículos asociados |
+|---|---|---|
+| `12345678-5` | Juan Pérez González | `ABCD12` (Toyota Corolla 2020), `EFGH34` (Hyundai Tucson 2022) |
+| `98765432-1` | Marcela Soto López | `IJKL56` (Mitsubishi L200 2021) |
+
+> Los RUTs de ciudadano solo funcionan cuando el backend se ejecuta con el perfil `dev` (activado por defecto en las configuraciones de VS Code para Auth y Servicio-Externo).
 
 ---
 
-## 9. Notas
+## 10. Escenarios de prueba
 
-- Las tablas se crean automáticamente via `ddl-auto: update` de Hibernate/JPA.
-- El contenedor Docker no es necesario para desarrollo local. El perfil `local` permite ejecutar todo nativamente.
-- Si encuentras errores de conexión a la base de datos, verifica que MySQL esté corriendo y que el usuario/password coincidan con los definidos en `.env`.
+### Escenario 1: Login como ciudadano
+
+1. Abre http://localhost:5173
+2. Haz clic en **Pasajero**
+3. En el campo RUT, escribe `12345678-5`
+4. Haz clic en **Iniciar sesión con ClaveÚnica**
+5. ✅ Deberías ver el dashboard del ciudadano con tus datos
+
+### Escenario 2: Login como funcionario
+
+1. Abre http://localhost:5173
+2. Haz clic en **Funcionario**
+3. En RUT, escribe `11111111-1`
+4. En Contraseña, escribe `Admin2026!`
+5. Haz clic en **Iniciar sesión**
+6. ✅ Deberías ver el dashboard del funcionario con la bandeja de trámites
+
+### Escenario 3: Crear solicitud de salida temporal
+
+(Primero inicia sesión como ciudadano con `12345678-5`)
+
+1. En el dashboard, haz clic en **Solicitar salida temporal**
+2. Completa los pasos del wizard:
+   - **Paso 1 — Conductor:** tus datos ya vienen completos
+   - **Paso 2 — Vehículo:** selecciona `ABCD12` (Toyota Corolla)
+   - **Paso 3 — Legitimidad:** selecciona "Soy el propietario"
+   - **Paso 4 — Documentos:** sube los documentos requeridos
+   - **Paso 5 — Viaje:** ingresa fecha de salida, retorno y destino
+   - **Paso 6 — Prevalidación:** revisa el resumen y envía
+3. ✅ La solicitud queda en estado "Pendiente de documentación"
+
+### Escenario 4: Revisar solicitud como funcionario
+
+(Inicia sesión como funcionario con `11111111-1`)
+
+1. En el dashboard del funcionario, busca el RUT `12345678-5` o la patente `ABCD12`
+2. Haz clic en la solicitud para ver el detalle
+3. ✅ Deberías ver los datos del conductor, vehículo y documentos
+
+---
+
+## Solución de problemas
+
+### "No se reconoce 'mvn' como un comando"
+
+Maven no está instalado o no está en el PATH. Verifica:
+- Descargaste Maven de https://maven.apache.org/download.cgi
+- Agregaste la carpeta `bin` de Maven a las variables de entorno del sistema
+- Reiniciaste VS Code después de instalarlo
+
+### "No se reconoce 'java' como un comando"
+
+El JDK no está instalado o no está configurado. Verifica:
+- Instalaste Java desde https://adoptium.net/ (elige Temurin 25)
+- La variable `JAVA_HOME` apunta a la carpeta de instalación de JDK
+- Agregaste `%JAVA_HOME%\bin` al PATH del sistema
+
+### Error "No se puede conectar a la base de datos"
+
+- Verifica que MySQL esté corriendo (revisa Services.msc → MySQL80)
+- Verifica que ejecutaste el script SQL del paso 3
+- Verifica que la contraseña en `.env` coincide con la del script SQL
+- Si cambiaste la contraseña manualmente, recarga las variables con `.\scripts\cargar_env.ps1`
+
+### VS Code no tiene las configuraciones de ejecución
+
+- Verifica que copiaste el archivo: `Copy-Item .vscode\launch.json.example .vscode\launch.json`
+- Recarga la ventana: `Ctrl+Shift+P` → "Developer: Reload Window"
+
+### El frontend no carga en http://localhost:5173
+
+- Espera a que el comando `npm run dev` termine de iniciar (puede tardar unos segundos)
+- Verifica que no tienes otro programa usando el puerto 5173
+- Si ves error de módulos, ejecuta `npm install` dentro de la carpeta `frontend/`
+
+### Error "dirección localhost no válida" o similar
+
+- Asegúrate de que MySQL esté configurado para aceptar conexiones desde `localhost` (no solo `127.0.0.1`)
+- En MySQL Workbench, ve a "Users and Privileges" y verifica que el usuario `sitad` tenga `localhost` como host permitido

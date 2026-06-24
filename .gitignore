@@ -2,7 +2,8 @@ consideraciones
 target/
 *.iml
 .idea
-.vscode/
+.vscode/*
+!.vscode/launch.json.example
 
 # Environment variables
 .env

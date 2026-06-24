@@ -247,7 +247,7 @@ Una vez establecida la infraestructura base, se refuerzan la seguridad, la gesti
 - Métodos GET, POST, PATCH, DELETE cubren todas las operaciones CRUD del MVP.
 - Sigue el principio de responsabilidad única.
 
-**Archivos:** `gateway/src/main/java/cl/sitad/gateway/config/CorsConfig.java`
+**Archivos:** `gateway/src/main/resources/application.yaml` (bloque `spring.cloud.gateway.server.webflux.globalcors`)
 
 **Commit:** `240c93b` (Restringir orígenes CORS a localhost explícito)
 ---
@@ -265,10 +265,11 @@ Una vez establecida la infraestructura base, se refuerzan la seguridad, la gesti
 - Docker Compose ejecuta health checks periódicos via `curl -f http://localhost:XXXX/actuator/health`.
 - Spring Security bloqueaba este endpoint por defecto (403), causando `unhealthy` y errores 502 Bad Gateway.
 - El endpoint solo es accesible dentro de la red Docker (`sitad-network`).
+- El permiso se configura vía `SecurityConfig.java` (`.requestMatchers("/actuator/health").permitAll()`), no en application.yaml.
 - Por defecto Actuator expone solo `{"status":"UP"}` sin información sensible.
 - Contrapartida para producción: usar puerto de management separado o restringir por IP.
 
-**Archivos:** `auth/src/main/resources/application.yaml`, `vehicular/src/main/resources/application.yaml`, `fiscalizacion/src/main/resources/application.yaml`
+**Archivos:** `auth/src/main/java/cl/sitad/auth/config/SecurityConfig.java`, `vehicular/src/main/java/cl/sitad/vehicular/config/SecurityConfig.java`, `fiscalizacion/src/main/java/cl/sitad/fiscalizacion/config/SecurityConfig.java`
 
 **Commit:** `f268778` (Agregar actuator, health checks y curl)
 ---
@@ -301,7 +302,7 @@ Una vez establecida la infraestructura base, se refuerzan la seguridad, la gesti
 - La validación temprana evita errores en capas inferiores.
 - Mejora la experiencia de usuario con feedback inmediato.
 
-**Archivos:** `auth/src/main/java/cl/sitad/auth/dto/LoginRequest.java`
+**Archivos:** `auth/src/main/java/cl/sitad/auth/dto/LoginCiudadanoRequest.java`, `auth/src/main/java/cl/sitad/auth/dto/LoginFuncionarioRequest.java` (DTOs separados por rol)
 
 **Commit:** `9d249fb`
 ---
@@ -410,7 +411,7 @@ Se implementa la lógica central del negocio: modelo de expediente, máquina de 
 **Justificación:**
 - La relación JPA permite navegar `expediente.documentos` directamente.
 - `@OneToMany` en `SalidaTemporalVehiculo` con `cascade = ALL` simplifica la persistencia.
-- Tipos de documento como enum: PADRON, SEGURO, AUTORIZACION, PODER.
+- Tipos de documento como enum: PADRON, SEGURO_INTERNACIONAL, AUTORIZACION_NOTARIAL, PODER_ESPECIAL.
 
 **Archivos:** `vehicular/src/main/java/cl/sitad/vehicular/entity/Documento.java`, `vehicular/src/main/java/cl/sitad/vehicular/entity/SalidaTemporalVehiculo.java`
 
@@ -633,14 +634,13 @@ Unificación del estilo visual con la identidad del Estado de Chile. Se integran
 
 ### D33 — Paleta de colores unificada con dos sistemas cromáticos
 
-**Decisión:** Definir una paleta que combina colores SITAD (azul primario #005AA0, secundario #0F69C4) con los colores oficiales de ClaveÚnica (#0F69C4, botón azul CU) y ChileAtiende (#006FB3).
+**Decisión:** Definir una paleta que combina el azul de ChileAtiende (#006FB3) como color primario de SITAD con los colores oficiales de ClaveÚnica (#0F69C4).
 
 **Justificación:**
 
 - **Dos azules distintos conviven en el mismo sistema:**
-  - `#006FB3` (ChileAtiende) — para links, header y elementos secundarios.
+  - `#006FB3` (ChileAtiende / SITAD primario) — color principal para header, botones y elementos primarios.
   - `#0F69C4` (ClaveÚnica) — exclusivo del botón ClaveÚnica, normado por Gobierno Digital.
-  - `#005AA0` (SITAD) — header y botones primarios de la plataforma.
 - El footer usa `#0A132D` (azul oscuro terciario) para alto contraste.
 - El login de funcionario usa `#C8D6E5` (azul acero) para diferenciarse del login ciudadano.
 
