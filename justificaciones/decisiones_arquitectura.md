@@ -24,7 +24,7 @@ Primer commit (`da2a703`) y configuración inicial del proyecto. Se establece la
 
 **Archivos:** `auth/`, `vehicular/`, `fiscalizacion/`, `servicio-externo/`, `docker-compose.yml`
 
-**Commit:** `da2a703` (first commit), `1ae7a2c` (Impl. Infraestructura base)
+**Commit:** `da2a703` (first commit), `05e8bc1` (Impl. Infraestructura base)
 ---
 
 ### D2 — Eureka Server para Service Discovery
@@ -43,7 +43,7 @@ Primer commit (`da2a703`) y configuración inicial del proyecto. Se establece la
 
 **Archivos:** `eureka-server/`
 
-**Commit:** `1ae7a2c`
+**Commit:** `05e8bc1`
 ---
 
 ### D3 — Spring Cloud Gateway como API Gateway
@@ -58,13 +58,13 @@ Primer commit (`da2a703`) y configuración inicial del proyecto. Se establece la
 **Justificación:**
 - Punto único de entrada: el frontend solo conoce `localhost:8080`.
 - Cross-cutting concerns centralizados: autenticación, CORS, logging, rate limiting.
-- Enrutamiento declarativo: `/api/auth/**`, `/api/vehicular/**`, etc.
+- Enrutamiento declarativo: `/api/v1/auth/**`, `/api/v1/vehicular/**`, etc.
 - Los microservicios no exponen puertos al exterior.
 - Integración nativa con Eureka para balanceo de carga.
 
 **Archivos:** `gateway/src/main/java/cl/sitad/gateway/`, `gateway/src/main/resources/application.yaml`
 
-**Commit:** `1ae7a2c`
+**Commit:** `05e8bc1`
 ---
 
 ### D4 — Docker Compose desde la primera iteración
@@ -83,7 +83,7 @@ Primer commit (`da2a703`) y configuración inicial del proyecto. Se establece la
 
 **Archivos:** `docker-compose.yml`, `Dockerfile` en cada módulo
 
-**Commit:** `1ae7a2c`, `52a3ced` (Agregar Dockerfile para frontend con nginx)
+**Commit:** `05e8bc1`, `8498cb6` (Agregar Dockerfile para frontend con nginx)
 ---
 
 ### D5 — Stack: Java 25 + Spring Boot 4 + Spring Cloud 2025
@@ -103,7 +103,7 @@ Primer commit (`da2a703`) y configuración inicial del proyecto. Se establece la
 
 **Archivos:** `pom.xml` de cada módulo
 
-**Commit:** `1ae7a2c`, `db389d3` (Actualizar property prefix para Spring Cloud 2025.x)
+**Commit:** `05e8bc1`, `ea9fb35` (Actualizar property prefix para Spring Cloud 2025.x)
 ---
 
 ### D6 — React 19 + Vite 6 + React Router DOM 7
@@ -123,7 +123,7 @@ Primer commit (`da2a703`) y configuración inicial del proyecto. Se establece la
 
 **Archivos:** `frontend/package.json`, `frontend/vite.config.js`
 
-**Commit:** `03feed8` (Imp. Frontend), `018e5e4` (npm install)
+**Commit:** `f4e34b0` (Imp. Frontend), `d0a3f71` (npm install)
 ---
 
 ### D7 — MySQL 8.0 con instancia independiente por microservicio
@@ -144,7 +144,7 @@ Primer commit (`da2a703`) y configuración inicial del proyecto. Se establece la
 
 **Archivos:** `docker-compose.yml` (servicios auth-db, vehicular-db, fiscalizacion-db)
 
-**Commit:** `1ae7a2c`, `3410850` (Eliminar externo-db innecesaria)
+**Commit:** `05e8bc1`, `8ff82ca` (Eliminar externo-db innecesaria)
 ---
 
 ### D8 — Servicio-Externo como microservicio independiente sin persistencia
@@ -163,7 +163,7 @@ Primer commit (`da2a703`) y configuración inicial del proyecto. Se establece la
 
 **Archivos:** `servicio-externo/src/main/java/cl/sitad/servicioexterno/`
 
-**Commit:** `1ae7a2c`
+**Commit:** `05e8bc1`
 ---
 
 ## Hito 2: Seguridad y Calidad de Servicio — 12 de junio de 2026
@@ -187,9 +187,9 @@ Una vez establecida la infraestructura base, se refuerzan la seguridad, la gesti
 - Refresh token revocado en base de datos al cerrar sesión.
 - Una persona puede tener dos sesiones independientes: PASAJERO (ClaveÚnica) + FUNCIONARIO (credenciales institucionales).
 
-**Archivos:** `auth/src/main/java/cl/sitad/auth/`, `sitad-common/src/main/java/cl/sitad/common/jwt/JwtUtil.java`
+**Archivos:** `auth/src/main/java/cl/sitad/auth/`, `sitad-common/src/main/java/cl/sitad/common/security/JwtUtil.java`
 
-**Commit:** `1a71429`, `8020562`, `04c3937`
+**Commit:** `1e58d2b`, `c40da45`, `4646285`
 ---
 
 ### D10 — sitad-common como librería compartida (JWT, DTOs, enums, excepciones)
@@ -209,7 +209,7 @@ Una vez establecida la infraestructura base, se refuerzan la seguridad, la gesti
 
 **Archivos:** `sitad-common/`
 
-**Commit:** `b9a9f13` (Poblar sitad-common con DTOs y enums), `b148166` (Migrar a usar DTOs de sitad-common), `8020562` (Extraer JwtUtil), `949dfc5` (Centralizar GlobalExceptionHandler)
+**Commit:** `b9c5c14` (Poblar sitad-common con DTOs y enums), `bae2466` (Migrar a usar DTOs de sitad-common), `c40da45` (Extraer JwtUtil), `72ad3c4` (Centralizar GlobalExceptionHandler)
 ---
 
 ### D11 — Variables de entorno para secretos
@@ -223,12 +223,12 @@ Una vez establecida la infraestructura base, se refuerzan la seguridad, la gesti
 
 **Justificación:**
 - `JWT_SECRET` e `DB_PASSWORD` son secretos que no deben estar en el código fuente.
-- Ya incluidas en `.vscode/launch.json` para desarrollo local.
+- Ya incluidas en `.vscode/launch.json.example` para desarrollo local.
 - Contrapartida: el desarrollador debe definirlas manualmente al ejecutar fuera de VS Code o Docker.
 
-**Archivos:** `auth/src/main/resources/application.yaml`, `.env.example`, `.vscode/launch.json`
+**Archivos:** `auth/src/main/resources/application.yaml`, `.env.example`, `.vscode/launch.json.example`
 
-**Commit:** `04c3937` (mover JWT secret), `61d0b93` (mover contraseñas DB)
+**Commit:** `4646285` (mover JWT secret), `63f8932` (mover contraseñas DB)
 ---
 
 ### D12 — CORS centralizado en API Gateway
@@ -249,7 +249,7 @@ Una vez establecida la infraestructura base, se refuerzan la seguridad, la gesti
 
 **Archivos:** `gateway/src/main/resources/application.yaml` (bloque `spring.cloud.gateway.server.webflux.globalcors`)
 
-**Commit:** `240c93b` (Restringir orígenes CORS a localhost explícito)
+**Commit:** `08b3fc3` (Restringir orígenes CORS a localhost explícito)
 ---
 
 ### D13 — Health checks públicos con Spring Boot Actuator
@@ -271,7 +271,7 @@ Una vez establecida la infraestructura base, se refuerzan la seguridad, la gesti
 
 **Archivos:** `auth/src/main/java/cl/sitad/auth/config/SecurityConfig.java`, `vehicular/src/main/java/cl/sitad/vehicular/config/SecurityConfig.java`, `fiscalizacion/src/main/java/cl/sitad/fiscalizacion/config/SecurityConfig.java`
 
-**Commit:** `f268778` (Agregar actuator, health checks y curl)
+**Commit:** `c9ec8f0` (Agregar actuator, health checks y curl)
 ---
 
 ### D14 — Perfiles Spring (local vs default/docker)
@@ -286,11 +286,11 @@ Una vez establecida la infraestructura base, se refuerzan la seguridad, la gesti
 - Desarrollo local sin Docker: MySQL nativo en localhost, todos los servicios en JVM nativa.
 - Perfil `local` se activa con `-Dspring.profiles.active=local`.
 - Perfil `default` usa nombres de contenedor Docker (ej: `auth-db:3306`).
-- Las configuraciones de VS Code (`launch.json`) ya incluyen el flag del perfil.
+- Las configuraciones de VS Code (`launch.json.example`) ya incluyen el flag del perfil.
 
 **Archivos:** `application.yaml` en cada microservicio (bloque `---` con perfil `local`)
 
-**Commit:** `e2f941a` (Configuración para correr en local)
+**Commit:** `708b4e6` (Configuración para correr en local)
 ---
 
 ### D15 — Validación de formato RUT en DTOs de login
@@ -304,7 +304,7 @@ Una vez establecida la infraestructura base, se refuerzan la seguridad, la gesti
 
 **Archivos:** `auth/src/main/java/cl/sitad/auth/dto/LoginCiudadanoRequest.java`, `auth/src/main/java/cl/sitad/auth/dto/LoginFuncionarioRequest.java` (DTOs separados por rol)
 
-**Commit:** `9d249fb`
+**Commit:** `eb38593`
 ---
 
 ### D16 — OpenFeign con fallbacks para comunicación entre servicios
@@ -324,7 +324,7 @@ Una vez establecida la infraestructura base, se refuerzan la seguridad, la gesti
 
 **Archivos:** `fiscalizacion/src/main/java/cl/sitad/fiscalizacion/client/VehicularServiceClient.java`, `auth/src/main/java/cl/sitad/auth/client/` y similares
 
-**Commit:** `c5b7a70` (Impl. Módulo fiscalizacion)
+**Commit:** `aa687d5` (Impl. Módulo fiscalizacion)
 ---
 
 ## Hito 3: Correcciones Iniciales — 13 de junio de 2026
@@ -343,7 +343,7 @@ Ajustes posteriores a la implementación inicial: corrección de encoding, tilde
 
 **Archivos:** `frontend/src/pages/*.jsx` (múltiples archivos)
 
-**Commit:** `0139491` (Modificar tildes en el frontend), `888085f` (Corrección de caracteres unicode)
+**Commit:** `33c5118` (Modificar tildes en el frontend), `4e786da` (Corrección de caracteres unicode)
 ---
 
 ## Hito 4: Modelo de Dominio y Lógica de Negocio — 14 de junio de 2026
@@ -351,9 +351,9 @@ Ajustes posteriores a la implementación inicial: corrección de encoding, tilde
 ### Contexto
 Se implementa la lógica central del negocio: modelo de expediente, máquina de estados, gestión de documentos y las reglas de negocio definidas en `consideraciones/negocio.md`.
 
-### D18 — ExpedienteSalidaTemporal como entidad central del sistema
+### D18 — SalidaTemporalVehiculo como entidad central del sistema
 
-**Decisión:** Modelar el sistema en torno a `ExpedienteSalidaTemporal` (la solicitud), no al vehículo.
+**Decisión:** Modelar el sistema en torno a `SalidaTemporalVehiculo` (la solicitud), no al vehículo.
 
 **Alternativas descartadas:**
 - Vehículo como entidad central — un vehículo puede tener múltiples expedientes; distorsiona el seguimiento.
@@ -367,24 +367,25 @@ Se implementa la lógica central del negocio: modelo de expediente, máquina de 
 
 **Archivos:** `vehicular/src/main/java/cl/sitad/vehicular/entity/SalidaTemporalVehiculo.java`
 
-**Commit:** `cf826ab` (Agregar campos conductor/legitimidad), `28b7f08` (Unificar nuevos campos)
+**Commit:** `2bb7ffc` (Agregar campos conductor/legitimidad), `dc3cc72` (Unificar nuevos campos)
 ---
 
 ### D19 — Máquina de estados con 6 estados alcanzables
 
 **Decisión:** Implementar 6 estados con transiciones controladas: BORRADOR → PENDIENTE_DOCUMENTACION → PRE_VALIDADO_DIGITAL → APROBADO_EN_VENTANILLA / RECHAZADO / OBSERVADO.
 
-**Estado actual (commit 2d1a5d2):**
+**Transiciones (commit 1a44568 — expansión con commits 02d4a54, 8f19178 posteriores):**
 | Transición | Desde | Hacia | Endpoint |
 |-----------|-------|-------|----------|
 | Crear borrador | — | BORRADOR | `POST /solicitudes` |
 | Subir documentos | BORRADOR | PENDIENTE_DOCUMENTACION | `POST /documentos` (auto) |
-| Prevalidar | PENDIENTE_DOCUMENTACION | PRE_VALIDADO_DIGITAL | `POST /solicitudes/{id}/prevalidar` |
+| Prevalidar | BORRADOR / PENDIENTE_DOCUMENTACION / OBSERVADO | PRE_VALIDADO_DIGITAL o PENDIENTE_DOCUMENTACION | `POST /solicitudes/{id}/prevalidar` |
 | Observar | PRE_VALIDADO_DIGITAL | OBSERVADO | `POST /tramites/{id}/observar` |
+| Pre-Aprobar | PRE_VALIDADO_DIGITAL | PRE_VALIDADO_DIGITAL | `POST /tramites/{id}/preAprobar` |
 | Aprobar | PRE_VALIDADO_DIGITAL | APROBADO_EN_VENTANILLA | `POST /tramites/{id}/aprobar` |
 | Rechazar | PRE_VALIDADO_DIGITAL | RECHAZADO | `POST /tramites/{id}/rechazar` |
 
-**Pendiente:** Transición OBSERVADO → PENDIENTE_DOCUMENTACION (re-corregir).
+**Recuperación:** OBSERVADO → prevalidación → PENDIENTE_DOCUMENTACION (faltan docs) o PRE_VALIDADO_DIGITAL (docs corregidos).
 
 **Alternativas descartadas:**
 - Estados planos sin máquina — cualquier transición posible, riesgo de estados inválidos.
@@ -396,7 +397,7 @@ Se implementa la lógica central del negocio: modelo de expediente, máquina de 
 
 **Archivos:** `sitad-common/src/main/java/cl/sitad/common/enums/EstadoTramite.java`, `vehicular/src/main/java/cl/sitad/vehicular/service/VehicularService.java`
 
-**Commit:** `8c8915f` (Agregar estados BORRADOR, PENDIENTE_DOCUMENTACION, OBSERVADO), `2d1a5d2` (Corregir modelo expediente y máquina de estados)
+**Commit:** `e8f9a3e` (Agregar estados BORRADOR, PENDIENTE_DOCUMENTACION, OBSERVADO), `1a44568` (Corregir modelo expediente y máquina de estados)
 ---
 
 ### D20 — Documento como entidad JPA con relación @ManyToOne
@@ -415,7 +416,7 @@ Se implementa la lógica central del negocio: modelo de expediente, máquina de 
 
 **Archivos:** `vehicular/src/main/java/cl/sitad/vehicular/entity/Documento.java`, `vehicular/src/main/java/cl/sitad/vehicular/entity/SalidaTemporalVehiculo.java`
 
-**Commit:** `b19aed9` (Agregar modelo Documento), `cf826ab` (Corregir relación Documento)
+**Commit:** `732b4b2` (Agregar modelo Documento), `2bb7ffc` (Corregir relación Documento)
 ---
 
 ### D21 — Observación obligatoria al rechazar (RN-011)
@@ -433,7 +434,7 @@ Se implementa la lógica central del negocio: modelo de expediente, máquina de 
 
 **Archivos:** `fiscalizacion/src/main/java/cl/sitad/fiscalizacion/dto/RechazarRequest.java`, `frontend/src/components/ConfirmDialog.jsx`
 
-**Commit:** `16ed1a3` (Requerir observación al rechazar trámite)
+**Commit:** `5dab79c` (Requerir observación al rechazar trámite)
 ---
 
 ### D22 — Prevalidación automática como etapa del negocio
@@ -451,7 +452,7 @@ Se implementa la lógica central del negocio: modelo de expediente, máquina de 
 
 **Archivos:** `vehicular/src/main/java/cl/sitad/vehicular/service/VehicularService.java` (método `prevalidarSolicitud`)
 
-**Commit:** `2d1a5d2` (Corregir modelo expediente y máquina de estados)
+**Commit:** `1a44568` (Corregir modelo expediente y máquina de estados)
 ---
 
 ## Hito 5: APIs de Consulta y Frontend Funcional — 14 de junio de 2026
@@ -470,7 +471,7 @@ Se agregan endpoints de consulta faltantes y se conecta el frontend con datos re
 
 **Archivos:** `vehicular/src/main/java/cl/sitad/vehicular/controller/VehicularController.java`, `fiscalizacion/src/main/java/cl/sitad/fiscalizacion/controller/FiscalizacionController.java`
 
-**Commit:** `4335dd1` (Agregar endpoints de consulta)
+**Commit:** `36c1988` (Agregar endpoints de consulta)
 ---
 
 ### D24 — Búsqueda avanzada en fiscalización
@@ -486,7 +487,7 @@ Se agregan endpoints de consulta faltantes y se conecta el frontend con datos re
 - Los filtros combinados permiten localizar un expediente específico entre cientos.
 
 **Archivos:** `vehicular/src/main/java/cl/sitad/vehicular/controller/InternalController.java`, `fiscalizacion/src/main/java/cl/sitad/fiscalizacion/service/FiscalizacionService.java`
-**Commit:** `4335dd1`
+**Commit:** `36c1988`
 ---
 
 ### D25 — Wizard de 6 etapas en el frontend con datos reales
@@ -505,7 +506,7 @@ Se agregan endpoints de consulta faltantes y se conecta el frontend con datos re
 
 **Archivos:** `frontend/src/pages/SolicitarSalida.jsx`
 
-**Commit:** `9ed56d3` (Reemplazar formulario simple por wizard), `40bb348` (Wizard envía datos reales)
+**Commit:** `98053aa` (Reemplazar formulario simple por wizard), `5366987` (Wizard envía datos reales)
 ---
 
 ## Hito 6: Rediseño de Frontend — 15 de junio de 2026
@@ -529,7 +530,7 @@ Iteración de diseño y usabilidad: nuevo layout de doble columna, vistas redise
 
 **Archivos:** `frontend/src/styles/global.css`, `frontend/src/pages/*.jsx`
 
-**Commit:** `e7045e6` (Modificación layout de vistas a doble columna)
+**Commit:** `d3f259e` (Modificación layout de vistas a doble columna)
 ---
 
 ### D27 — Dashboard Ciudadano con próximos viajes y observaciones pendientes
@@ -543,7 +544,7 @@ Iteración de diseño y usabilidad: nuevo layout de doble columna, vistas redise
 
 **Archivos:** `frontend/src/pages/DashboardCiudadano.jsx`
 
-**Commit:** `5734530` (Rediseño dashboard pasajero), `57dffad` (Nuevos textos en dashboard pasajero)
+**Commit:** `9d3c200` (Rediseño dashboard pasajero), `3f2cf66` (Nuevos textos en dashboard pasajero)
 ---
 
 ### D28 — Dashboard Funcionario con bandeja operacional
@@ -561,7 +562,7 @@ Iteración de diseño y usabilidad: nuevo layout de doble columna, vistas redise
 
 **Archivos:** `frontend/src/pages/DashboardFuncionario.jsx`
 
-**Commit:** `276bf88` (Corrección filtros en dashboard de funcionario), `5734530`
+**Commit:** `71b6620` (Corrección filtros en dashboard de funcionario), `9d3c200`
 ---
 
 ### D29 — Vista ExpedienteDetalle con 5 pestañas
@@ -576,7 +577,7 @@ Iteración de diseño y usabilidad: nuevo layout de doble columna, vistas redise
 
 **Archivos:** `frontend/src/pages/ExpedienteDetalle.jsx`, `frontend/src/App.jsx`
 
-**Commit:** `40bb348` (Mejorar frontend)
+**Commit:** `5366987` (Mejorar frontend)
 ---
 
 ### D30 — Botón "Observar" en fiscalización con modal obligatorio
@@ -590,7 +591,7 @@ Iteración de diseño y usabilidad: nuevo layout de doble columna, vistas redise
 
 **Archivos:** `frontend/src/pages/Fiscalizacion.jsx`, `frontend/src/pages/ExpedienteDetalle.jsx`
 
-**Commit:** `f397c0e` (Corrección error en botones de acción), `40bb348`
+**Commit:** `2a14ac1` (Corrección error en botones de acción), `5366987`
 ---
 
 ### D31 — Vista MisVehículos con registro y edición
@@ -604,7 +605,7 @@ Iteración de diseño y usabilidad: nuevo layout de doble columna, vistas redise
 
 **Archivos:** `frontend/src/pages/MisVehiculos.jsx`, `frontend/src/pages/RegistrarVehiculo.jsx`
 
-**Commit:** `51c8c90` (Nueva vista MisVehiculos), `049cff8` (Rediseño vista registro de vehículo), `f1f7943` (Nuevo botón para registro)
+**Commit:** `bb50d15` (Nueva vista MisVehiculos), `695aa5f` (Rediseño vista registro de vehículo), `3835b13` (Nuevo botón para registro)
 ---
 
 ## Hito 7: Identidad Visual Gubernamental — 18 de junio de 2026
@@ -629,7 +630,7 @@ Unificación del estilo visual con la identidad del Estado de Chile. Se integran
 
 **Archivos:** `frontend/src/styles/global.css`, `frontend/src/pages/LoginCiudadano.jsx`, `frontend/src/pages/LoginFuncionario.jsx`
 
-**Commit:** `72ee899` (Unificación estilos con diseño estatal), `1b43c02` (Justificación de decisiones de estilos)
+**Commit:** `750e44f` (Unificación estilos con diseño estatal), `fc3676a` (Justificación de decisiones de estilos)
 ---
 
 ### D33 — Paleta de colores unificada con dos sistemas cromáticos
@@ -646,7 +647,7 @@ Unificación del estilo visual con la identidad del Estado de Chile. Se integran
 
 **Archivos:** `frontend/src/styles/global.css` (variables CSS en `:root`)
 
-**Commit:** `72ee899`, `e5db3e2` (Cambios menores en el estilo), `d79236f` (Unificación estilos login)
+**Commit:** `750e44f`, `3bf3962` (Cambios menores en el estilo), `027ecf9` (Unificación estilos login)
 ---
 
 ### D34 — Tipografía: Roboto + Roboto Slab
@@ -666,7 +667,7 @@ Unificación del estilo visual con la identidad del Estado de Chile. Se integran
 
 **Archivos:** `frontend/src/styles/global.css`, `frontend/index.html` (Google Fonts import)
 
-**Commit:** `72ee899`
+**Commit:** `750e44f`
 ---
 
 ### D35 — CSS vanilla con variables CSS (sin librerías externas)
@@ -686,7 +687,7 @@ Unificación del estilo visual con la identidad del Estado de Chile. Se integran
 
 **Archivos:** `frontend/src/styles/global.css`
 
-**Commit:** `72ee899`, `e5db3e2`
+**Commit:** `750e44f`, `3bf3962`
 ---
 
 ### D36 — Header y footer dentro del Layout (incluyendo login)
@@ -705,7 +706,7 @@ Unificación del estilo visual con la identidad del Estado de Chile. Se integran
 
 **Archivos:** `frontend/src/components/AppHeader.jsx`, `frontend/src/App.jsx`
 
-**Commit:** `d79236f` (Unificación login), `72ee899`
+**Commit:** `027ecf9` (Unificación login), `750e44f`
 ---
 
 ### D37 — Login diferenciado por rol (ciudadano vs funcionario)
@@ -724,7 +725,7 @@ Unificación del estilo visual con la identidad del Estado de Chile. Se integran
 
 **Archivos:** `frontend/src/pages/LoginCiudadano.jsx`, `frontend/src/pages/LoginFuncionario.jsx`, `frontend/src/styles/global.css`
 
-**Commit:** `d79236f` (Unificación de estilos en login)
+**Commit:** `027ecf9` (Unificación de estilos en login)
 ---
 
 ### D38 — Prevención de parpadeo del footer en transiciones de ruta
@@ -736,7 +737,7 @@ Unificación del estilo visual con la identidad del Estado de Chile. Se integran
 - Footer con `position: fixed` — complejidad adicional, riesgo de superposición con contenido.
 - `min-height: 100vh` en el contenedor — insuficiente cuando el contenido desaparece momentáneamente.
 
-**Justificación:** (ver commit `c3e0b8d`)
+**Justificación:** (ver commit `2762415`)
 - `flex: 1` equivale a `flex: 1 1 0%` — con `flex-basis: 0%` el navegador ignora el `min-height` durante el cálculo flexbox.
 - `flex: 1 0 auto` con `flex-shrink: 0` evita que `.app-main` se encoja.
 - Con `flex-basis: auto`, el `min-height` es efectivo: el elemento no puede reducirse por debajo del viewport menos el header.
@@ -746,19 +747,140 @@ Unificación del estilo visual con la identidad del Estado de Chile. Se integran
 
 **Archivos:** `frontend/src/styles/global.css` (`.app-main`)
 
-**Commit:** `c3e0b8d` (Corrección parpadeo por renderizado de contenido)
+**Commit:** `2762415` (Corrección parpadeo por renderizado de contenido)
+---
+
+## Hito 8: QR, Escaneo y Fiscalización — 19 de junio de 2026
+
+### Contexto
+Se agregan funcionalidades de fiscalización presencial: código QR en solicitudes pre-aprobadas, escáner simulado con webcam, y refinamiento del flujo Pre-Aprobar/Aprobar Paso.
+
+### D39 — Código QR en solicitudes pre-aprobadas
+
+**Decisión:** Generar un código QR con los datos de la solicitud al alcanzar el estado `PRE_VALIDADO_DIGITAL`, para agilizar la fiscalización presencial en ventanilla.
+
+**Alternativas descartadas:**
+- QR solo con ID numérico — insuficiente para validación offline.
+- Sin QR — el funcionario debe buscar manualmente por RUT o ID.
+
+**Justificación:**
+- El QR permite al funcionario escanear y cargar automáticamente la solicitud en la vista de fiscalización.
+- Los datos codificados incluyen ID, RUT del conductor y estado, permitiendo validación rápida.
+- Librería `qrcode` (^1.5.4) genera el QR como SVG/Canvas en el frontend.
+- El QR se muestra en `ExpedienteDetalle.jsx` cuando el estado es `PRE_VALIDADO_DIGITAL`.
+
+**Archivos:** `frontend/src/pages/ExpedienteDetalle.jsx`, `frontend/package.json`
+
+**Commit:** `0d70b54` (Implementación QR en solicitudes pre aprobadas)
+---
+
+### D40 — Escáner simulado con webcam
+
+**Decisión:** Implementar escáner simulado de QR y cédula de identidad usando la cámara del dispositivo en la vista de fiscalización.
+
+**Alternativas descartadas:**
+- Escáner físico con hardware dedicado — inviable en MVP.
+- Carga manual de imagen — experiencia de usuario más lenta.
+
+**Justificación:**
+- `getUserMedia` API del navegador permite acceso a la cámara sin dependencias externas.
+- La simulación de escaneo (tiempo de espera + carga de datos mock) demuestra el flujo completo sin requerir integración con hardware real.
+- Dos modos: escaneo de QR (busca solicitudes `APROBADO_EN_VENTANILLA`) y escaneo de cédula (simula lectura de RUT).
+- El visor se detiene al completar el escaneo, liberando la cámara.
+
+**Archivos:** `frontend/src/pages/Fiscalizacion.jsx`
+
+**Commit:** `523021a` (Implementación escaneo con webcam), `0c02ed3` (Mejora en usabilidad de escaneo QR y cédula de identidad)
+---
+
+### D41 — Filtro "Pre Validado" y badge en dashboard funcionario
+
+**Decisión:** Agregar el estado `PRE_VALIDADO_DIGITAL` como categoría visible en el dashboard del funcionario, con badge de color diferenciado.
+
+**Justificación:**
+- El dashboard original solo mostraba tabs para Pendientes, Observadas, Aprobadas, Rechazadas y Todas.
+- Las solicitudes en `PRE_VALIDADO_DIGITAL` son las que están listas para ser fiscalizadas.
+- El badge usa color naranja (`--color-orange: #E0701E`) para distinguirse de los demás estados.
+- El funcionario puede filtrar directamente por este estado sin escribir en el buscador.
+
+**Archivos:** `frontend/src/pages/DashboardFuncionario.jsx`, `frontend/src/styles/global.css`
+
+**Commit:** `8f19178` (Nuevo filtro "Pre Validado" en el panel de funcionario), `787c35a` (Cambio de color en badge Pre Validado)
+---
+
+## Hito 9: Seguridad y Aislamiento de Perfiles — 23 de junio de 2026
+
+### Contexto
+Refuerzo de seguridad en gateway, consolidación del patrón de refresh token en cookie httpOnly, y aislamiento completo de datos de prueba en el perfil `dev` para evitar contaminación en entornos productivos.
+
+### D42 — Validación JWT en Gateway GlobalFilter
+
+**Decisión:** Implementar un `GlobalFilter` en Spring Cloud Gateway que valida el JWT entrante antes de reenviar la petición al microservicio de destino, inyectando los claims `rut`, `rol` y `nombre` como headers HTTP.
+
+**Alternativas descartadas:**
+- Validación solo en cada microservicio — cada servicio repite la misma lógica de validación.
+- Sin validación en gateway — peticiones inválidas llegan a los servicios internos antes de ser rechazadas.
+
+**Justificación:**
+- El gateway se convierte en el primer punto de defensa: rechaza peticiones sin JWT o con JWT inválido antes de que lleguen a los microservicios.
+- Las rutas públicas (`/api/v1/auth/**`, `/actuator/health`) no requieren validación.
+- Los claims se reenvían como headers `X-JWT-RUT`, `X-JWT-ROL`, `X-JWT-NOMBRE`, evitando que los microservicios necesiten parsear el JWT nuevamente.
+- El filtro se ejecuta con orden `-1` (máxima prioridad) para validar antes de cualquier otro procesamiento.
+- Complementa, no reemplaza, la validación en cada microservicio.
+
+**Archivos:** `gateway/src/main/java/cl/sitad/gateway/filter/JwtAuthGlobalFilter.java`
+
+**Commit:** `0757fa9` (Agregar validación JWT en GlobalFilter para rutas protegidas)
+---
+
+### D43 — Aislamiento de seeders en perfil dev
+
+**Decisión:** Mover todos los datos de prueba (usuarios admin/inspector, vehículos simulados, documentos de ejemplo) exclusivamente al perfil `dev`, evitando que se ejecuten en entornos productivos o Docker por defecto.
+
+**Alternativas descartadas:**
+- Seeders siempre activos — crea usuarios y datos en producción sin control.
+- Seeders en script SQL externo — requiere ejecución manual, menos automatizado.
+
+**Justificación:**
+- El perfil `dev` se usa exclusivamente en desarrollo local (VS Code + `launch.json.example`).
+- Los seeders incluyen: `Admin2026!` (admin con roles PASAJERO+FUNCIONARIO), `Inspector2026!` (inspector con rol FUNCIONARIO), y ciudadanos simulados `12345678-5`, `98765432-1`.
+- Los datos de vehículos y documentos de ejemplo se crean via `DevSimulacionSupplement` en servicio-externo.
+- Las contraseñas por defecto se eliminaron de `DataInitializer` (commit `fbfb026`).
+- En Docker, el perfil `dev` no está activo, por lo que los seeders no se ejecutan.
+
+**Archivos:** `auth/src/main/java/cl/sitad/auth/config/DevDataInitializer.java`, `servicio-externo/src/main/java/cl/sitad/externo/service/DevSimulacionSupplement.java`, `auth/src/main/resources/application.yaml`
+
+**Commit:** `fbfb026` (Eliminar passwords por defecto en DataInitializer), `f4072ab` (Mover seed de usuarios admin a perfil dev), `6f5e83c` (Eliminar auto-creación de personas y mover admin a perfil dev), `08107b2` (Mover todo seed de datos simulados a perfil dev)
+---
+
+### D44 — Refresh token en cookie httpOnly y access token en memoria
+
+**Decisión:** Almacenar el refresh token exclusivamente en cookie httpOnly (inaccesible desde JavaScript) y el access token en memoria JavaScript (variable de módulo), eliminando el almacenamiento previo en localStorage.
+
+**Justificación:**
+- El access token en memoria (`let accessToken = null` en `api.js`) evita ataques XSS: el token no persiste en el almacenamiento del navegador.
+- El refresh token en cookie httpOnly con `credentials: 'include'` se envía automáticamente en cada petición, sin intervención de JavaScript.
+- Si el access token expira (30 min), el interceptor detecta el 403, llama a `POST /api/v1/auth/refresh`, y renueva el token transparentemente.
+- Al cerrar la pestaña del navegador, el access token en memoria se pierde, forzando un nuevo refresh el próximo inicio de sesión (vía `AuthContext` `useEffect`).
+- El refresh token se revoca en base de datos al hacer logout.
+
+**Archivos:** `frontend/src/services/api.js` (let accessToken, refreshAccessToken), `frontend/src/contexts/AuthContext.jsx`, `auth/src/main/java/cl/sitad/auth/`
+
+**Commit:** `1e58d2b` (Mover refresh token a cookie httpOnly y access token a memoria), `9f33b83` (chore: mover configuración de VS Code a gitignore y usar env vars), `1da433b` (fix: externalizar configuración)
 ---
 
 ## Resumen cronológico
 ```
-Hito 1 — Inicio                (12-jun)    8 decisiones    Fundación del sistema
-Hito 2 — Seguridad             (12-jun)    7 decisiones    JWT, secretos, CORS, health, perfiles
-Hito 3 — Correcciones          (13-jun)    1 decisión      Encoding UTF-8
-Hito 4 — Dominio y negocio     (14-jun)    5 decisiones    Expediente, estados, documentos, RN-011
-Hito 5 — APIs y frontend       (14-jun)    3 decisiones    Detalle, historial, búsqueda, wizard
-Hito 6 — Rediseño UX           (15-jun)    6 decisiones    Layout 70/30, dashboards, pestañas
-Hito 7 — Identidad visual      (18-jun)    7 decisiones    ChileAtiende, ClaveÚnica, CSS, login
-Total: 38 decisiones arquitectónicas en 7 hitos, 7 días de desarrollo.
+Hito 1 — Inicio                       (12-jun)    8 decisiones    Fundación del sistema
+Hito 2 — Seguridad                    (12-jun)    7 decisiones    JWT, secretos, CORS, health, perfiles
+Hito 3 — Correcciones                 (13-jun)    1 decisión      Encoding UTF-8
+Hito 4 — Dominio y negocio            (14-jun)    5 decisiones    Expediente, estados, documentos, RN-011
+Hito 5 — APIs y frontend              (14-jun)    3 decisiones    Detalle, historial, búsqueda, wizard
+Hito 6 — Rediseño UX                  (15-jun)    6 decisiones    Layout 70/30, dashboards, pestañas
+Hito 7 — Identidad visual             (18-jun)    7 decisiones    ChileAtiende, ClaveÚnica, CSS, login
+Hito 8 — QR, escaneo y fiscalización  (19-jun)    3 decisiones    QR, escáner webcam, badge Pre Validado
+Hito 9 — Seguridad y aislamiento      (23-jun)    3 decisiones    JWT en gateway, seeders dev, refresh httpOnly
+Total: 43 decisiones arquitectónicas en 9 hitos, 11 días de desarrollo.
 ```
 ---
 
@@ -766,7 +888,6 @@ Total: 38 decisiones arquitectónicas en 7 hitos, 7 días de desarrollo.
 | Decisión | Fundamento |
 |----------|-----------|
 | **DTOs como Java records** | Inmutables, concisos, validación nativa con `@NotBlank`/`@NotNull` |
-| **Lombok en entidades** | Reduce boilerplate (`@Data`, `@NoArgsConstructor`) |
 | **Seguridad con SecurityFilterChain + JwtFilter** | Patrón moderno Spring Security sin herencia de WebSecurityConfigurerAdapter |
 | **Vanilla CSS sin preprocesadores** | Suficiente para el alcance del MVP; evita dependencias build (SASS, LESS, PostCSS) |
 | **No usar localStorage para tokens** | Access token en memoria (JavaScript), refresh token en cookie httpOnly |
