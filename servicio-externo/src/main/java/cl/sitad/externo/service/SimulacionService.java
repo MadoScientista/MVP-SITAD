@@ -4,7 +4,6 @@ import cl.sitad.externo.dto.ClaveUnicaResponse;
 import cl.sitad.externo.dto.RegistroCivilPersonaResponse;
 import cl.sitad.externo.dto.RegistroCivilPersonaResponse.VehiculoInfo;
 import cl.sitad.externo.dto.RegistroCivilVehiculoResponse;
-import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,13 +16,12 @@ public class SimulacionService {
     private final Map<String, PersonaSimulada> personas = new ConcurrentHashMap<>();
     private final Map<String, VehiculoSimulado> vehiculos = new ConcurrentHashMap<>();
 
-    @PostConstruct
-    public void init() {
-        inicializarDatos();
-    }
-
     public void addPersonaSimulada(String rut, String nombre, String nacionalidad, String fechaNacimiento) {
         personas.put(rut, new PersonaSimulada(rut, nombre, nacionalidad, fechaNacimiento));
+    }
+
+    public void addVehiculoSimulado(String patente, String marca, String modelo, Integer anio, String paisMatricula, String propietarioRut) {
+        vehiculos.put(patente, new VehiculoSimulado(patente, marca, modelo, anio, paisMatricula, propietarioRut));
     }
 
     public ClaveUnicaResponse validarClaveUnica(String rut) {
@@ -76,15 +74,6 @@ public class SimulacionService {
                 true, vehiculo.patente(), vehiculo.marca(), vehiculo.modelo(),
                 vehiculo.anio(), vehiculo.paisMatricula(),
                 vehiculo.propietarioRut(), propietario != null ? propietario.nombre() : "Desconocido");
-    }
-
-    private void inicializarDatos() {
-        personas.put("12345678-5", new PersonaSimulada("12345678-5", "Juan Pérez González", "Chilena", "15-03-1988"));
-        personas.put("98765432-1", new PersonaSimulada("98765432-1", "Marcela Soto López", "Chilena", "02-11-1995"));
-
-        vehiculos.put("ABCD12", new VehiculoSimulado("ABCD12", "Toyota", "Corolla", 2020, "Chile", "12345678-5"));
-        vehiculos.put("EFGH34", new VehiculoSimulado("EFGH34", "Hyundai", "Tucson", 2022, "Chile", "12345678-5"));
-        vehiculos.put("IJKL56", new VehiculoSimulado("IJKL56", "Mitsubishi", "L200", 2021, "Chile", "98765432-1"));
     }
 
     private record PersonaSimulada(String rut, String nombre, String nacionalidad, String fechaNacimiento) {}
