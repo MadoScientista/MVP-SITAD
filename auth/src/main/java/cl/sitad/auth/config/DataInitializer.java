@@ -4,10 +4,12 @@ import cl.sitad.auth.entity.Rol;
 import cl.sitad.auth.enums.NombreRol;
 import cl.sitad.auth.repository.RolRepository;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
+@Order(1)
 public class DataInitializer implements CommandLineRunner {
 
     private final RolRepository rolRepository;

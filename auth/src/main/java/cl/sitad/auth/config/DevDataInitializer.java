@@ -7,6 +7,7 @@ import cl.sitad.auth.repository.RolRepository;
 import cl.sitad.auth.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -16,6 +17,7 @@ import java.util.Set;
 
 @Component
 @Profile("dev")
+@Order(2)
 public class DevDataInitializer implements CommandLineRunner {
 
     private final RolRepository rolRepository;
@@ -51,7 +53,7 @@ public class DevDataInitializer implements CommandLineRunner {
 
         Usuario admin = new Usuario();
         admin.setRut("11111111-1");
-        admin.setNombre("Administrador SITAD (dev)");
+        admin.setNombre("Administrador SITAD");
         admin.setEmail("admin@sitad.cl");
         admin.setPassword(passwordEncoder.encode(adminPassword));
         admin.setRoles(Set.of(pasajero, funcionario));
@@ -59,7 +61,7 @@ public class DevDataInitializer implements CommandLineRunner {
 
         Usuario inspector = new Usuario();
         inspector.setRut("22222222-2");
-        inspector.setNombre("Inspector Fronterizo (dev)");
+        inspector.setNombre("Inspector Fronterizo");
         inspector.setEmail("inspector@sitad.cl");
         inspector.setPassword(passwordEncoder.encode(inspectorPassword));
         inspector.setRoles(Set.of(funcionario));

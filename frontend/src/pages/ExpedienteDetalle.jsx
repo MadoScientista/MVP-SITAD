@@ -227,7 +227,7 @@ export default function ExpedienteDetalle() {
           {!esFuncionario && solicitud.codigoAprobacion && (
             <SectionCard title="Código de aprobación QR">
               <div style={{ textAlign: 'center' }}>
-                <QrCodeDisplay data={`SITAD-APROBACION:${solicitud.id}:${solicitud.codigoAprobacion}`} size={200} />
+                <QrCodeDisplay data={`SITAD-APROBACION:${solicitud.id}:${solicitud.codigoAprobacion}`} size={200} solicitud={solicitud} />
                 <div style={{ fontSize: 14, color: '#6C757D', lineHeight: 1.8, marginTop: 16 }}>
                   {esFuncionario ? (
                     <p>Código QR de aprobación del trámite. El pasajero debe presentarlo en el paso fronterizo.</p>

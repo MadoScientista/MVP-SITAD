@@ -1,5 +1,6 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
+import jsQR from 'jsqr'
 import { api } from '../services/api'
 import PageTitle from '../components/PageTitle'
 import Breadcrumb from '../components/Breadcrumb'
@@ -29,10 +30,51 @@ export default function Fiscalizacion() {
   const streamRef = useRef(null)
   const searchIdRef = useRef(null)
   const searchRutRef = useRef(null)
+  const canvasCaptureRef = useRef(null)
+  const animFrameRef = useRef(null)
+  const lastScanRef = useRef(0)
+
+  const escanearQR = useCallback(() => {
+    const video = videoRef.current
+    const canvas = canvasCaptureRef.current
+    if (!video || !canvas || video.readyState < 2) {
+      animFrameRef.current = requestAnimationFrame(escanearQR)
+      return
+    }
+
+    const ahora = Date.now()
+    if (ahora - lastScanRef.current < 400) {
+      animFrameRef.current = requestAnimationFrame(escanearQR)
+      return
+    }
+    lastScanRef.current = ahora
+
+    const ctx = canvas.getContext('2d')
+    canvas.width = video.videoWidth
+    canvas.height = video.videoHeight
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+    const code = jsQR(imageData.data, imageData.width, imageData.height)
+
+    if (code) {
+      const match = code.data.match(/^SITAD-APROBACION:(\d+):/)
+      if (match) {
+        const solicitudId = match[1]
+        detenerCamara()
+        navigate(`/funcionario/expedientes/${solicitudId}`)
+        return
+      }
+    }
+
+    animFrameRef.current = requestAnimationFrame(escanearQR)
+  }, [navigate])
 
   const activarCamara = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true })
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 480 } },
+      })
       streamRef.current = stream
       setCamaraActiva(true)
     } catch {
@@ -43,16 +85,21 @@ export default function Fiscalizacion() {
   useEffect(() => {
     if (camaraActiva && videoRef.current && streamRef.current) {
       videoRef.current.srcObject = streamRef.current
+      videoRef.current.onloadeddata = () => {
+        animFrameRef.current = requestAnimationFrame(escanearQR)
+      }
     }
-  }, [camaraActiva])
+  }, [camaraActiva, escanearQR])
 
   useEffect(() => {
     return () => {
+      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current)
       streamRef.current?.getTracks().forEach(t => t.stop())
     }
   }, [])
 
   const detenerCamara = () => {
+    if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current)
     streamRef.current?.getTracks().forEach(t => t.stop())
     streamRef.current = null
     setCamaraActiva(false)
@@ -208,7 +255,13 @@ export default function Fiscalizacion() {
                       </svg>
                     ) : camaraActiva ? (
                       <>
-                        <video ref={videoRef} autoPlay playsInline style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <video ref={videoRef} autoPlay playsInline muted style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <canvas ref={canvasCaptureRef} style={{ display: 'none' }} />
+                        <div style={{
+                          position: 'absolute', top: 8, left: 8, right: 8, bottom: 8,
+                          border: '2px solid rgba(13, 110, 253, 0.4)', borderRadius: 6, pointerEvents: 'none',
+                          boxShadow: 'inset 0 0 20px rgba(13, 110, 253, 0.08)',
+                        }} />
                         <button className="btn btn--secondary" style={{ position: 'absolute', bottom: 12 }} onClick={detenerCamara}>
                           Detener escáner
                         </button>
@@ -226,14 +279,14 @@ export default function Fiscalizacion() {
                       </>
                     )}
                   </div>
-                <div style={{ textAlign: 'center' }}>
+                  <div style={{ textAlign: 'center' }}>
                   <div style={{ fontWeight: 600, marginBottom: 6, color: '#212529' }}>Escanear código QR de solicitud</div>
                   <p style={{ fontSize: 13, color: '#6C757D', lineHeight: 1.5, margin: '0 auto 12px auto', maxWidth: 360 }}>
-                    Solicite al pasajero mostrar el código QR de pre aprobación digital y ubíquelo frente al escáner hasta que se vea correctamente en el visor de la izquierda. Luego pinche en escanear.
+                    Active el escáner y ubique el código QR frente a la cámara. La detección es automática y lo redirigirá al expediente correspondiente.
                   </p>
-                  <button className="btn btn--primary" onClick={() => simularEscaner('qr')} disabled={escanearTipo !== ''}>
-                    {escanearTipo === 'qr' ? 'Escaneando...' : 'Escanear'}
-                  </button>
+                  <p style={{ fontSize: 12, color: '#ADB5BD', lineHeight: 1.4, margin: '0 auto 12px auto', maxWidth: 360 }}>
+                    Si no dispone de cámara, use la <button className="btn btn--link" style={{ padding: 0, fontSize: 12, textDecoration: 'underline', background: 'none', border: 'none', cursor: 'pointer', color: '#ADB5BD' }} onClick={() => simularEscaner('qr')}>simulación</button>.
+                  </p>
                 </div>
                 </div>
 
