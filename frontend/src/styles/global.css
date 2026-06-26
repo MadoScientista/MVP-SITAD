@@ -550,7 +550,8 @@ blockquote, .text-cite {
   color: var(--color-gray-mid);
 }
 
-.form-input--error {
+.form-input--error,
+.form-select--error {
   border-color: var(--color-error);
 }
 
@@ -1308,6 +1309,12 @@ textarea.form-input {
   display: flex;
   gap: var(--space-sm);
   margin-top: var(--space-xs);
+}
+
+.radio-group--error {
+  padding: var(--space-xs);
+  border: 1px solid var(--color-error);
+  border-radius: var(--border-radius);
 }
 
 .radio-label {

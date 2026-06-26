@@ -73,6 +73,16 @@ public class VehicularController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @PutMapping("/solicitudes/{id}")
+    public ResponseEntity<SolicitudResponse> actualizarSolicitud(
+            @PathVariable Long id,
+            @Valid @RequestBody SolicitudRequest request,
+            Authentication authentication) {
+        String rut = authentication.getName();
+        SolicitudResponse response = vehicularService.actualizarSolicitud(id, request, rut);
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/solicitudes")
     public ResponseEntity<List<SolicitudResponse>> consultarSolicitudes(Authentication authentication) {
         String rut = authentication.getName();

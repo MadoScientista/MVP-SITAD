@@ -58,6 +58,7 @@ export default function App() {
         <Route path="/ciudadano/vehiculos/registrar" element={<ProtectedRoute roles={['PASAJERO']}><RegistrarVehiculo /></ProtectedRoute>} />
         <Route path="/ciudadano/vehiculos/editar/:id" element={<ProtectedRoute roles={['PASAJERO']}><RegistrarVehiculo /></ProtectedRoute>} />
         <Route path="/ciudadano/solicitudes/nueva" element={<ProtectedRoute roles={['PASAJERO']}><SolicitarSalida /></ProtectedRoute>} />
+        <Route path="/ciudadano/solicitudes/editar/:id" element={<ProtectedRoute roles={['PASAJERO']}><SolicitarSalida /></ProtectedRoute>} />
         <Route path="/ciudadano/solicitudes" element={<ProtectedRoute roles={['PASAJERO']}><ConsultarEstado /></ProtectedRoute>} />
 
         <Route path="/ciudadano/expedientes/:id" element={<ProtectedRoute roles={['PASAJERO']}><ExpedienteDetalle /></ProtectedRoute>} />

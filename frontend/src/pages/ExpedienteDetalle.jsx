@@ -224,7 +224,7 @@ export default function ExpedienteDetalle() {
             </SectionCard>
           )}
 
-          {solicitud.estado === 'APROBADO_EN_VENTANILLA' && solicitud.codigoAprobacion && (
+          {!esFuncionario && solicitud.codigoAprobacion && (
             <SectionCard title="Código de aprobación QR">
               <div style={{ textAlign: 'center' }}>
                 <QrCodeDisplay data={`SITAD-APROBACION:${solicitud.id}:${solicitud.codigoAprobacion}`} size={200} />
@@ -293,6 +293,15 @@ export default function ExpedienteDetalle() {
           <button className="sidebar-nav__btn sidebar-nav__btn--back" onClick={() => navigate(-1)}>
             Volver atrás
           </button>
+
+          {!esFuncionario && (solicitud.estado === 'BORRADOR' || solicitud.estado === 'OBSERVADO') && (
+            <>
+              <div className="sidebar-nav__title" style={{ marginTop: 16 }}>Acciones</div>
+              <button className="btn btn--primary" style={{ width: '100%', height: 40, fontSize: 14 }} onClick={() => navigate(`/ciudadano/solicitudes/editar/${id}`)}>
+                Editar solicitud
+              </button>
+            </>
+          )}
 
           {esFuncionario && (
             <>

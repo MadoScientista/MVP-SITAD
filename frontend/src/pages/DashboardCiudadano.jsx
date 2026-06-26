@@ -164,8 +164,11 @@ export default function DashboardCiudadano() {
                 { label: 'Estado', render: (r) => <StatusBadge estado={r.estado} /> },
                 { label: 'Acción', render: (r) => (
                   <div style={{ display: 'flex', gap: 4 }}>
+                    {(r.estado === 'BORRADOR' || r.estado === 'OBSERVADO') && (
+                      <button className="btn btn--sm btn--secondary" onClick={() => navigate(`/ciudadano/solicitudes/editar/${r.id}`)}>Editar</button>
+                    )}
                     <button className="btn btn--sm btn--primary" onClick={() => navigate(`/ciudadano/expedientes/${r.id}`)}>Ver</button>
-                    {r.estado === 'APROBADO_EN_VENTANILLA' && r.codigoAprobacion && (
+                    {r.codigoAprobacion && (
                       <button className="btn btn--sm btn--secondary" title="Ver código QR" onClick={() => navigate(`/ciudadano/expedientes/${r.id}`)}>QR</button>
                     )}
                   </div>

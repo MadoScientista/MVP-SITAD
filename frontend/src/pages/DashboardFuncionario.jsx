@@ -9,7 +9,7 @@ import StatusBadge from '../components/StatusBadge'
 import DataTable from '../components/DataTable'
 import LoadingSpinner from '../components/LoadingSpinner'
 
-const ESTADOS_PENDIENTES = ['BORRADOR', 'PENDIENTE_DOCUMENTACION']
+const ESTADOS_PENDIENTES = ['PENDIENTE_DOCUMENTACION']
 const ESTADO_PRE_VALIDADO = 'PRE_VALIDADO_DIGITAL'
 
 const TABS = [
@@ -47,6 +47,8 @@ export default function DashboardFuncionario() {
       result = result.filter((t) => ESTADOS_PENDIENTES.includes(t.estado))
     } else if (tab !== 'TODOS') {
       result = result.filter((t) => t.estado === tab)
+    } else {
+      result = result.filter((t) => t.estado !== 'BORRADOR')
     }
     if (searchPatente.trim()) {
       const p = searchPatente.trim().toUpperCase()

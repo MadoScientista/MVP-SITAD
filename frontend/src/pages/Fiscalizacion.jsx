@@ -106,7 +106,7 @@ export default function Fiscalizacion() {
     await new Promise(r => setTimeout(r, 1000))
     try {
       if (tipo === 'qr') {
-        const data = await api.get('/api/v1/fiscalizacion/tramites?estado=APROBADO_EN_VENTANILLA')
+        const data = await api.get('/api/v1/fiscalizacion/tramites?estado=PRE_VALIDADO_DIGITAL')
         if (Array.isArray(data) && data.length > 0) {
           setTramite(data[0])
         } else {

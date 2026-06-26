@@ -51,7 +51,14 @@ export default function ConsultarEstado() {
     { label: 'Patente', key: 'patente' },
     { label: 'Paso Fronterizo', key: 'pasoFronterizo' },
     { label: 'Estado', render: (r) => <StatusBadge estado={r.estado} /> },
-    { label: 'Acción', render: (r) => <button className="btn btn--sm btn--primary" onClick={() => navigate(`/ciudadano/expedientes/${r.id}`)}>Detalle</button> },
+    { label: 'Acción', render: (r) => (
+      <div style={{ display: 'flex', gap: 4 }}>
+        {(r.estado === 'BORRADOR' || r.estado === 'OBSERVADO') && (
+          <button className="btn btn--sm btn--secondary" onClick={() => navigate(`/ciudadano/solicitudes/editar/${r.id}`)}>Editar</button>
+        )}
+        <button className="btn btn--sm btn--primary" onClick={() => navigate(`/ciudadano/expedientes/${r.id}`)}>Detalle</button>
+      </div>
+    ) },
   ]
 
   if (loading) return <LoadingSpinner />

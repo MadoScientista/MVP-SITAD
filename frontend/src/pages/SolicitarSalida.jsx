@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation, useParams } from 'react-router-dom'
 import { api } from '../services/api'
 import { useAuth } from '../contexts/AuthContext'
 import PageTitle from '../components/PageTitle'
 import Breadcrumb from '../components/Breadcrumb'
 import SectionCard from '../components/SectionCard'
 import FormSection from '../components/FormSection'
-import ErrorMessage from '../components/ErrorMessage'
+import AlertModal from '../components/AlertModal'
 import LoadingSpinner from '../components/LoadingSpinner'
 import SidebarNav from '../components/SidebarNav'
 
@@ -16,10 +16,13 @@ const TIPOS_DOC_VEHICULO = ['PADRON', 'SEGURO_INTERNACIONAL']
 export default function SolicitarSalida() {
   const navigate = useNavigate()
   const location = useLocation()
+  const { id } = useParams()
+  const esEdicion = Boolean(id)
   const { user } = useAuth()
   const [vehiculos, setVehiculos] = useState([])
   const [loadingVehiculos, setLoadingVehiculos] = useState(true)
   const [error, setError] = useState('')
+  const [fieldErrors, setFieldErrors] = useState({})
   const [loading, setLoading] = useState(false)
 
   const [form, setForm] = useState({
@@ -52,6 +55,39 @@ export default function SolicitarSalida() {
       .finally(() => setLoadingVehiculos(false))
   }, [])
 
+  useEffect(() => {
+    if (!id) return
+    setLoadingVehiculos(true)
+    Promise.all([
+      api.get(`/api/v1/vehicular/solicitudes/${id}`),
+      api.get(`/api/v1/vehicular/solicitudes/${id}/documentos`).catch(() => []),
+    ])
+      .then(([s, docs]) => {
+        setForm({
+          conductorRut: s.conductorRut || '',
+          conductorNumeroDocumento: s.conductorNumeroDocumento || '',
+          conductorNombre: s.conductorNombre || '',
+          conductorApellidoPaterno: s.conductorApellidoPaterno || '',
+          conductorApellidoMaterno: s.conductorApellidoMaterno || '',
+          vehiculoId: String(s.vehiculoId),
+          esPropietario: s.esPropietario ? 'si' : 'no',
+          tipoAutorizacion: s.tipoAutorizacion || '',
+          fechaSalida: s.fechaSalida || '',
+          fechaRetorno: s.fechaRetorno || '',
+          paisDestino: s.paisDestino || 'Argentina',
+          pasoFronterizo: s.pasoFronterizo || 'Los Libertadores',
+        })
+        if (Array.isArray(docs) && docs.length > 0) {
+          const authDocs = docs.filter((d) => ['AUTORIZACION_NOTARIAL', 'PODER_ESPECIAL'].includes(d.tipo))
+          const vehDocs = docs.filter((d) => ['PADRON', 'SEGURO_INTERNACIONAL'].includes(d.tipo))
+          setDocumentosAutorizacion(authDocs)
+          setDocumentosVehiculo(vehDocs)
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoadingVehiculos(false))
+  }, [id])
+
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value })
 
   const vehiculoSeleccionado = vehiculos.find((v) => String(v.id) === form.vehiculoId)
@@ -66,11 +102,77 @@ export default function SolicitarSalida() {
     setList(list.filter((_, i) => i !== idx))
   }
 
+  const clearError = () => {
+    setError('')
+    setFieldErrors({})
+  }
+
   const handleSubmit = async () => {
     setError('')
+    setFieldErrors({})
+
+    if (!form.conductorNumeroDocumento.trim()) {
+      setFieldErrors({ conductorNumeroDocumento: true })
+      setError('El número de documento del conductor es obligatorio')
+      return
+    }
+    if (!form.esPropietario) {
+      setFieldErrors({ esPropietario: true })
+      setError('Debe indicar si el conductor es propietario del vehículo')
+      return
+    }
+    if (form.esPropietario === 'no' && !form.tipoAutorizacion) {
+      setFieldErrors({ tipoAutorizacion: true })
+      setError('Debe seleccionar el tipo de autorización')
+      return
+    }
+    if (!form.fechaSalida) {
+      setFieldErrors({ fechaSalida: true })
+      setError('La fecha de salida es obligatoria')
+      return
+    }
+    if (!form.fechaRetorno) {
+      setFieldErrors({ fechaRetorno: true })
+      setError('La fecha de retorno es obligatoria')
+      return
+    }
+
+    if (form.fechaSalida < today) {
+      setFieldErrors({ fechaSalida: true })
+      setError('La fecha de salida no puede ser anterior a hoy')
+      return
+    }
+    if (form.fechaRetorno < form.fechaSalida) {
+      setFieldErrors({ fechaRetorno: true })
+      setError('La fecha de retorno no puede ser anterior a la fecha de salida')
+      return
+    }
+    if (documentosVehiculo.length === 0) {
+      setError('Debe adjuntar al menos el padrón o seguro internacional del vehículo')
+      return
+    }
+    if (form.esPropietario === 'no' && documentosAutorizacion.length === 0) {
+      setError('Debe adjuntar el documento de autorización del propietario')
+      return
+    }
     setLoading(true)
     try {
-      const solicitud = await api.post('/api/v1/vehicular/solicitudes', {
+      const solicitud = esEdicion
+        ? await api.put(`/api/v1/vehicular/solicitudes/${id}`, {
+            vehiculoId: parseInt(form.vehiculoId, 10),
+            conductorRut: form.conductorRut,
+            conductorNumeroDocumento: form.conductorNumeroDocumento || null,
+            conductorNombre: form.conductorNombre,
+            conductorApellidoPaterno: form.conductorApellidoPaterno || null,
+            conductorApellidoMaterno: form.conductorApellidoMaterno || null,
+            esPropietario: form.esPropietario === 'si',
+            tipoAutorizacion: form.esPropietario === 'no' ? form.tipoAutorizacion : null,
+            fechaSalida: form.fechaSalida,
+            fechaRetorno: form.fechaRetorno,
+            paisDestino: form.paisDestino,
+            pasoFronterizo: form.pasoFronterizo,
+          })
+        : await api.post('/api/v1/vehicular/solicitudes', {
         vehiculoId: parseInt(form.vehiculoId, 10),
         conductorRut: form.conductorRut,
         conductorNumeroDocumento: form.conductorNumeroDocumento || null,
@@ -107,6 +209,9 @@ export default function SolicitarSalida() {
 
   if (loadingVehiculos) return <LoadingSpinner />
 
+  const today = new Date().toISOString().split('T')[0]
+  const minFechaRetorno = form.fechaSalida || today
+
   if (vehiculos.length === 0) {
     return (
       <div className="page-container">
@@ -127,13 +232,13 @@ export default function SolicitarSalida() {
 
   return (
     <div className="page-container">
-      <Breadcrumb items={[
-        { label: 'Inicio', to: '/ciudadano/dashboard' },
-        { label: 'Nueva solicitud' },
-      ]} />
-      <PageTitle title="Solicitar salida temporal" subtitle="Complete el expediente en esta pantalla" />
+        <Breadcrumb items={[
+          { label: 'Inicio', to: '/ciudadano/dashboard' },
+          { label: esEdicion ? 'Editar solicitud' : 'Nueva solicitud' },
+        ]} />
+        <PageTitle title={esEdicion ? 'Editar solicitud' : 'Solicitar salida temporal'} subtitle="Complete el expediente en esta pantalla" />
 
-      <ErrorMessage message={error} />
+      <AlertModal open={!!error} message={error} onClose={clearError} />
 
       <div className="two-column-layout">
         <div className="two-column-layout__main">
@@ -145,7 +250,7 @@ export default function SolicitarSalida() {
               </div>
               <div className="form-group">
                 <label htmlFor="conductorNumeroDocumento">N° de documento <span className="required">*</span></label>
-                <input id="conductorNumeroDocumento" name="conductorNumeroDocumento" className="form-input" value={form.conductorNumeroDocumento} onChange={handleChange} placeholder="Documento de identidad" required />
+                <input id="conductorNumeroDocumento" name="conductorNumeroDocumento" className={`form-input${fieldErrors.conductorNumeroDocumento ? ' form-input--error' : ''}`} value={form.conductorNumeroDocumento} onChange={handleChange} placeholder="Documento de identidad" required />
               </div>
               <div className="form-group">
                 <label htmlFor="conductorNombre">Nombres <span className="required">*</span></label>
@@ -199,7 +304,7 @@ export default function SolicitarSalida() {
             <FormSection>
               <div className="form-group">
                 <label>¿El conductor es propietario del vehículo? <span className="required">*</span></label>
-                <div className="radio-group">
+                <div className={`radio-group${fieldErrors.esPropietario ? ' radio-group--error' : ''}`}>
                   <label className="radio-label">
                     <input type="radio" name="esPropietario" value="si" checked={form.esPropietario === 'si'} onChange={handleChange} />
                     Sí
@@ -214,7 +319,7 @@ export default function SolicitarSalida() {
                 <>
                   <div className="form-group">
                     <label htmlFor="tipoAutorizacion">Documento que otorga el permiso <span className="required">*</span></label>
-                    <select id="tipoAutorizacion" name="tipoAutorizacion" className="form-select" value={form.tipoAutorizacion} onChange={handleChange} required>
+                    <select id="tipoAutorizacion" name="tipoAutorizacion" className={`form-select${fieldErrors.tipoAutorizacion ? ' form-select--error' : ''}`} value={form.tipoAutorizacion} onChange={handleChange} required>
                       <option value="">Seleccione tipo</option>
                       {TIPOS_AUTORIZACION.map((t) => (
                         <option key={t} value={t}>{t.replace(/_/g, ' ')}</option>
@@ -311,11 +416,11 @@ export default function SolicitarSalida() {
               </div>
               <div className="form-group">
                 <label htmlFor="fechaSalida">Fecha salida <span className="required">*</span></label>
-                <input id="fechaSalida" name="fechaSalida" className="form-input" type="date" value={form.fechaSalida} onChange={handleChange} required />
+                <input id="fechaSalida" name="fechaSalida" className={`form-input${fieldErrors.fechaSalida ? ' form-input--error' : ''}`} type="date" min={today} value={form.fechaSalida} onChange={handleChange} required />
               </div>
               <div className="form-group">
                 <label htmlFor="fechaRetorno">Fecha retorno <span className="required">*</span></label>
-                <input id="fechaRetorno" name="fechaRetorno" className="form-input" type="date" value={form.fechaRetorno} onChange={handleChange} required />
+                <input id="fechaRetorno" name="fechaRetorno" className={`form-input${fieldErrors.fechaRetorno ? ' form-input--error' : ''}`} type="date" min={minFechaRetorno} value={form.fechaRetorno} onChange={handleChange} required />
               </div>
             </FormSection>
           </SectionCard>
@@ -357,7 +462,7 @@ export default function SolicitarSalida() {
 
           <div className="btn-group">
             <button type="button" className="btn btn--primary" onClick={handleSubmit} disabled={loading}>
-              {loading ? 'Enviando...' : 'Enviar Solicitud'}
+              {loading ? 'Guardando...' : esEdicion ? 'Guardar cambios' : 'Enviar Solicitud'}
             </button>
           </div>
         </div>

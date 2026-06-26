@@ -104,7 +104,7 @@ public class VehicularService {
                 .orElseThrow(() -> new NoSuchElementException("Veh\u00EDculo no encontrado"));
 
         if (request.fechaRetorno().isBefore(request.fechaSalida())) {
-            throw new IllegalArgumentException("La fecha de retorno debe ser posterior a la fecha de salida");
+            throw new IllegalArgumentException("La fecha de retorno no puede ser anterior a la fecha de salida");
         }
 
         if (request.fechaSalida().isBefore(java.time.LocalDate.now())) {
@@ -130,6 +130,47 @@ public class VehicularService {
         solicitud.setPaisDestino(request.paisDestino());
         solicitud.setPasoFronterizo(request.pasoFronterizo());
         solicitud.setEstado(EstadoTramite.BORRADOR);
+        solicitud.setFechaEstado(LocalDateTime.now());
+
+        solicitud = salidaRepository.save(solicitud);
+        return toSolicitudResponse(solicitud);
+    }
+
+    @Transactional
+    public SolicitudResponse actualizarSolicitud(Long id, SolicitudRequest request, String rutSolicitante) {
+        SalidaTemporalVehiculo solicitud = salidaRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Solicitud no encontrada"));
+
+        if (solicitud.getEstado() != EstadoTramite.BORRADOR
+                && solicitud.getEstado() != EstadoTramite.OBSERVADO) {
+            throw new IllegalStateException("Solo se puede editar una solicitud en estado BORRADOR u OBSERVADO");
+        }
+
+        Vehiculo vehiculo = solicitud.getVehiculo();
+        if (!vehiculo.getPropietarioRut().equals(rutSolicitante)
+                && !solicitud.getConductorRut().equals(rutSolicitante)) {
+            throw new IllegalArgumentException("La solicitud no pertenece al ciudadano autenticado");
+        }
+
+        if (request.fechaRetorno().isBefore(request.fechaSalida())) {
+            throw new IllegalArgumentException("La fecha de retorno no puede ser anterior a la fecha de salida");
+        }
+
+        if (request.fechaSalida().isBefore(java.time.LocalDate.now())) {
+            throw new IllegalArgumentException("La fecha de salida no puede ser anterior a hoy");
+        }
+
+        solicitud.setConductorRut(request.conductorRut());
+        solicitud.setConductorNumeroDocumento(request.conductorNumeroDocumento());
+        solicitud.setConductorNombre(request.conductorNombre());
+        solicitud.setConductorApellidoPaterno(request.conductorApellidoPaterno());
+        solicitud.setConductorApellidoMaterno(request.conductorApellidoMaterno());
+        solicitud.setEsPropietario(request.esPropietario());
+        solicitud.setTipoAutorizacion(request.esPropietario() ? null : request.tipoAutorizacion());
+        solicitud.setFechaSalida(request.fechaSalida());
+        solicitud.setFechaRetorno(request.fechaRetorno());
+        solicitud.setPaisDestino(request.paisDestino());
+        solicitud.setPasoFronterizo(request.pasoFronterizo());
         solicitud.setFechaEstado(LocalDateTime.now());
 
         solicitud = salidaRepository.save(solicitud);
@@ -194,7 +235,7 @@ public class VehicularService {
         if (observacion != null) {
             solicitud.setObservacion(observacion);
         }
-        if (nuevoEstado == EstadoTramite.APROBADO_EN_VENTANILLA && solicitud.getCodigoAprobacion() == null) {
+        if (nuevoEstado == EstadoTramite.PRE_VALIDADO_DIGITAL && solicitud.getCodigoAprobacion() == null) {
             solicitud.setCodigoAprobacion(UUID.randomUUID().toString());
         }
         solicitud.setFechaEstado(LocalDateTime.now());
@@ -252,7 +293,7 @@ public class VehicularService {
         boolean tieneDocumentos = !solicitud.getDocumentos().isEmpty();
 
         if (solicitud.getFechaRetorno().isBefore(solicitud.getFechaSalida())) {
-            throw new IllegalArgumentException("La fecha de retorno debe ser posterior a la fecha de salida");
+            throw new IllegalArgumentException("La fecha de retorno no puede ser anterior a la fecha de salida");
         }
 
         if (tieneDocumentos) {
@@ -274,7 +315,7 @@ public class VehicularService {
     }
 
     private void asegurarCodigoAprobacion(SalidaTemporalVehiculo solicitud) {
-        if (solicitud.getEstado() == EstadoTramite.APROBADO_EN_VENTANILLA && solicitud.getCodigoAprobacion() == null) {
+        if ((solicitud.getEstado() == EstadoTramite.PRE_VALIDADO_DIGITAL || solicitud.getEstado() == EstadoTramite.APROBADO_EN_VENTANILLA) && solicitud.getCodigoAprobacion() == null) {
             solicitud.setCodigoAprobacion(UUID.randomUUID().toString());
             salidaRepository.save(solicitud);
         }
@@ -292,7 +333,7 @@ public class VehicularService {
     public QrDataResponse obtenerQrData(Long id) {
         SalidaTemporalVehiculo solicitud = salidaRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Tr\u00E1mite no encontrado"));
-        if (solicitud.getEstado() != EstadoTramite.APROBADO_EN_VENTANILLA) {
+        if (solicitud.getEstado() != EstadoTramite.PRE_VALIDADO_DIGITAL && solicitud.getEstado() != EstadoTramite.APROBADO_EN_VENTANILLA) {
             throw new IllegalStateException("El tr\u00E1mite no est\u00E1 aprobado");
         }
         if (solicitud.getCodigoAprobacion() == null) {
