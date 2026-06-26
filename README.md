@@ -8,13 +8,13 @@ Plataforma para gestionar solicitudes de salida temporal de vehículos desde Chi
 
 Antes de empezar, necesitas instalar estos programas en tu computador. Todos son gratuitos.
 
-| Programa | Versión | Para qué sirve | Descarga |
-|---|---|---|---|
-| **Java JDK** | 25 o superior | Ejecutar el backend | https://adoptium.net/ (Temurin 25) |
-| **Maven** | 3.9 o superior | Compilar el código Java | https://maven.apache.org/download.cgi |
-| **Node.js** | 22 o superior | Ejecutar el frontend | https://nodejs.org/ (versión LTS) |
-| **MySQL** | 8.0 | Base de datos | https://dev.mysql.com/downloads/installer/ |
-| **VS Code** | — | Editor de código | https://code.visualstudio.com/ |
+| Programa     | Versión        | Para qué sirve          | Descarga                                   |
+| ------------ | -------------- | ----------------------- | ------------------------------------------ |
+| **Java JDK** | 25 o superior  | Ejecutar el backend     | https://adoptium.net/ (Temurin 25)         |
+| **Maven**    | 3.9 o superior | Compilar el código Java | https://maven.apache.org/download.cgi      |
+| **Node.js**  | 22 o superior  | Ejecutar el frontend    | https://nodejs.org/ (versión LTS)          |
+| **MySQL**    | 8.0            | Base de datos           | https://dev.mysql.com/downloads/installer/ |
+| **VS Code**  | —              | Editor de código        | https://code.visualstudio.com/             |
 
 ### Extensiones de VS Code necesarias
 
@@ -60,17 +60,16 @@ Luego abre la carpeta `MVP-SITAD` en VS Code: `Archivo → Abrir carpeta` (o `Ct
 
 ### 2.1 Copiar configuración de ejecución
 
-El proyecto incluye un archivo de ejemplo con la configuración para ejecutar los servicios. Cópialo:
+El proyecto incluye un archivo de ejemplo con la configuración para ejecutar los servicios.
 
-```powershell
-Copy-Item .vscode\launch.json.example .vscode\launch.json
-```
-
-Esto crea el archivo `launch.json` que VS Code necesita para poder iniciar los servicios desde el panel "Run and Debug".
+1. Si no existe, crea una carpeta en la raíz del proyecto con el nombre ".vscode"
+2. Deja el archivo launch.json.example dentro de la carpeta y quita ".example"
+3. Debería quedar ".vscode/launch.json"
 
 ### 2.2 Abrir el panel Run and Debug
 
 Haz clic en el ícono de **reproducción ▶** en la barra lateral izquierda (o presiona `Ctrl+Shift+D`). Deberías ver 6 configuraciones numeradas del 1 al 6:
+
 - **1. Eureka Server**
 - **2. Gateway**
 - **3. Auth**
@@ -134,6 +133,7 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 ```
 
 **Qué hace este script:**
+
 - Crea el archivo `.env` (si no existe) basado en `.env.example`
 - Genera una clave secreta aleatoria para `JWT_SECRET`
 - Configura contraseñas por defecto para la base de datos y los usuarios
@@ -143,89 +143,18 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 
 ---
 
-## 5. Compilar la librería compartida
+## 5. Iniciar el backend (los 6 servicios)
 
-Varios servicios dependen de una librería común (`sitad-common`) que debe compilarse primero.
+### Inicio rápido desde la extensión de Spring Boot para VS Code
 
-En la terminal PowerShell (con las variables de entorno cargadas), ejecuta:
-
-```powershell
-cd sitad-common
-mvn clean install
-cd ..
-```
-
-**Qué deberías ver:** Al final, un mensaje `BUILD SUCCESS`. Si ves `BUILD FAILURE`, probablemente Maven no está bien instalado (revisa requisitos).
-
-> Este paso puede tardar 1-2 minutos la primera vez mientras descarga dependencias de internet. Las siguientes veces será más rápido.
-
----
-
-## 6. Iniciar el backend (los 6 servicios)
-
-### Asegurarse de que las variables están cargadas
-
-Antes de iniciar VS Code, abre una terminal PowerShell y carga las variables:
-
-```powershell
-.\scripts\cargar_env.ps1
-```
-
-Luego **abre VS Code desde esa misma terminal**:
-
-```powershell
-code .
-```
-
-Esto es importante porque VS Code hereda las variables de entorno de la terminal donde se abre.
-
-### Orden de arranque
-
-Ve al panel **Run and Debug** (`Ctrl+Shift+D`). Verás una lista con 6 configuraciones. Debes iniciarlas en este orden:
-
-#### Paso 6.1 — Eureka Server
-- En la lista desplegable, elige **"1. Eureka Server"**
-- Presiona el botón verde de reproducción ▶ (o `F5`)
-- Espera a que termine de arrancar. Lo sabrás cuando veas una barra de progreso naranja.
-
-**Verifica:** Abre http://localhost:8761 en tu navegador. Deberías ver el panel de Eureka (está en inglés, es normal).
-
-#### Paso 6.2 — Los 4 servicios (en paralelo)
-Ahora inicia estos 4 servicios. Puedes hacerlos **uno por uno** o en ventanas separadas:
-
-| Servicio | Configuración |
-|---|---|
-| Auth | **"3. Auth"** |
-| Vehicular | **"4. Vehicular"** |
-| Fiscalizacion | **"5. Fiscalizacion"** |
-| Servicio Externo | **"6. Servicio Externo"** |
-
-Para cada uno:
-- Elígelo en la lista desplegable del panel Run and Debug
-- Presiona el botón verde ▶
-
-**Espera** a que los 4 estén iniciados antes de continuar al siguiente paso. Cada uno tarda ~20-40 segundos. Puedes monitorear el progreso en la barra naranja de VS Code.
-
-#### Paso 6.3 — Gateway
-- Elige **"2. Gateway"** en la lista
-- Presiona el botón verde ▶
-
-**Espera** unos 20 segundos hasta que termine de iniciar.
-
-### Verificar que todo el backend funciona
-
-Abre http://localhost:8761 en tu navegador. Deberías ver **5 servicios registrados** en la tabla "Instances currently registered with Eureka":
-- `AUTH`, `VEHICULAR`, `FISCALIZACION`, `SERVICIO-EXTERNO`, `GATEWAY`
-
-Cada uno debe tener estado **"UP" (1)**.
-
-> Si ves menos servicios o algunos aparecen como "DOWN", espera 30 segundos más y recarga la página. Si persiste, ve a la sección de Solución de problemas.
-
----
+1. En la sección de APPS de la pestaña de la extensión de SpringBoot, si pasas el cursor sobre el nombre de los microservicios, aparecerá un botón de play.
+2. Pincha en play en todos los microservicios, menos en sitad-common.
+3. Luego de unos segundos, aparecerá un circulo verde en los microservicios levantados exitosamente.
+4. Los microservicios fiscalizacion, servicio-externo, vehicular y auth solo se pondrán en verde si eureka-server está ok.
 
 ## 7. Iniciar el frontend
 
-Abre una **nueva terminal PowerShell** (no cierres la anterior, el backend debe seguir corriendo). Carga las variables y ejecuta:
+En una nueva terminal, ve a la ruta del directorio frontend, instala y ejecuta.
 
 ```powershell
 cd frontend
@@ -243,11 +172,11 @@ npm run dev
 
 Abre estas URLs en tu navegador:
 
-| URL | Qué deberías ver |
-|---|---|
-| http://localhost:5173 | La página de inicio de SITAD con dos botones: "Pasajero" y "Funcionario" |
-| http://localhost:8761 | Panel de Eureka con 5 servicios "UP" |
-| http://localhost:8080/api/v1/auth/ping | Mensaje `{"mensaje":"ok"}` o similar |
+| URL                                    | Qué deberías ver                                                         |
+| -------------------------------------- | ------------------------------------------------------------------------ |
+| http://localhost:5173                  | La página de inicio de SITAD con dos botones: "Pasajero" y "Funcionario" |
+| http://localhost:8761                  | Panel de Eureka con 5 servicios "UP"                                     |
+| http://localhost:8080/api/v1/auth/ping | Mensaje `{"mensaje":"ok"}` o similar                                     |
 
 Si alguna no funciona, ve a la sección **Solución de problemas**.
 
@@ -259,10 +188,10 @@ Si alguna no funciona, ve a la sección **Solución de problemas**.
 
 Estos usuarios se crean automáticamente al iniciar AuthService:
 
-| Usuario | RUT | Contraseña (definida en .env) | Rol |
-|---|---|---|---|
-| Administrador SITAD | `11111111-1` | `Admin2026!`¹ | Pasajero + Funcionario |
-| Inspector Fronterizo | `22222222-2` | `Inspector2026!`¹ | Funcionario |
+| Usuario              | RUT          | Contraseña (definida en .env) | Rol                    |
+| -------------------- | ------------ | ----------------------------- | ---------------------- |
+| Administrador SITAD  | `11111111-1` | `Admin2026!`¹                 | Pasajero + Funcionario |
+| Inspector Fronterizo | `22222222-2` | `Inspector2026!`¹             | Funcionario            |
 
 ¹ Valor por defecto de `scripts/cargar_env.ps1`. Si cambiaste las variables en `.env`, usa esa contraseña.
 
@@ -270,10 +199,10 @@ Estos usuarios se crean automáticamente al iniciar AuthService:
 
 En el login de pasajero, ingresa solo el RUT (sin contraseña). El sistema simula la validación de ClaveÚnica:
 
-| RUT | Nombre | Vehículos asociados |
-|---|---|---|
+| RUT          | Nombre              | Vehículos asociados                                            |
+| ------------ | ------------------- | -------------------------------------------------------------- |
 | `12345678-5` | Juan Pérez González | `ABCD12` (Toyota Corolla 2020), `EFGH34` (Hyundai Tucson 2022) |
-| `98765432-1` | Marcela Soto López | `IJKL56` (Mitsubishi L200 2021) |
+| `98765432-1` | Marcela Soto López  | `IJKL56` (Mitsubishi L200 2021)                                |
 
 > Los RUTs de ciudadano solo funcionan cuando el backend se ejecuta con el perfil `dev` (activado por defecto en las configuraciones de VS Code para Auth y Servicio-Externo).
 
@@ -327,6 +256,7 @@ En el login de pasajero, ingresa solo el RUT (sin contraseña). El sistema simul
 ### "No se reconoce 'mvn' como un comando"
 
 Maven no está instalado o no está en el PATH. Verifica:
+
 - Descargaste Maven de https://maven.apache.org/download.cgi
 - Agregaste la carpeta `bin` de Maven a las variables de entorno del sistema
 - Reiniciaste VS Code después de instalarlo
@@ -334,6 +264,7 @@ Maven no está instalado o no está en el PATH. Verifica:
 ### "No se reconoce 'java' como un comando"
 
 El JDK no está instalado o no está configurado. Verifica:
+
 - Instalaste Java desde https://adoptium.net/ (elige Temurin 25)
 - La variable `JAVA_HOME` apunta a la carpeta de instalación de JDK
 - Agregaste `%JAVA_HOME%\bin` al PATH del sistema
