@@ -62,13 +62,27 @@ export default function Fiscalizacion() {
       if (match) {
         const solicitudId = match[1]
         detenerCamara()
-        navigate(`/funcionario/expedientes/${solicitudId}`)
+        setSearchId(solicitudId)
+        setLoading(true)
+        setTramite(null)
+        setAprobado(false)
+        setError('')
+        api.get(`/api/v1/fiscalizacion/tramites?id=${solicitudId}`)
+          .then(data => {
+            if (Array.isArray(data) && data.length > 0) {
+              setTramite(data[0])
+            } else {
+              setError('No se encontró ningún trámite con ese ID')
+            }
+          })
+          .catch(e => setError(e.message))
+          .finally(() => setLoading(false))
         return
       }
     }
 
     animFrameRef.current = requestAnimationFrame(escanearQR)
-  }, [navigate])
+  }, [setSearchId, setLoading, setTramite, setAprobado, setError])
 
   const activarCamara = async () => {
     try {
